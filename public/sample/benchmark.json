@@ -1,0 +1,12 @@
+{
+  "name": "Benchmark",
+  "timestamp": "2025-08-01T10:00:00Z",
+  "metrics": {
+    "responseTimeAvg": 120,
+    "responseTimeP95": 200,
+    "throughput": 500,
+    "errorRate": 0.5,
+    "cpu": 65,
+    "memory": 800
+  }
+}
