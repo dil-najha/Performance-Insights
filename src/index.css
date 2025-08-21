@@ -4,3 +4,57 @@
 
 html, body, #root { height: 100%; }
 body { @apply bg-base-100 text-base-content; }
+
+/* Simple fade-in-up animation using Tailwind + keyframes */
+@keyframes fade-in-up {
+	0% { opacity: 0; transform: translateY(8px); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+	animation: fade-in-up .4s ease-out both;
+}
+
+/* Animated gradient text for the brand */
+@keyframes hue-rotate {
+	0%   { filter: hue-rotate(0deg); }
+	100% { filter: hue-rotate(360deg); }
+}
+.text-gradient-animated {
+	background: linear-gradient(90deg, #22c55e, #06b6d4, #f59e0b, #f43f5e);
+	background-size: 300% 100%;
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	animation: hue-rotate 6s linear infinite;
+}
+
+/* Subtle glow for tagline */
+.text-glow {
+	color: #9ad8ff;
+	text-shadow: 0 0 8px rgba(14, 165, 233, 0.35);
+}
+
+/* Extra animations and utilities */
+@keyframes gradient-x {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
+}
+.animated-bar {
+	background: linear-gradient(90deg, #22c55e, #06b6d4, #f59e0b, #f43f5e);
+	background-size: 200% 100%;
+	animation: gradient-x 8s ease infinite;
+}
+
+@keyframes float {
+	0% { transform: translateY(0); }
+	50% { transform: translateY(-3px); }
+	100% { transform: translateY(0); }
+}
+.animate-float { animation: float 4s ease-in-out infinite; }
+
+@keyframes pop-in {
+	0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+	100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-pop { animation: pop-in .35s cubic-bezier(.21,.61,.35,1) both; }
