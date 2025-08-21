@@ -9,7 +9,7 @@ import HistoricalReports from './components/HistoricalReports';
 import ExportPanel from './components/ExportPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import type { PerformanceReport, SystemContext, EnhancedComparisonResult } from './types';
-import { compareReports, suggestionsFromDiffs } from './utils/compare';
+import { compareReports, suggestionsFromDiffs, computeImpact } from './utils/compare';
 import { aiService } from './services/secureAIService';
 import { AI_CONFIG, getPreferredProvider } from './config/ai';
 
@@ -131,44 +131,39 @@ export default function App() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen">
-        <div className="navbar bg-base-200 shadow">
-          <div className="container mx-auto px-4">
-            <div className="flex-1">
-              <span className="text-xl font-bold">Performance Dashboard</span>
-              <span className="ml-2 badge badge-primary badge-sm">AI-Powered</span>
+        <div className="animated-bar h-1 w-full"></div>
+        <div className="navbar bg-base-200/80 backdrop-blur shadow-md">
+          <div className="container mx-auto px-6 md:px-8 py-3">
+            <div className="flex-1 items-center gap-3 animate-fade-in-up">
+              <div className="flex items-center gap-6">
+                <img src="/shared%20image.jpg" alt="SpotLag.AI logo" className="h-12 w-auto rounded-md shadow hidden sm:block ring-1 ring-primary/20 animate-float" />
+                <div className="flex flex-col">
+                  <span className="text-2xl md:text-3xl font-black tracking-tight text-gradient-animated">SpotLag.AI</span>
+                  <span className="mt-1 text-[11px] sm:text-sm text-glow opacity-90">Spot the Lag, Squash the Bug</span>
+                </div>
+              </div>
               {lastAnalysisTime && (
-                <span className="ml-2 text-xs opacity-60">
-                  Last analysis: {lastAnalysisTime}
-                </span>
+                <span className="ml-2 text-xs opacity-60">Last analysis: {lastAnalysisTime}</span>
               )}
             </div>
-            <div className="flex-none gap-2">
+            <div className="flex-none gap-4 md:gap-5">
               <button 
-                className="btn btn-outline btn-sm" 
+                className="btn btn-outline btn-sm transition-all duration-200 hover:-translate-y-0.5 mr-2" 
                 onClick={() => setShowHistory(!showHistory)}
-              >
-                📊 History
-              </button>
+              >📊 History</button>
               <button 
-                className={`btn btn-primary btn-sm ${loadingSample ? 'loading' : ''}`} 
+                className={`btn btn-primary btn-sm transition-all duration-200 hover:-translate-y-0.5 ${loadingSample ? 'loading' : ''}`} 
                 onClick={loadSample} 
                 disabled={loadingSample}
-              >
-                {!loadingSample && '📄'} Load Sample
-              </button>
+              >{!loadingSample && '📄'} Load Sample</button>
               {(baseline || current) && (
-                <button 
-                  className="btn btn-ghost btn-sm" 
-                  onClick={clearData}
-                >
-                  🗑️ Clear
-                </button>
+                <button className="btn btn-ghost btn-sm transition-all duration-200 hover:-translate-y-0.5" onClick={clearData}>🗑️ Clear</button>
               )}
             </div>
           </div>
         </div>
 
-        <main className="container mx-auto px-4 py-6 space-y-6">
+        <main className="container mx-auto px-6 md:px-8 py-8 space-y-10">
           {/* Historical Reports Panel */}
           {showHistory && (
             <ErrorBoundary fallback={<div className="alert alert-warning">Failed to load historical reports</div>}>
@@ -187,12 +182,12 @@ export default function App() {
           </ErrorBoundary>
 
           {/* Upload Panels */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <ErrorBoundary fallback={<div className="alert alert-error">Upload panel error</div>}>
-              <UploadPanel label="Benchmark (Baseline)" onLoaded={setBaseline} />
+        <div className="animate-pop"><UploadPanel label="Benchmark (Baseline)" onLoaded={setBaseline} /></div>
             </ErrorBoundary>
             <ErrorBoundary fallback={<div className="alert alert-error">Upload panel error</div>}>
-              <UploadPanel label="Normal (Current)" onLoaded={setCurrent} />
+        <div className="animate-pop" style={{animationDelay:'80ms'}}><UploadPanel label="Normal (Current)" onLoaded={setCurrent} /></div>
             </ErrorBoundary>
           </div>
 
@@ -262,7 +257,7 @@ export default function App() {
           {baseline && current && result && (
             <>
               {/* Summary Stats */}
-              <div className="stats shadow bg-base-200 w-full">
+              <div className="stats stats-vertical md:stats-horizontal shadow-lg rounded-xl bg-base-200/80 backdrop-blur w-full animate-pop">
                 <div className="stat">
                   <div className="stat-title">Improved</div>
                   <div className="stat-value text-success">{result.summary.improved}</div>
@@ -293,35 +288,72 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Impact Summary (numeric emphasis) */}
+              {(() => {
+                const impact = computeImpact(result);
+                return (
+                  <div className="card bg-base-100 shadow-lg border border-primary/20 animate-pop">
+                    <div className="card-body py-4 px-5">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="card-title text-sm">📈 Impact Summary</h3>
+                        <span className="badge badge-primary badge-sm">Numbers</span>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div>
+                          <div className="text-xs opacity-70">Net Score</div>
+                          <div className={`text-lg font-bold ${impact.netImprovementScore >= 0 ? 'text-success' : 'text-error'}`}>{impact.netImprovementScore}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs opacity-70">Avg % Gain</div>
+                          <div className="text-lg font-bold">{impact.avgPctImprovement !== null ? `${impact.avgPctImprovement}%` : '—'}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs opacity-70">Latency Saved</div>
+                          <div className="text-lg font-bold">{impact.latencyImprovementMs !== null ? `${impact.latencyImprovementMs} ms` : '—'}</div>
+                          {impact.latencyImprovementPct !== null && (
+                            <div className="text-[10px] opacity-60">({impact.latencyImprovementPct}% faster)</div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-xs opacity-70">Time / 1k Req</div>
+                          <div className="text-lg font-bold">{impact.estTimeSavedPer1kRequestsMs !== null ? `${impact.estTimeSavedPer1kRequestsMs} ms` : '—'}</div>
+                        </div>
+                        <div className="col-span-2 md:col-span-4">
+                          <div className="text-xs opacity-70">Suggestion Effectiveness</div>
+                          <div className="text-base font-semibold">{impact.suggestionEffectivenessPct !== null ? `${impact.suggestionEffectivenessPct}% of affected metrics improved` : '—'}</div>
+                        </div>
+                      </div>
+                      <p className="mt-3 text-[10px] leading-tight opacity-60">Estimates derived from metric deltas. Latency savings use primary response-time metric. Suggestion effectiveness is the share of changed metrics that improved. Treat as directional, validate in production.</p>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* AI Insights (if enabled) */}
               {aiEnabled && (
                 <ErrorBoundary fallback={<div className="alert alert-warning">AI insights unavailable</div>}>
-                  <AIInsights 
-                    insights={result.aiInsights || []}
-                    explanation={result.explanation}
-                    loading={aiLoading}
-                  />
+                  <div className="animate-pop"><AIInsights insights={result.aiInsights || []} explanation={result.explanation} loading={aiLoading} /></div>
                 </ErrorBoundary>
               )}
 
               {/* Charts */}
               <ErrorBoundary fallback={<div className="alert alert-warning">Chart display error</div>}>
-                <MetricDiffChart diffs={result.diffs} />
+                <div className="card bg-base-100 shadow-lg p-4 animate-pop"><MetricDiffChart diffs={result.diffs} /></div>
               </ErrorBoundary>
               
               {/* Detailed Table */}
               <ErrorBoundary fallback={<div className="alert alert-warning">Table display error</div>}>
-                <DiffTable diffs={result.diffs} />
+                <div className="card bg-base-100 shadow-lg p-4 animate-pop"><DiffTable diffs={result.diffs} /></div>
               </ErrorBoundary>
 
               {/* Export Panel */}
               <ErrorBoundary fallback={<div className="alert alert-warning">Export unavailable</div>}>
-                <ExportPanel data={result} />
+                <div className="animate-pop"><ExportPanel data={result} /></div>
               </ErrorBoundary>
               
               {/* Traditional Suggestions (fallback) */}
               <ErrorBoundary fallback={<div className="alert alert-warning">Suggestions unavailable</div>}>
-                <Suggestions tips={tips} />
+                <div className="animate-pop"><Suggestions tips={tips} /></div>
               </ErrorBoundary>
               
               {/* AI Predictions (if available) */}
@@ -355,7 +387,7 @@ export default function App() {
           )}
 
           {(!baseline || !current) && (
-            <div className="alert">
+            <div className="alert shadow rounded-xl animate-pop">
               <div>
                 <h3 className="font-bold">Ready to analyze performance!</h3>
                 <div className="text-sm space-y-1">
@@ -367,6 +399,30 @@ export default function App() {
               </div>
             </div>
           )}
+          {/* About */}
+          <section className="card bg-gradient-to-r from-cyan-200 via-blue-100 to-amber-100 shadow-lg rounded-xl animate-pop mt-8">
+            <div className="card-body py-2 px-4">
+              <h3 className="card-title text-sm font-bold text-blue-700">About</h3>
+              <p className="text-xs text-blue-900 font-medium">SpotLag.AI: Instantly spot lag, fix bugs faster. AI-powered insights, simple results.</p>
+              <ul className="mt-1 text-[11px] text-blue-900 leading-snug space-y-0.5 list-disc list-inside">
+                <li>Nandan Jha – Lead, Test Suite & Overall Flow</li>
+                <li>Satish Taji – Backend</li>
+                <li>Rahul Saini – Frontend</li>
+                <li>Shivendra Shukla – Frontend</li>
+                <li>Shiva Allu – Documentation and Backend</li>
+              </ul>
+            </div>
+          </section>
+          {/* Disclaimer */}
+          <section className="card bg-base-100 border border-warning/40 rounded-xl shadow-md animate-pop mt-4">
+            <div className="card-body py-2 px-4">
+              <h3 className="card-title text-sm font-bold text-warning">Disclaimer</h3>
+              <ul className="text-xs text-slate-700 leading-snug list-disc list-inside space-y-0.5">
+                <li>Insights are AI-generated and may be incomplete or inaccurate.</li>
+                <li>Do not upload sensitive data; prefer sanitized metrics/logs.</li>
+              </ul>
+            </div>
+          </section>
         </main>
       </div>
     </ErrorBoundary>

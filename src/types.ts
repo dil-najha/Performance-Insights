@@ -61,3 +61,16 @@ export interface EnhancedComparisonResult extends ComparisonResult {
   explanation?: string;
   predictions?: AIInsight[];
 }
+
+// 📈 Derived impact metrics for emphasizing numeric value
+export interface ImpactSummary {
+  improvedMetrics: number;
+  worseMetrics: number;
+  sameMetrics: number;
+  avgPctImprovement: number | null; // average percent improvement across improved metrics
+  netImprovementScore: number; // improved - worse
+  latencyImprovementMs: number | null; // (baseline - current) for primary latency metric if improved
+  latencyImprovementPct: number | null; // percent change for primary latency metric
+  estTimeSavedPer1kRequestsMs: number | null; // latencyImprovementMs * 1000 when available
+  suggestionEffectivenessPct: number | null; // heuristic: improved / (improved + worse)
+}
