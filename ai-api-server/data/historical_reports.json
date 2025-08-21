@@ -1,0 +1,206 @@
+[
+  {
+    "id": "1755771775493",
+    "timestamp": "2025-08-21T10:22:55.493Z",
+    "baseline": {
+      "name": "Benchmark",
+      "timestamp": "2025-08-01T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 120,
+        "responseTimeP95": 200,
+        "throughput": 500,
+        "errorRate": 0.5,
+        "cpu": 65,
+        "memory": 800
+      }
+    },
+    "current": {
+      "name": "Current",
+      "timestamp": "2025-08-15T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 110,
+        "responseTimeP95": 140,
+        "throughput": 460,
+        "errorRate": 1.2,
+        "cpu": 25,
+        "memory": 950
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in Error Rate (%)",
+        "description": "Error Rate (%) has degraded by 140.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "errorRate"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 3,
+      "worse": 3,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755771716139",
+    "timestamp": "2025-08-21T10:21:56.139Z",
+    "baseline": {
+      "name": "Benchmark",
+      "timestamp": "2025-08-01T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 120,
+        "responseTimeP95": 200,
+        "throughput": 500,
+        "errorRate": 0.5,
+        "cpu": 65,
+        "memory": 800
+      }
+    },
+    "current": {
+      "name": "Current",
+      "timestamp": "2025-08-15T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 110,
+        "responseTimeP95": 140,
+        "throughput": 460,
+        "errorRate": 1.2,
+        "cpu": 25,
+        "memory": 950
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in Error Rate (%)",
+        "description": "Error Rate (%) has degraded by 140.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "errorRate"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 3,
+      "worse": 3,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755771709456",
+    "timestamp": "2025-08-21T10:21:49.456Z",
+    "baseline": {
+      "name": "Benchmark",
+      "timestamp": "2025-08-01T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 120,
+        "responseTimeP95": 200,
+        "throughput": 500,
+        "errorRate": 0.5,
+        "cpu": 65,
+        "memory": 800
+      }
+    },
+    "current": {
+      "name": "Current",
+      "timestamp": "2025-08-15T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 110,
+        "responseTimeP95": 140,
+        "throughput": 460,
+        "errorRate": 1.2,
+        "cpu": 25,
+        "memory": 950
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in Error Rate (%)",
+        "description": "Error Rate (%) has degraded by 140.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "errorRate"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 3,
+      "worse": 3,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755771328831",
+    "timestamp": "2025-08-21T10:15:28.831Z",
+    "baseline": {
+      "name": "Benchmark",
+      "timestamp": "2025-08-01T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 120,
+        "responseTimeP95": 200,
+        "throughput": 500,
+        "errorRate": 0.5,
+        "cpu": 65,
+        "memory": 800
+      }
+    },
+    "current": {
+      "name": "Current",
+      "timestamp": "2025-08-15T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 110,
+        "responseTimeP95": 140,
+        "throughput": 460,
+        "errorRate": 1.2,
+        "cpu": 25,
+        "memory": 950
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in Error Rate (%)",
+        "description": "Error Rate (%) has degraded by 140.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "errorRate"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 3,
+      "worse": 3,
+      "same": 0,
+      "unknown": 0
+    }
+  }
+]
