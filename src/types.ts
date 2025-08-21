@@ -46,7 +46,7 @@ export interface SystemContext {
   selectedModel?: string;
   deployment_id?: string;
   
-  // ✅ NEW CUSTOM CONTEXT FIELDS FOR BETTER AI RESULTS
+  // ✅ CUSTOM CONTEXT FIELDS FOR BETTER AI RESULTS
   business_criticality?: 'low' | 'medium' | 'high' | 'critical';
   recent_changes?: string;
   performance_goals?: string;
@@ -54,6 +54,9 @@ export interface SystemContext {
   custom_focus?: string;
   team?: 'frontend' | 'backend' | 'devops' | 'fullstack';
   urgency?: 'low' | 'medium' | 'high' | 'emergency';
+  
+  // ✅ NEW: Advanced Context For AI (Optional)
+  advanced_context?: string;
 }
 
 export interface EnhancedComparisonResult extends ComparisonResult {

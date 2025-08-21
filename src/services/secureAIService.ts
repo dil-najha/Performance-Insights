@@ -1,6 +1,5 @@
 // Secure AI Service Layer for Performance Insights
 import type { MetricDiff, PerformanceReport, AIInsight, SystemContext, EnhancedComparisonResult } from '../types';
-import { openRouterService } from './openRouterService';
 import { getPreferredProvider, validateAIConfig } from '../config/ai';
 import { compareReports } from '../utils/compare';
 
@@ -12,7 +11,7 @@ export class SecureAIService {
 
   constructor() {
     this.baseUrl = import.meta.env.VITE_AI_API_BASE_URL || 'http://localhost:3001/api';
-    this.apiKey = import.meta.env.VITE_API_SECRET_KEY || 'dev-secure-api-key-for-performance-insights-2025';
+    this.apiKey = import.meta.env.VITE_API_SECRET_KEY || 'generate_secure_random_key_here_minimum_32_chars';
     this.cache = new Map();
 
     // Log provider configuration
@@ -84,7 +83,7 @@ export class SecureAIService {
   }
 
   /**
-   * Intelligent provider routing - uses OpenRouter first, falls back to backend API
+   * Secure provider routing - always uses backend for AI processing
    */
   private async routeToProvider(
     baseline: PerformanceReport,
@@ -93,33 +92,22 @@ export class SecureAIService {
   ): Promise<EnhancedComparisonResult> {
     const provider = getPreferredProvider();
     
-    console.log(`🎯 Using AI provider: ${provider}`);
+    console.log(`🎯 Using secure provider: ${provider}`);
 
     switch (provider) {
-      case 'openrouter':
+      case 'backend':
         try {
-          console.log('🌟 Using OpenRouter with free models only...');
-          const result = await openRouterService.analyzePerformance(baseline, current, systemContext);
-          console.log('✅ OpenRouter analysis successful');
-          return result;
+          console.log('🔒 Using secure backend for AI processing...');
+          return await this.analyzeViaBackend(baseline, current, systemContext);
         } catch (error) {
-          console.error('❌ OpenRouter failed - NO FALLBACK to prevent gpt-4o usage:', error);
-          // Return basic analysis instead of falling back to backend
-          const basicResult = compareReports(baseline, current);
-          return {
-            ...basicResult,
-            explanation: 'Analysis completed using basic algorithms (OpenRouter failed, no fallback to prevent paid model usage)'
-          };
+          console.error('❌ Backend AI analysis failed, falling back to local:', error);
+          return this.fallbackAnalysis(baseline, current);
         }
 
       case 'local':
       default:
-        console.log('🏠 Using local analysis only (no API keys available)...');
-        const basicResult = compareReports(baseline, current);
-        return {
-          ...basicResult,
-          explanation: 'Analysis completed using basic algorithms (no AI API keys configured)'
-        };
+        console.log('🏠 Using local analysis only...');
+        return this.fallbackAnalysis(baseline, current);
     }
   }
 

@@ -15,7 +15,7 @@ SITE_NAME=Performance Insights Dashboard
 # === Server Configuration ===
 PORT=3001
 FRONTEND_URL=http://localhost:5173
-API_SECRET_KEY=dev-secure-api-key-for-performance-insights-2025
+API_SECRET_KEY=generate_secure_random_key_here_minimum_32_chars
 
 # === Environment ===
 NODE_ENV=development

@@ -165,72 +165,23 @@ fetch("https://openrouter.ai/api/v1/chat/completions", {
 });
  
 
+## 🔧 **Configuration Notes**
 
- # Node dependencies
-node_modules/
-# Build output
-/dist/
-/build/
-.tmp/
-.temp/
+- All models above are **FREE** tier models available on OpenRouter
+- Replace `<OPENROUTER_API_KEY>` with your actual API key from https://openrouter.ai/keys
+- Add your site URL and title for better rankings on OpenRouter.ai
+- These models are configured in the Performance Insights Dashboard
 
-# Vite cache
-.vite/
-node_modules/.vite/
+## 🚀 **Performance Insights Integration**
 
-# TypeScript
-*.tsbuildinfo
+The dashboard automatically handles:
+- Model selection via frontend dropdown
+- Secure API key management via backend
+- Automatic fallback between models
+- Comprehensive error handling
 
-# Testing / Coverage
-coverage/
-.nyc_output/
+## 🎯 **Recommended Models for Performance Analysis**
 
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Diagnostic reports
-report.*.json
-
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# Environment variables
-.env
-.env.*
-!.env.example
-!.env*.example
-
-# Editor and IDE folders
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-.idea/
-.history/
-
-# OS junk
-.DS_Store
-Thumbs.db
-
-# Lint cache
-.eslintcache
-
-# Backend data storage
-ai-api-server/data/
-ai-api-server/logs/
-
-# Production builds
-*.tgz
-*.tar.gz
-
-# Temporary files
-.cache/
-.parcel-cache/
+1. **DeepSeek V3** - Best for complex performance analysis
+2. **DeepSeek R1** - Enhanced reasoning for root cause analysis  
+3. **Gemini 2.0 Flash** - Fast processing for quick insights
