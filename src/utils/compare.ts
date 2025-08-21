@@ -11,14 +11,63 @@ const friendlyLabels: Record<string, string> = {
   failures: 'Failures (%)',
   cpu: 'CPU (%)',
   memory: 'Memory (MB)',
+  
+  // 🎯 Core Web Vitals (Critical for UX)
+  fcp_avg_ms: 'First Contentful Paint - Avg (ms)',
+  fcp_p95_ms: 'First Contentful Paint - p95 (ms)',
+  lcp_avg_ms: 'Largest Contentful Paint - Avg (ms)',
+  lcp_p95_ms: 'Largest Contentful Paint - p95 (ms)',
+  cls_avg: 'Cumulative Layout Shift',
+  fid_avg_ms: 'First Input Delay - Avg (ms)',
+  fid_p95_ms: 'First Input Delay - p95 (ms)',
+  inp_avg_ms: 'Interaction to Next Paint - Avg (ms)',
+  inp_p95_ms: 'Interaction to Next Paint - p95 (ms)',
+  ttfb_avg_ms: 'Time to First Byte - Avg (ms)',
+  ttfb_p95_ms: 'Time to First Byte - p95 (ms)',
+  
+  // 🚀 Load Performance
+  page_load_avg_ms: 'Page Load Time - Avg (ms)',
+  page_load_p95_ms: 'Page Load Time - p95 (ms)',
+  navigation_avg_ms: 'Navigation Time (ms)',
+  login_avg_ms: 'Login Time - Avg (ms)',
+  login_p95_ms: 'Login Time - p95 (ms)',
+  
+  // 🌐 HTTP Performance
+  http_req_avg_ms: 'HTTP Request Duration - Avg (ms)',
+  http_req_p95_ms: 'HTTP Request Duration - p95 (ms)',
+  http_req_failed_rate: 'HTTP Failed Request Rate (%)',
+  
+  // ✅ Success Rates
+  successful_requests_rate: 'Successful Request Rate (%)',
+  error_rate: 'Error Rate (%)',
+  checks_rate: 'Check Success Rate (%)',
+  checks_success_rate: 'Overall Check Success Rate (%)',
+  
+  // 📊 Context Metrics
+  checks_total_passes: 'Total Check Passes',
+  checks_total_fails: 'Total Check Fails',
+  total_iterations: 'Total Test Iterations',
+  total_requests: 'Total HTTP Requests',
 };
 
-const lowerIsBetter = /(latency|response|time|p\d+|error|fail|cpu|mem(ory)?)/i;
-const higherIsBetter = /(throughput|rps|tps|success|pass)/i;
+const lowerIsBetter = /(latency|response|time|duration|p\d+|error|fail|cpu|mem(ory)?|fcp|lcp|fid|inp|ttfb|cls|load)/i;
+const higherIsBetter = /(throughput|rps|tps|success|pass|rate(?!.*fail|error))/i;
 
 function betterWhenForKey(key: string): 'lower' | 'higher' {
+  // Special cases for rates - most rates should be higher except error/fail rates
+  if (key.includes('rate') || key.includes('success') || key.includes('pass')) {
+    if (/(error|fail|http.*failed)/i.test(key)) return 'lower';
+    return 'higher';
+  }
+  
+  // CLS (Cumulative Layout Shift) should be lower
+  if (key.includes('cls')) return 'lower';
+  
   if (higherIsBetter.test(key)) return 'higher';
-  return 'lowerIsBetter'.includes('true') && lowerIsBetter.test(key) ? 'lower' : 'lower';
+  if (lowerIsBetter.test(key)) return 'lower';
+  
+  // Default to lower for performance metrics
+  return 'lower';
 }
 
 function labelForKey(key: string): string {
@@ -116,9 +165,12 @@ export function suggestionsFromDiffs(diffs: MetricDiff[]): string[] {
   const anyWorse = (regex: RegExp, thresholdPct = 5) =>
     diffs.some(d => regex.test(d.key) && d.trend === 'worse' && (d.pct === null || Math.abs(d.pct) >= thresholdPct));
 
-  if (anyWorse(/response|latency|p95|p99|time/i)) {
+  if (anyWorse(/response|latency|p95|p99|time|duration|fcp|lcp|ttfb|load/i)) {
     tips.add('Optimize slow endpoints: add caching (CDN/app), reduce payloads, and batch or parallelize dependent calls.');
     tips.add('Investigate database hotspots: add indexes, analyze slow queries, and consider pagination.');
+    if (anyWorse(/fcp|lcp|ttfb/i)) {
+      tips.add('Core Web Vitals optimization: compress images, minify CSS/JS, use a CDN, and optimize server response times.');
+    }
   }
 
   if (anyWorse(/throughput|rps|tps/i)) {
@@ -126,9 +178,22 @@ export function suggestionsFromDiffs(diffs: MetricDiff[]): string[] {
     tips.add('Enable keep-alive and connection pooling to reduce overhead.');
   }
 
-  if (anyWorse(/error|fail/i)) {
+  if (anyWorse(/error|fail|http.*failed/i)) {
     tips.add('Add circuit breakers, timeouts, and retries to improve resiliency.');
     tips.add('Check dependency health (DB, cache, 3rd-party) and increase capacity or rate limits.');
+    if (anyWorse(/check.*fail|checks.*rate/i)) {
+      tips.add('Review test assertions and ensure application logic matches expected behavior.');
+    }
+  }
+
+  if (anyWorse(/fid|inp/i)) {
+    tips.add('Improve interactivity: reduce JavaScript execution time, defer non-critical scripts, and optimize event handlers.');
+    tips.add('Consider code splitting and lazy loading to reduce initial bundle size.');
+  }
+
+  if (anyWorse(/cls/i)) {
+    tips.add('Fix layout shifts: set explicit dimensions for images/videos, avoid inserting content above existing content, and use CSS transforms.');
+    tips.add('Preload critical fonts and use font-display: swap to prevent invisible text periods.');
   }
 
   if (anyWorse(/cpu/i)) {

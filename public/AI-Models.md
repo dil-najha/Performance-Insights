@@ -164,3 +164,73 @@ fetch("https://openrouter.ai/api/v1/chat/completions", {
   })
 });
  
+
+
+ # Node dependencies
+node_modules/
+# Build output
+/dist/
+/build/
+.tmp/
+.temp/
+
+# Vite cache
+.vite/
+node_modules/.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing / Coverage
+coverage/
+.nyc_output/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Diagnostic reports
+report.*.json
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env*.example
+
+# Editor and IDE folders
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.history/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Lint cache
+.eslintcache
+
+# Backend data storage
+ai-api-server/data/
+ai-api-server/logs/
+
+# Production builds
+*.tgz
+*.tar.gz
+
+# Temporary files
+.cache/
+.parcel-cache/
