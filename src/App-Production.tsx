@@ -179,6 +179,8 @@ export default function App() {
               <SystemContextPanel 
                 context={systemContext} 
                 onContextChange={setSystemContext}
+                aiEnabled={aiEnabled}
+                onAIToggle={toggleAI}
               />
             </ErrorBoundary>
           )}

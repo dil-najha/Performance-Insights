@@ -1,4 +1,4 @@
-import type { PerformanceReport, ComparisonResult, MetricDiff } from '../types';
+import type { PerformanceReport, ComparisonResult, MetricDiff, ImpactSummary } from '../types';
 
 const friendlyLabels: Record<string, string> = {
   responseTimeAvg: 'Avg Response Time (ms)',
@@ -147,4 +147,66 @@ export function suggestionsFromDiffs(diffs: MetricDiff[]): string[] {
   }
 
   return Array.from(tips);
+}
+
+// Derive an ImpactSummary to quantify improvements
+export function computeImpact(result: ComparisonResult): ImpactSummary {
+  const { diffs, summary } = result;
+  const improved = diffs.filter(d => d.trend === 'improved');
+  const worse = diffs.filter(d => d.trend === 'worse');
+
+  // Latency / response primary metric preference order
+  const latencyKeyOrder = [
+    'responseTimeAvg',
+    'latencyAvg',
+    'responseTimeP95',
+    'responseTimeP99'
+  ];
+  let latencyDiff: MetricDiff | undefined;
+  for (const key of latencyKeyOrder) {
+    latencyDiff = diffs.find(d => d.key === key);
+    if (latencyDiff) break;
+  }
+
+  let latencyImprovementMs: number | null = null;
+  let latencyImprovementPct: number | null = null;
+  if (latencyDiff && typeof latencyDiff.change === 'number' && typeof latencyDiff.baseline === 'number' && typeof latencyDiff.current === 'number') {
+    // For lower-is-better latency metrics, improvement means negative change
+    const isImproved = latencyDiff.trend === 'improved';
+    if (isImproved) {
+      latencyImprovementMs = latencyDiff.baseline - latencyDiff.current; // positive number when improved
+      latencyImprovementPct = latencyDiff.pct !== null ? -latencyDiff.pct : null; // pct is current-baseline / baseline *100; invert sign for improvement display
+    }
+  }
+
+  const pctImprovements: number[] = improved
+    .filter(d => d.pct !== null)
+    .map(d => {
+      // For improvements where lower is better we want positive numbers
+      return d.betterWhen === 'lower' ? -(d.pct as number) : (d.pct as number);
+    })
+    .filter(v => v > 0);
+  const avgPctImprovement = pctImprovements.length
+    ? pctImprovements.reduce((a, b) => a + b, 0) / pctImprovements.length
+    : null;
+
+  const estTimeSavedPer1kRequestsMs = latencyImprovementMs !== null
+    ? Math.round(latencyImprovementMs * 1000)
+    : null;
+
+  const suggestionEffectivenessPct = (improved.length + worse.length) > 0
+    ? Number(((improved.length / (improved.length + worse.length)) * 100).toFixed(1))
+    : null;
+
+  return {
+    improvedMetrics: summary.improved,
+    worseMetrics: summary.worse,
+    sameMetrics: summary.same,
+    avgPctImprovement: avgPctImprovement !== null ? Number(avgPctImprovement.toFixed(1)) : null,
+    netImprovementScore: summary.improved - summary.worse,
+    latencyImprovementMs: latencyImprovementMs !== null ? Number(latencyImprovementMs.toFixed(2)) : null,
+    latencyImprovementPct: latencyImprovementPct !== null ? Number(latencyImprovementPct.toFixed(2)) : null,
+    estTimeSavedPer1kRequestsMs,
+    suggestionEffectivenessPct,
+  };
 }
