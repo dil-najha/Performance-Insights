@@ -1,0 +1,12 @@
+{
+  "name": "Current Performance Test",
+  "timestamp": "2025-08-21T10:00:00Z",
+  "metrics": {
+    "responseTimeAvg": 180,
+    "responseTimeP95": 320,
+    "throughput": 450,
+    "errorRate": 2.1,
+    "cpu": 85,
+    "memory": 1200
+  }
+}

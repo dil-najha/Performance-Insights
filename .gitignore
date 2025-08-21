@@ -55,3 +55,15 @@ Thumbs.db
 
 # Lint cache
 .eslintcache
+
+# Backend data storage
+ai-api-server/data/
+ai-api-server/logs/
+
+# Production builds
+*.tgz
+*.tar.gz
+
+# Temporary files
+.cache/
+.parcel-cache/

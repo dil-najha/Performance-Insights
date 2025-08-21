@@ -112,13 +112,6 @@ export default function App() {
     setCurrent(null);
     setResult(null);
     setLastAnalysisTime('');
-    // Clear any cached data
-    aiService.clearCache();
-    // Clear localStorage if any exists
-    localStorage.removeItem('performanceBaseline');
-    localStorage.removeItem('performanceCurrent');
-    localStorage.removeItem('performanceResults');
-    console.log('🗑️ All data cleared');
   };
 
   return (
@@ -305,17 +298,6 @@ export default function App() {
                     <p>🤖 AI analysis will provide enhanced insights and predictions</p>
                   )}
                   <p>📊 View historical reports to compare past analyses</p>
-                  {/* Debug information */}
-                  <details className="mt-4">
-                    <summary className="text-xs opacity-50 cursor-pointer">🔍 Debug Info</summary>
-                    <div className="text-xs opacity-60 mt-2 p-2 bg-base-300 rounded">
-                      <p>Baseline: {baseline ? '✅ Loaded' : '❌ Not loaded'}</p>
-                      <p>Current: {current ? '✅ Loaded' : '❌ Not loaded'}</p>
-                      <p>Result: {result ? '✅ Available' : '❌ No results'}</p>
-                      <p>AI Enabled: {aiEnabled ? '✅ Yes' : '❌ No'}</p>
-                      <p>Loading: {aiLoading ? '⏳ Yes' : '✅ No'}</p>
-                    </div>
-                  </details>
                 </div>
               </div>
             </div>
