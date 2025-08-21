@@ -37,4 +37,5 @@ export class AIEnhancedComparison {
 }
 
 // Export singleton instance
+//changed comments
 export const aiComparer = new AIEnhancedComparison();
