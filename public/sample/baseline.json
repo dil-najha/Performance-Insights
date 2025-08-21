@@ -1,0 +1,212 @@
+{
+  "root_group": {
+    "name": "",
+    "path": "",
+    "id": "",
+    "groups": [],
+    "checks": [
+      {
+        "path": "::Navigation successful",
+        "id": "",
+        "passes": 10,
+        "fails": 0,
+        "name": "Navigation successful"
+      },
+      {
+        "name": "Login successful",
+        "path": "::Login successful",
+        "id": "",
+        "passes": 10,
+        "fails": 0
+      },
+      {
+        "name": "Auth tokens updated",
+        "path": "::Auth tokens updated",
+        "id": "",
+        "passes": 10,
+        "fails": 0
+      },
+      {
+        "fails": 0,
+        "name": "Page title is correct",
+        "path": "::Page title is correct",
+        "id": "",
+        "passes": 10
+      }
+    ]
+  },
+  "metrics": {
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 1.0,
+        "passes": 40,
+        "fails": 0
+      }
+    },
+    "browser_http_req_failed": {
+      "contains": "default",
+      "values": {
+        "rate": 0.001,
+        "passes": 999,
+        "fails": 1
+      },
+      "type": "rate"
+    },
+    "browser_web_vital_inp": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 80,
+        "min": 50,
+        "med": 75,
+        "max": 120,
+        "p(90)": 110,
+        "p(95)": 115
+      }
+    },
+    "navigation_time": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "avg": 1200,
+        "min": 800,
+        "med": 1100,
+        "max": 1800,
+        "p(90)": 1600,
+        "p(95)": 1700
+      }
+    },
+    "successful_requests": {
+      "contains": "default",
+      "values": {
+        "rate": 0.98,
+        "passes": 98,
+        "fails": 2
+      },
+      "thresholds": {
+        "rate>0.9": {
+          "ok": true
+        }
+      },
+      "type": "rate"
+    },
+    "browser_http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 250.5,
+        "min": 80.2,
+        "med": 220.3,
+        "max": 450.8,
+        "p(90)": 380.5,
+        "p(95)": 420.7
+      }
+    },
+    "browser_web_vital_fid": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 45,
+        "min": 20,
+        "med": 40,
+        "max": 80,
+        "p(90)": 70,
+        "p(95)": 75
+      }
+    },
+    "browser_web_vital_cls": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "max": 0.05,
+        "p(90)": 0.04,
+        "p(95)": 0.045,
+        "avg": 0.025,
+        "min": 0.001,
+        "med": 0.02
+      }
+    },
+    "page_load_time": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "avg": 2800,
+        "min": 2200,
+        "med": 2700,
+        "max": 3500,
+        "p(90)": 3200,
+        "p(95)": 3300
+      }
+    },
+    "errors": {
+      "thresholds": {
+        "rate<0.1": {
+          "ok": true
+        }
+      },
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.02,
+        "passes": 98,
+        "fails": 2
+      }
+    },
+    "browser_web_vital_fcp": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 1200,
+        "min": 800,
+        "med": 1150,
+        "max": 1600,
+        "p(90)": 1500,
+        "p(95)": 1550
+      }
+    },
+    "browser_web_vital_lcp": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 1800,
+        "min": 1200,
+        "med": 1750,
+        "max": 2400,
+        "p(90)": 2200,
+        "p(95)": 2300
+      }
+    },
+    "login_time": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "avg": 1800,
+        "min": 1200,
+        "med": 1700,
+        "max": 2500,
+        "p(90)": 2200,
+        "p(95)": 2400
+      },
+      "thresholds": {
+        "p(95)<5000": {
+          "ok": true
+        }
+      }
+    },
+    "browser_web_vital_ttfb": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 500,
+        "avg": 350,
+        "min": 200,
+        "med": 320,
+        "max": 580,
+        "p(90)": 450
+      }
+    }
+
+    }
+  }
