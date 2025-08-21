@@ -1,6 +1,27 @@
 // Data validation utilities for performance reports
 import type { PerformanceReport } from '../types';
 
+// K6 specific types
+export interface K6Metric {
+  type: 'rate' | 'trend' | 'counter' | 'gauge';
+  contains: 'default' | 'time' | 'data';
+  values: Record<string, number>;
+  thresholds?: Record<string, { ok: boolean }>;
+}
+
+export interface K6Report {
+  metrics: Record<string, K6Metric>;
+  root_group?: {
+    checks: Array<{
+      name: string;
+      passes: number;
+      fails: number;
+    }>;
+  };
+  options?: any;
+  state?: any;
+}
+
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
@@ -22,6 +43,12 @@ export class DataValidator {
       };
     }
 
+    // Check if this is a K6 report format
+    if (this.isK6Format(data)) {
+      warnings.push('Detected K6 performance test format - converting to standard format');
+      return this.validateK6Report(data, reportName);
+    }
+
     // Check if it has metrics property
     if (!data.metrics && !this.isFlat(data)) {
       errors.push('Missing "metrics" property in report structure');
@@ -31,7 +58,14 @@ export class DataValidator {
     let metrics: Record<string, number> = {};
     
     if (data.metrics && typeof data.metrics === 'object') {
-      metrics = data.metrics;
+      // Check if metrics are already in simple format
+      if (this.isSimpleMetrics(data.metrics)) {
+        metrics = data.metrics;
+      } else {
+        // Try to extract from complex metrics structure
+        metrics = this.extractSimpleMetrics(data.metrics);
+        warnings.push('Extracted metrics from complex structure');
+      }
     } else if (this.isFlat(data)) {
       // If it's a flat object, treat top-level numeric values as metrics
       metrics = this.extractMetricsFromFlat(data);
@@ -65,6 +99,223 @@ export class DataValidator {
       warnings,
       sanitized
     };
+  }
+
+  // Check if data is in K6 format
+  private static isK6Format(data: any): boolean {
+    return data && 
+           typeof data === 'object' && 
+           data.metrics && 
+           typeof data.metrics === 'object' &&
+           Object.values(data.metrics).some((metric: any) => 
+             metric && 
+             typeof metric === 'object' && 
+             metric.type && 
+             metric.values &&
+             ['rate', 'trend', 'counter', 'gauge'].includes(metric.type)
+           );
+  }
+
+  // Validate K6 format and convert to standard format
+  private static validateK6Report(data: K6Report, reportName: string): ValidationResult {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    const extractedMetrics: Record<string, number> = {};
+
+    try {
+      // Define critical metrics we want to extract
+      const criticalMetrics = this.getCriticalK6Metrics();
+      
+      // Extract only critical metrics from K6 format
+      for (const [metricName, metric] of Object.entries(data.metrics)) {
+        if (!metric || typeof metric !== 'object' || !metric.values) continue;
+        
+        // Check if this is a critical metric we care about
+        const criticalConfig = criticalMetrics[metricName];
+        if (!criticalConfig) continue; // Skip non-critical metrics
+        
+        // Extract only the values we need for this critical metric
+        for (const valueKey of criticalConfig.extract) {
+          const value = metric.values[valueKey];
+          if (typeof value === 'number') {
+            const metricKey = criticalConfig.transform ? 
+              criticalConfig.transform(metricName, valueKey) : 
+              `${metricName}_${valueKey}`;
+            extractedMetrics[metricKey] = value;
+          }
+        }
+
+        // Handle threshold status for critical metrics
+        if (metric.thresholds && criticalConfig.includeThresholds) {
+          for (const [thresholdName, threshold] of Object.entries(metric.thresholds)) {
+            const thresholdKey = `${metricName}_threshold_ok`;
+            extractedMetrics[thresholdKey] = threshold.ok ? 1 : 0;
+          }
+        }
+      }
+
+      // Extract overall check results (always important)
+      if (data.root_group?.checks) {
+        let totalPasses = 0;
+        let totalFails = 0;
+        
+        for (const check of data.root_group.checks) {
+          totalPasses += check.passes || 0;
+          totalFails += check.fails || 0;
+        }
+        
+        // Only extract overall check metrics, not individual checks
+        extractedMetrics['checks_total_passes'] = totalPasses;
+        extractedMetrics['checks_total_fails'] = totalFails;
+        extractedMetrics['checks_success_rate'] = totalPasses + totalFails > 0 ? totalPasses / (totalPasses + totalFails) : 0;
+      }
+
+      // Validate extracted metrics
+      const validatedMetrics = this.validateMetrics(extractedMetrics);
+      errors.push(...validatedMetrics.errors);
+      warnings.push(...validatedMetrics.warnings);
+
+      // Create sanitized report
+      const sanitized: PerformanceReport = {
+        name: reportName,
+        timestamp: data.state?.testRunDurationMs ? 
+          new Date(Date.now() - data.state.testRunDurationMs).toISOString() : 
+          new Date().toISOString(),
+        metrics: validatedMetrics.sanitized
+      };
+
+      warnings.push(`Extracted ${Object.keys(validatedMetrics.sanitized).length} critical metrics from K6 report`);
+
+      return {
+        valid: errors.length === 0 && Object.keys(validatedMetrics.sanitized).length > 0,
+        errors,
+        warnings,
+        sanitized
+      };
+
+    } catch (error) {
+      return {
+        valid: false,
+        errors: [`Failed to process K6 report: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        warnings
+      };
+    }
+  }
+
+  // Define critical K6 metrics to extract
+  private static getCriticalK6Metrics(): Record<string, {
+    extract: string[];
+    transform?: (metricName: string, valueKey: string) => string;
+    includeThresholds?: boolean;
+  }> {
+    return {
+      // 🎯 Core Web Vitals (Most Critical for UX)
+      'browser_web_vital_fcp': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'fcp_p95_ms' : 'fcp_avg_ms'
+      },
+      'browser_web_vital_lcp': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'lcp_p95_ms' : 'lcp_avg_ms'
+      },
+      'browser_web_vital_cls': {
+        extract: ['avg'],
+        transform: () => 'cls_avg'
+      },
+      'browser_web_vital_fid': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'fid_p95_ms' : 'fid_avg_ms'
+      },
+      'browser_web_vital_inp': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'inp_p95_ms' : 'inp_avg_ms'
+      },
+      'browser_web_vital_ttfb': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'ttfb_p95_ms' : 'ttfb_avg_ms'
+      },
+
+      // 🚀 Load Performance 
+      'page_load_time': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'page_load_p95_ms' : 'page_load_avg_ms'
+      },
+      'navigation_time': {
+        extract: ['avg'],
+        transform: () => 'navigation_avg_ms'
+      },
+      'login_time': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'login_p95_ms' : 'login_avg_ms',
+        includeThresholds: true
+      },
+
+      // 🌐 HTTP Performance
+      'browser_http_req_duration': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'http_req_p95_ms' : 'http_req_avg_ms'
+      },
+      'browser_http_req_failed': {
+        extract: ['rate'],
+        transform: () => 'http_req_failed_rate'
+      },
+
+      // ✅ Success Rates
+      'successful_requests': {
+        extract: ['rate'],
+        transform: () => 'successful_requests_rate',
+        includeThresholds: true
+      },
+      'errors': {
+        extract: ['rate'],
+        transform: () => 'error_rate',
+        includeThresholds: true
+      },
+      'checks': {
+        extract: ['rate'],
+        transform: () => 'checks_rate'
+      },
+
+      // 📊 Context Metrics (for volume understanding)
+      'iterations': {
+        extract: ['count'],
+        transform: () => 'total_iterations'
+      },
+      'requests': {
+        extract: ['count'],
+        transform: () => 'total_requests'
+      }
+    };
+  }
+
+  // Check if metrics are in simple Record<string, number> format
+  private static isSimpleMetrics(metrics: any): boolean {
+    return Object.values(metrics).every(value => typeof value === 'number');
+  }
+
+  // Extract simple metrics from complex structure
+  private static extractSimpleMetrics(metrics: any): Record<string, number> {
+    const simple: Record<string, number> = {};
+    
+    for (const [key, value] of Object.entries(metrics)) {
+      if (typeof value === 'number') {
+        simple[key] = value;
+      } else if (value && typeof value === 'object') {
+        // Try to extract avg, mean, or value from nested objects
+        const nested = value as any;
+        if (typeof nested.avg === 'number') {
+          simple[`${key}_avg`] = nested.avg;
+        } else if (typeof nested.mean === 'number') {
+          simple[`${key}_mean`] = nested.mean;
+        } else if (typeof nested.value === 'number') {
+          simple[`${key}_value`] = nested.value;
+        } else if (typeof nested.rate === 'number') {
+          simple[`${key}_rate`] = nested.rate;
+        }
+      }
+    }
+    
+    return simple;
   }
 
   private static isFlat(data: any): boolean {
