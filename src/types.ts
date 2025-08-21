@@ -43,8 +43,17 @@ export interface SystemContext {
   stack?: string;
   environment?: 'dev' | 'staging' | 'prod';
   scale?: 'small' | 'medium' | 'large';
-  version?: string;
+  selectedModel?: string;
   deployment_id?: string;
+  
+  // ✅ NEW CUSTOM CONTEXT FIELDS FOR BETTER AI RESULTS
+  business_criticality?: 'low' | 'medium' | 'high' | 'critical';
+  recent_changes?: string;
+  performance_goals?: string;
+  known_issues?: string;
+  custom_focus?: string;
+  team?: 'frontend' | 'backend' | 'devops' | 'fullstack';
+  urgency?: 'low' | 'medium' | 'high' | 'emergency';
 }
 
 export interface EnhancedComparisonResult extends ComparisonResult {

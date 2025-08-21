@@ -11,6 +11,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import type { PerformanceReport, SystemContext, EnhancedComparisonResult } from './types';
 import { compareReports, suggestionsFromDiffs } from './utils/compare';
 import { aiService } from './services/secureAIService';
+import { AI_CONFIG, getPreferredProvider } from './config/ai';
 
 export default function App() {
   const [baseline, setBaseline] = useState<PerformanceReport | null>(null);
@@ -21,7 +22,8 @@ export default function App() {
   const [systemContext, setSystemContext] = useState<SystemContext>({
     stack: '',
     environment: 'prod',
-    scale: 'medium'
+    scale: 'medium',
+    selectedModel: AI_CONFIG.openrouter.primaryModel // Default to configured primary model
   });
   const [result, setResult] = useState<EnhancedComparisonResult | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -35,6 +37,11 @@ export default function App() {
       setAILoading(true);
       try {
         console.log('🤖 Starting AI Analysis...');
+        console.log('📊 Analysis Context:', {
+          selectedModel: context.selectedModel,
+          aiEnabled,
+          provider: getPreferredProvider()
+        });
         const aiResult = await aiService.analyzePerformance(baseline, current, context);
         console.log('✅ AI Analysis completed:', aiResult);
         setResult(aiResult);
@@ -60,19 +67,17 @@ export default function App() {
     return compareReports(baseline, current);
   }, [baseline, current]);
 
-  // Run analysis when data changes
+  // Clear results when data changes (manual analysis now)
   React.useEffect(() => {
     if (!baseline || !current) {
       setResult(null);
       return;
     }
-
-    if (aiEnabled) {
-      runAIAnalysis(baseline, current, systemContext);
-    } else {
-      setResult(basicResult);
-    }
-  }, [baseline, current, systemContext, aiEnabled, basicResult, runAIAnalysis]);
+    
+    // Clear previous results when new data is loaded
+    // Analysis will be triggered manually via "Start Analysis" button
+    setResult(null);
+  }, [baseline, current]);
 
   const tips = useMemo(() => result ? suggestionsFromDiffs(result.diffs) : [], [result]);
 
@@ -95,9 +100,11 @@ export default function App() {
 
   const toggleAI = () => {
     setAIEnabled(!aiEnabled);
-    if (!aiEnabled && baseline && current) {
-      // Clear cache and re-run analysis
-      aiService.clearCache();
+    // Clear cache when toggling AI mode
+    aiService.clearCache();
+    // Clear previous results - user will need to click "Start Analysis" again
+    if (baseline && current && result) {
+      setResult(null);
     }
   };
 
@@ -136,17 +143,6 @@ export default function App() {
               )}
             </div>
             <div className="flex-none gap-2">
-              <div className="form-control">
-                <label className="label cursor-pointer gap-2">
-                  <span className="label-text text-sm">AI Analysis</span>
-                  <input 
-                    type="checkbox" 
-                    className="toggle toggle-primary toggle-sm" 
-                    checked={aiEnabled}
-                    onChange={toggleAI}
-                  />
-                </label>
-              </div>
               <button 
                 className="btn btn-outline btn-sm" 
                 onClick={() => setShowHistory(!showHistory)}
@@ -180,15 +176,15 @@ export default function App() {
             </ErrorBoundary>
           )}
 
-          {/* System Context Panel */}
-          {aiEnabled && (
-            <ErrorBoundary fallback={<div className="alert alert-warning">Context panel unavailable</div>}>
-              <SystemContextPanel 
-                context={systemContext} 
-                onContextChange={setSystemContext}
-              />
-            </ErrorBoundary>
-          )}
+          {/* System Context Panel with AI Toggle */}
+          <ErrorBoundary fallback={<div className="alert alert-warning">Context panel unavailable</div>}>
+            <SystemContextPanel 
+              context={systemContext} 
+              onContextChange={setSystemContext}
+              aiEnabled={aiEnabled}
+              onAIToggle={toggleAI}
+            />
+          </ErrorBoundary>
 
           {/* Upload Panels */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -199,6 +195,69 @@ export default function App() {
               <UploadPanel label="Normal (Current)" onLoaded={setCurrent} />
             </ErrorBoundary>
           </div>
+
+          {/* Start Analysis Button & Instructions */}
+          {baseline && current && (
+            <div className="space-y-4">
+              {/* Analysis Instructions */}
+              {!result && (
+                <div className="alert alert-info">
+                  <div>
+                    <h3 className="font-bold">Ready for Analysis!</h3>
+                    <p className="text-sm">
+                      Both files are loaded. Click "Start Analysis" to begin 
+                      {aiEnabled ? ' AI-powered performance analysis.' : ' basic performance comparison.'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Start Analysis Button */}
+              <div className="flex justify-center py-4">
+                <button 
+                  className={`btn btn-primary btn-lg gap-2 ${aiLoading ? 'loading' : ''}`}
+                  onClick={() => {
+                    console.log('🚀 Start Analysis clicked!', { baseline: !!baseline, current: !!current, aiEnabled });
+                    if (baseline && current) {
+                      if (aiEnabled) {
+                        runAIAnalysis(baseline, current, systemContext);
+                      } else {
+                        setResult(compareReports(baseline, current));
+                        setLastAnalysisTime(new Date().toLocaleString());
+                      }
+                    }
+                  }}
+                  disabled={!baseline || !current || aiLoading}
+                >
+                  {aiLoading ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm"></span>
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      🚀 Start Analysis
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Debug Info */}
+              <div className="text-center">
+                <details className="text-xs opacity-50">
+                  <summary className="cursor-pointer">🔍 Debug Info</summary>
+                  <div className="mt-2 p-2 bg-base-300 rounded">
+                    <p>Baseline: {baseline ? '✅ Loaded' : '❌ Not loaded'}</p>
+                    <p>Current: {current ? '✅ Loaded' : '❌ Not loaded'}</p>
+                    <p>Result: {result ? '✅ Available' : '❌ No results'}</p>
+                    <p>AI Enabled: {aiEnabled ? '✅ Yes' : '❌ No'}</p>
+                    <p>Loading: {aiLoading ? '⏳ Yes' : '✅ No'}</p>
+                    <p>Show Button: {(baseline && current) ? '✅ Yes' : '❌ No'}</p>
+                  </div>
+                </details>
+              </div>
+            </div>
+          )}
 
           {baseline && current && result && (
             <>
@@ -301,21 +360,9 @@ export default function App() {
                 <h3 className="font-bold">Ready to analyze performance!</h3>
                 <div className="text-sm space-y-1">
                   <p>📁 Upload both reports or click "Load Sample" to try it out</p>
-                  {aiEnabled && (
-                    <p>🤖 AI analysis will provide enhanced insights and predictions</p>
-                  )}
+                  <p>🚀 After uploading both files, click "Start Analysis" to begin</p>
+                  <p>🤖 Toggle AI Analysis in System Context for enhanced insights</p>
                   <p>📊 View historical reports to compare past analyses</p>
-                  {/* Debug information */}
-                  <details className="mt-4">
-                    <summary className="text-xs opacity-50 cursor-pointer">🔍 Debug Info</summary>
-                    <div className="text-xs opacity-60 mt-2 p-2 bg-base-300 rounded">
-                      <p>Baseline: {baseline ? '✅ Loaded' : '❌ Not loaded'}</p>
-                      <p>Current: {current ? '✅ Loaded' : '❌ Not loaded'}</p>
-                      <p>Result: {result ? '✅ Available' : '❌ No results'}</p>
-                      <p>AI Enabled: {aiEnabled ? '✅ Yes' : '❌ No'}</p>
-                      <p>Loading: {aiLoading ? '⏳ Yes' : '✅ No'}</p>
-                    </div>
-                  </details>
                 </div>
               </div>
             </div>

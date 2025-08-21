@@ -1,0 +1,35 @@
+# AI Performance Insights Backend Configuration
+# Copy this to .env and configure your API keys
+
+# === PRIMARY: OpenRouter Configuration (Recommended) ===
+# Get your API key from: https://openrouter.ai/keys
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+PRIMARY_MODEL=deepseek/deepseek-chat-v3-0324:free
+SITE_URL=http://localhost:5173
+SITE_NAME=Performance Insights Dashboard
+
+# === ALTERNATIVE: Direct OpenAI Configuration ===
+# Use this if you prefer direct OpenAI integration
+# OPENAI_API_KEY=your_openai_api_key_here
+
+# === Server Configuration ===
+PORT=3001
+FRONTEND_URL=http://localhost:5173
+API_SECRET_KEY=dev-secure-api-key-for-performance-insights-2025
+
+# === Environment ===
+NODE_ENV=development
+
+# === Optional Features ===
+# LOG_LEVEL=debug
+# ENABLE_ANALYTICS=true
+# RATE_LIMIT_MAX=100
+# RATE_LIMIT_WINDOW=15
+
+# === OpenRouter Benefits ===
+# ✅ Access to 100+ AI models (OpenAI, Anthropic, Meta, Google, etc.)
+# ✅ Built-in cost controls and spending limits
+# ✅ Automatic fallback between models
+# ✅ Enhanced security with GitHub secret scanning
+# ✅ Transparent usage tracking and billing
+# ✅ No vendor lock-in - switch models anytime

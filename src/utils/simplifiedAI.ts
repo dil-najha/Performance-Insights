@@ -1,62 +1,181 @@
-// Real AI Integration with OpenAI
-import type { MetricDiff, AIInsight, PerformanceReport, EnhancedComparisonResult } from '../types';
+// Enhanced AI Integration with OpenRouter + OpenAI Support
+import type { MetricDiff, AIInsight, PerformanceReport, EnhancedComparisonResult, SystemContext } from '../types';
 import { compareReports } from './compare';
+import { AI_CONFIG, getPreferredProvider } from '../config/ai';
 
 export class SimplifiedAI {
-  private apiKey: string;
+  private openrouterKey: string;
+  private openaiKey: string;
+  private provider: 'openrouter' | 'openai' | 'local';
   private model: string;
+  private baseUrl: string = '';
 
   constructor() {
-    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-    this.model = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o-mini';
-    console.log('🤖 AI Service initialized with model:', this.model);
-    console.log('🔑 API Key present:', !!this.apiKey);
+    this.openrouterKey = import.meta.env.VITE_OPENROUTER_API_KEY || '';
+    this.openaiKey = ''; // DISABLED - Force free models only
+    
+    // Force OpenRouter or local only (no OpenAI)
+    if (this.openrouterKey) {
+      this.provider = 'openrouter';
+      this.model = AI_CONFIG.openrouter.primaryModel;
+      this.baseUrl = AI_CONFIG.openrouter.baseUrl;
+      console.log('🌟 SimplifiedAI FORCED to OpenRouter (free models only)');
+      console.log('🎯 Primary model:', this.model);
+    } else {
+      this.provider = 'local';
+      this.model = 'local-fallback';
+      console.log('🏠 No OpenRouter key - using local fallback only');
+    }
+    
+    console.log('🤖 AI Provider:', this.provider);
+    console.log('🔑 OpenRouter Key available:', !!this.openrouterKey);
+    console.log('🚫 OpenAI DISABLED to prevent gpt-4o usage');
+  }
+
+  /**
+   * Get headers for API requests based on provider
+   */
+  private getHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+
+    if (this.provider === 'openrouter') {
+      headers['Authorization'] = `Bearer ${this.openrouterKey}`;
+      headers['HTTP-Referer'] = AI_CONFIG.openrouter.siteUrl;
+      headers['X-Title'] = AI_CONFIG.openrouter.siteName;
+    } else if (this.provider === 'openai') {
+      headers['Authorization'] = `Bearer ${this.openaiKey}`;
+    }
+
+    return headers;
+  }
+
+  /**
+   * Make API call with automatic fallback
+   */
+  private async makeAPICall(prompt: string, maxTokens: number = 1500, selectedModel?: string): Promise<string> {
+    // Only use OpenRouter (free models) - no OpenAI fallback
+    if (this.provider === 'openrouter' && this.openrouterKey) {
+      try {
+        return await this.callOpenRouter(prompt, maxTokens, selectedModel);
+      } catch (error) {
+        console.error('❌ OpenRouter failed, no fallback to prevent gpt-4o usage:', error);
+        throw new Error('OpenRouter failed and OpenAI is disabled for free models only');
+      }
+    }
+    
+    throw new Error('No OpenRouter API key available - only free models supported');
+  }
+
+  /**
+   * Call OpenRouter API with model fallback
+   */
+  private async callOpenRouter(prompt: string, maxTokens: number, selectedModel?: string): Promise<string> {
+    // Use selected model if provided, otherwise use free models
+    const freeModelIds = AI_CONFIG.openrouter.freeModels.map(m => m.id);
+    const models = selectedModel ? [selectedModel, ...freeModelIds.filter(m => m !== selectedModel)] : freeModelIds;
+    
+    console.log(`🎯 Model priority: ${selectedModel ? `${selectedModel} (user-selected)` : 'auto-fallback'}`);
+    
+    for (const model of models) {
+      try {
+        console.log(`🌟 Trying OpenRouter model: ${model}`);
+        
+        const response = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: this.getHeaders(),
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: 'system', content: 'You are a performance optimization expert.' },
+              { role: 'user', content: prompt }
+            ],
+            max_tokens: maxTokens,
+            temperature: AI_CONFIG.openrouter.temperature
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
+        }
+
+        const data = await response.json();
+        const content = data.choices[0]?.message?.content;
+        
+        if (content) {
+          console.log(`✅ OpenRouter success with model: ${model}`);
+          return content;
+        }
+        
+        throw new Error('No content in response');
+        
+      } catch (error) {
+        console.warn(`Model ${model} failed:`, error);
+        continue;
+      }
+    }
+    
+    throw new Error('All OpenRouter models failed');
+  }
+
+  /**
+   * Call OpenAI API directly
+   */
+  private async callOpenAI(prompt: string, maxTokens: number): Promise<string> {
+    console.log('🔄 Making OpenAI API call...');
+    
+    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({
+        model: this.model,
+        messages: [
+          { role: 'system', content: 'You are a performance optimization expert.' },
+          { role: 'user', content: prompt }
+        ],
+        max_tokens: maxTokens,
+        temperature: 0.3
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenAI API error (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices[0]?.message?.content;
+    
+    if (!content) {
+      throw new Error('No content in OpenAI response');
+    }
+    
+    console.log('✅ OpenAI API call successful');
+    return content;
   }
 
   // Real OpenAI API call for insights
-  async generateAIInsights(diffs: MetricDiff[]): Promise<AIInsight[]> {
+  async generateAIInsights(diffs: MetricDiff[], context?: SystemContext): Promise<AIInsight[]> {
     console.log('🤖 Generating REAL AI insights for diffs:', diffs);
     
-    if (!this.apiKey) {
-      console.warn('⚠️ No OpenAI API key found, using fallback insights');
+    if (this.provider === 'local') {
+      console.warn('⚠️ No AI provider available, using fallback insights');
       return this.generateFallbackInsights(diffs);
     }
 
     try {
       const prompt = this.buildInsightsPrompt(diffs);
-      console.log('📝 Sending prompt to OpenAI:', prompt);
+      console.log('📝 Sending prompt to AI provider:', this.provider);
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`
-        },
-        body: JSON.stringify({
-          model: this.model,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a performance optimization expert. Analyze performance metrics and provide specific, actionable insights. Respond with a JSON array of insights, each having: type (anomaly/suggestion/prediction), severity (low/medium/high/critical), confidence (0-1), title, description, actionable_steps (array), affected_metrics (array).'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          max_tokens: 1500,
-          temperature: 0.3
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const aiContent = data.choices[0]?.message?.content;
+      const systemPrompt = 'You are a performance optimization expert. Analyze performance metrics and provide specific, actionable insights. Respond with a JSON array of insights, each having: type (anomaly/suggestion/prediction), severity (low/medium/high/critical), confidence (0-1), title, description, actionable_steps (array), affected_metrics (array).';
+      const fullPrompt = `${systemPrompt}\n\nUser Query: ${prompt}`;
       
-      console.log('✅ Raw OpenAI response:', aiContent);
+      // Use selected model from context if provided
+      const selectedModel = context?.selectedModel;
+      const aiContent = await this.makeAPICall(fullPrompt, 1500, selectedModel);
+      console.log('✅ Raw AI response:', aiContent);
 
       // Parse the AI response
       const insights = this.parseAIResponse(aiContent, diffs);
@@ -150,49 +269,27 @@ Return as JSON array with insights having: type, severity, confidence, title, de
     return insights;
   }
 
-  // Real OpenAI explanation
-  async generateExplanation(diffs: MetricDiff[]): Promise<string> {
-    if (!this.apiKey) {
-      console.warn('⚠️ No OpenAI API key found, using fallback explanation');
+  // Enhanced AI explanation with provider fallback
+  async generateExplanation(diffs: MetricDiff[], context?: SystemContext): Promise<string> {
+    if (this.provider === 'local') {
+      console.warn('⚠️ No AI provider available, using fallback explanation');
       return this.generateFallbackExplanation(diffs);
     }
 
     try {
       const prompt = this.buildExplanationPrompt(diffs);
-      console.log('📝 Getting AI explanation...');
+      console.log('📝 Getting AI explanation from:', this.provider);
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`
-        },
-        body: JSON.stringify({
-          model: this.model,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a performance analyst. Provide a concise, business-friendly summary of performance changes in 1-2 sentences.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          max_tokens: 200,
-          temperature: 0.2
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const explanation = data.choices[0]?.message?.content?.trim();
+      const systemPrompt = 'You are a performance analyst. Provide a concise, business-friendly summary of performance changes in 1-2 sentences.';
+      const fullPrompt = `${systemPrompt}\n\nUser Query: ${prompt}`;
       
-      console.log('✅ AI explanation:', explanation);
-      return explanation || this.generateFallbackExplanation(diffs);
+      // Use selected model from context if provided
+      const selectedModel = context?.selectedModel;
+      const explanation = await this.makeAPICall(fullPrompt, 200, selectedModel);
+      const trimmedExplanation = explanation.trim();
+      
+      console.log('✅ AI explanation:', trimmedExplanation);
+      return trimmedExplanation || this.generateFallbackExplanation(diffs);
 
     } catch (error) {
       console.error('❌ AI explanation failed:', error);
@@ -238,7 +335,8 @@ Provide a business-friendly summary of this performance comparison.
   // Main comparison function with AI
   async compareWithAI(
     baseline: PerformanceReport, 
-    current: PerformanceReport
+    current: PerformanceReport,
+    context?: SystemContext
   ): Promise<EnhancedComparisonResult> {
     console.log('🚀 Starting AI-enhanced comparison...');
     
@@ -249,8 +347,8 @@ Provide a business-friendly summary of this performance comparison.
     try {
       // Generate AI insights and explanation
       const [aiInsights, explanation] = await Promise.all([
-        this.generateAIInsights(basicResult.diffs),
-        this.generateExplanation(basicResult.diffs)
+        this.generateAIInsights(basicResult.diffs, context),
+        this.generateExplanation(basicResult.diffs, context)
       ]);
 
       const result: EnhancedComparisonResult = {

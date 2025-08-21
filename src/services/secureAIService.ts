@@ -1,5 +1,8 @@
 // Secure AI Service Layer for Performance Insights
 import type { MetricDiff, PerformanceReport, AIInsight, SystemContext, EnhancedComparisonResult } from '../types';
+import { openRouterService } from './openRouterService';
+import { getPreferredProvider, validateAIConfig } from '../config/ai';
+import { compareReports } from '../utils/compare';
 
 export class SecureAIService {
   private baseUrl: string;
@@ -11,6 +14,13 @@ export class SecureAIService {
     this.baseUrl = import.meta.env.VITE_AI_API_BASE_URL || 'http://localhost:3001/api';
     this.apiKey = import.meta.env.VITE_API_SECRET_KEY || 'dev-secure-api-key-for-performance-insights-2025';
     this.cache = new Map();
+
+    // Log provider configuration
+    const provider = getPreferredProvider();
+    const config = validateAIConfig();
+    console.log('🔧 SecureAIService initialized');
+    console.log('🎯 Preferred provider:', provider);
+    console.log('✅ Providers available:', config.providers);
   }
 
   private getCacheKey(data: any): string {
@@ -64,10 +74,61 @@ export class SecureAIService {
     }
   }
 
-  // Main AI Analysis endpoint
+  // Main AI Analysis endpoint with intelligent routing
   async analyzePerformance(
     baseline: PerformanceReport, 
     current: PerformanceReport, 
+    systemContext?: SystemContext
+  ): Promise<EnhancedComparisonResult> {
+    return this.routeToProvider(baseline, current, systemContext);
+  }
+
+  /**
+   * Intelligent provider routing - uses OpenRouter first, falls back to backend API
+   */
+  private async routeToProvider(
+    baseline: PerformanceReport,
+    current: PerformanceReport,
+    systemContext?: SystemContext
+  ): Promise<EnhancedComparisonResult> {
+    const provider = getPreferredProvider();
+    
+    console.log(`🎯 Using AI provider: ${provider}`);
+
+    switch (provider) {
+      case 'openrouter':
+        try {
+          console.log('🌟 Using OpenRouter with free models only...');
+          const result = await openRouterService.analyzePerformance(baseline, current, systemContext);
+          console.log('✅ OpenRouter analysis successful');
+          return result;
+        } catch (error) {
+          console.error('❌ OpenRouter failed - NO FALLBACK to prevent gpt-4o usage:', error);
+          // Return basic analysis instead of falling back to backend
+          const basicResult = compareReports(baseline, current);
+          return {
+            ...basicResult,
+            explanation: 'Analysis completed using basic algorithms (OpenRouter failed, no fallback to prevent paid model usage)'
+          };
+        }
+
+      case 'local':
+      default:
+        console.log('🏠 Using local analysis only (no API keys available)...');
+        const basicResult = compareReports(baseline, current);
+        return {
+          ...basicResult,
+          explanation: 'Analysis completed using basic algorithms (no AI API keys configured)'
+        };
+    }
+  }
+
+  /**
+   * Backend API analysis (existing implementation)
+   */
+  private async analyzeViaBackend(
+    baseline: PerformanceReport,
+    current: PerformanceReport,
     systemContext?: SystemContext
   ): Promise<EnhancedComparisonResult> {
     try {
@@ -85,7 +146,7 @@ export class SecureAIService {
         explanation: result.explanation
       };
     } catch (error) {
-      console.error('❌ Performance analysis failed:', error);
+      console.error('❌ Backend API analysis failed:', error);
       // Return fallback analysis
       return this.fallbackAnalysis(baseline, current);
     }

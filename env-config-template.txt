@@ -1,26 +1,41 @@
-# AI Performance Insights - Environment Configuration Template
+# AI Performance Insights - Frontend Configuration Template
 # Copy these to your .env.local file
 
-# OpenAI Configuration
-VITE_OPENAI_API_KEY=your_openai_api_key_here
-VITE_OPENAI_MODEL=gpt-4
-VITE_OPENAI_MAX_TOKENS=2000
-VITE_OPENAI_BASE_URL=https://api.openai.com/v1
+# === PRIMARY: OpenRouter Configuration (Recommended) ===
+# Get your API key from: https://openrouter.ai/keys
+VITE_OPENROUTER_API_KEY=your_openrouter_api_key_here
+VITE_SITE_URL=http://localhost:5173
+VITE_SITE_NAME=Performance Insights Dashboard
+VITE_PRIMARY_MODEL=deepseek/deepseek-chat-v3-0324:free
 
-# AI API Configuration
-VITE_AI_API_BASE_URL=http://localhost:3001/api/ai
+# === ALTERNATIVE: Direct OpenAI Configuration ===
+# Use this if you prefer direct OpenAI integration
+# VITE_OPENAI_API_KEY=your_openai_api_key_here
+# VITE_OPENAI_MODEL=deepseek/deepseek-chat-v3-0324:free
+# VITE_OPENAI_MAX_TOKENS=1500
+
+# === Backend API Configuration ===
+VITE_AI_API_BASE_URL=http://localhost:3001/api
+VITE_API_SECRET_KEY=dev-secure-api-key-for-performance-insights-2025
 VITE_AI_API_TIMEOUT=30000
 
-# Feature Flags (set to 'false' to disable)
+# === Feature Flags (set to 'false' to disable) ===
 VITE_AI_ANOMALY_DETECTION=true
 VITE_AI_SMART_SUGGESTIONS=true
 VITE_AI_ROOT_CAUSE=true
 VITE_AI_PREDICTIONS=true
 VITE_AI_NATURAL_LANGUAGE=true
 
-# Local ML Models (optional)
+# === Local ML Models (fallback) ===
 VITE_LOCAL_ML_ENABLED=false
 VITE_LOCAL_MODEL_PATH=/models
 
-# Development Settings
+# === Development Settings ===
 VITE_AI_DEBUG=true
+
+# === OpenRouter Benefits ===
+# ✅ Multi-model access (OpenAI, Anthropic, Meta, Google)
+# ✅ Cost controls and spending limits
+# ✅ Enhanced security monitoring
+# ✅ Automatic model fallback
+# ✅ No vendor lock-in

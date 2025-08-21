@@ -51,20 +51,94 @@ const authenticateAPI = (req, res, next) => {
   next();
 };
 
-// Initialize OpenAI (optional - falls back to local processing if not available)
-let openai = null;
+// Initialize AI clients with OpenRouter preference
+let aiClient = null;
+let aiProvider = 'local';
+
 try {
-  if (process.env.OPENAI_API_KEY) {
-    const OpenAI = require('openai');
-    openai = new OpenAI({
+  const OpenAI = require('openai');
+  
+  // Prefer OpenRouter if available
+  if (process.env.OPENROUTER_API_KEY) {
+    aiClient = new OpenAI({
+      apiKey: process.env.OPENROUTER_API_KEY,
+      baseURL: 'https://openrouter.ai/api/v1',
+      defaultHeaders: {
+        'HTTP-Referer': process.env.SITE_URL || 'http://localhost:5173',
+        'X-Title': process.env.SITE_NAME || 'Performance Insights Dashboard'
+      }
+    });
+    aiProvider = 'openrouter';
+    console.log('✅ OpenRouter client initialized');
+    console.log('🌟 Using OpenRouter for multi-model AI access');
+  } 
+  // Fallback to direct OpenAI
+  else if (process.env.OPENAI_API_KEY) {
+    aiClient = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+    aiProvider = 'openai';
     console.log('✅ OpenAI client initialized');
-  } else {
-    console.log('⚠️  OpenAI API key not found - AI features will use fallback methods');
+    console.log('🔄 Using direct OpenAI integration');
+  } 
+  else {
+    console.log('⚠️  No AI API keys found - AI features will use fallback methods');
+    console.log('💡 Set OPENROUTER_API_KEY (recommended) or OPENAI_API_KEY to enable AI features');
   }
 } catch (error) {
-  console.log('⚠️  OpenAI initialization failed - using fallback methods:', error.message);
+  console.log('⚠️  AI client initialization failed - using fallback methods:', error.message);
+}
+
+// Model configuration based on provider and user selection
+function getModelName(userSelectedModel) {
+  // Free tier models available on OpenRouter
+  const freeModels = [
+    'deepseek/deepseek-chat-v3-0324:free',
+    'deepseek/deepseek-r1-0528:free',
+    'google/gemini-2.0-flash-exp:free',
+    'google/gemma-3-27b-it:free',
+    'google/gemma-3n-e2b-it:free',
+    'openai/gpt-oss-20b:free',
+    'deepseek/deepseek-r1-0528-qwen3-8b:free'
+  ];
+
+  const fallbackModels = [
+    'deepseek/deepseek-chat-v3-0324:free', // Default to free model
+    'google/gemini-2.0-flash-exp:free',
+    'deepseek/deepseek-r1-0528:free',
+    'google/gemma-3-27b-it:free'
+  ];
+
+  // Use user-selected model if provided and valid
+  if (userSelectedModel && (freeModels.includes(userSelectedModel) || fallbackModels.includes(userSelectedModel))) {
+    console.log('🎯 Using user-selected model:', userSelectedModel);
+    return userSelectedModel;
+  }
+
+  // Provider-specific defaults
+  if (aiProvider === 'openrouter') {
+    const defaultModel = process.env.PRIMARY_MODEL || fallbackModels[0];
+    console.log('🤖 Using default OpenRouter model:', defaultModel);
+    return defaultModel;
+  } else if (aiProvider === 'openai') {
+    console.log('🤖 Using free model fallback: deepseek/deepseek-chat-v3-0324:free');
+    return 'deepseek/deepseek-chat-v3-0324:free';
+  }
+  
+  console.log('🤖 Using fallback model:', fallbackModels[0]);
+  return fallbackModels[0]; // Default to free model
+}
+
+// Get fallback models for OpenRouter
+function getFallbackModels() {
+  if (aiProvider === 'openrouter') {
+    return [
+      'deepseek/deepseek-chat-v3-0324:free',
+      'google/gemini-2.0-flash-exp:free',
+      'deepseek/deepseek-r1-0528:free'
+    ];
+  }
+  return ['deepseek/deepseek-chat-v3-0324:free'];
 }
 
 // Data storage for historical reports
@@ -160,19 +234,30 @@ function calculateSummary(diffs) {
 
 async function generateAIInsights(diffs, systemContext) {
   try {
-    if (!openai) {
+    if (!aiClient) {
       console.log('🔄 Using fallback insights generation');
       return generateFallbackInsights(diffs);
     }
 
     const prompt = buildInsightsPrompt(diffs, systemContext);
+    const selectedModel = systemContext?.selectedModel;
     
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const completion = await aiClient.chat.completions.create({
+      model: getModelName(selectedModel),
       messages: [
         {
           role: "system",
-          content: `You are a performance optimization expert. Analyze performance metrics and provide specific, actionable insights. 
+          content: `You are a senior performance optimization expert with 10+ years of experience in web applications, microservices, and cloud infrastructure. 
+
+          Focus on providing business-impact-driven insights that consider:
+          - User experience implications
+          - Cost optimization opportunities  
+          - Technical debt identification
+          - Scalability bottlenecks
+          - Security performance impacts
+
+          Prioritize actionable recommendations with clear ROI and implementation effort estimates.
+          
           Respond with a JSON array of insights, each having: 
           - type: "anomaly" | "suggestion" | "prediction" | "root_cause"
           - severity: "low" | "medium" | "high" | "critical"
@@ -180,7 +265,9 @@ async function generateAIInsights(diffs, systemContext) {
           - title: string
           - description: string
           - actionable_steps: array of strings
-          - affected_metrics: array of metric keys`
+          - affected_metrics: array of metric keys
+          - business_impact: string (optional)
+          - effort_estimate: "low" | "medium" | "high" (optional)`
         },
         {
           role: "user",
@@ -202,28 +289,124 @@ async function generateAIInsights(diffs, systemContext) {
 function buildInsightsPrompt(diffs, systemContext = {}) {
   const degradedMetrics = diffs.filter(d => d.trend === 'worse');
   const improvedMetrics = diffs.filter(d => d.trend === 'improved');
+  const criticalMetrics = degradedMetrics.filter(d => Math.abs(d.pct || 0) > 20);
   
   return `
-Performance Analysis Context:
-- Environment: ${systemContext.environment || 'production'}
+===== PERFORMANCE ANALYSIS REQUEST =====
+
+SYSTEM CONTEXT:
+- Environment: ${systemContext.environment || 'production'} (${getEnvironmentDetails(systemContext.environment)})
 - Technology Stack: ${systemContext.stack || 'not specified'}
-- Scale: ${systemContext.scale || 'medium'}
+- Scale: ${systemContext.scale || 'medium'} (${getScaleDetails(systemContext.scale)})
+- Business Criticality: ${systemContext.business_criticality || 'medium'} impact
+- Team Focus: ${systemContext.team || 'general'} team perspective
+- Urgency Level: ${systemContext.urgency || 'medium'} priority
+- Deployment ID: ${systemContext.deployment_id || 'unknown'}
+- Analysis Time: ${new Date().toISOString()}
 
-Metrics Analysis:
-${diffs.map(d => `- ${d.label}: ${d.baseline} → ${d.current} (${d.pct?.toFixed(1)}% change, trend: ${d.trend})`).join('\n')}
+ADDITIONAL CONTEXT:
+${systemContext.recent_changes ? `🔄 Recent Changes: ${systemContext.recent_changes}` : ''}
+${systemContext.performance_goals ? `🎯 Performance Goals: ${systemContext.performance_goals}` : ''}
+${systemContext.known_issues ? `⚠️ Known Issues: ${systemContext.known_issues}` : ''}
+${systemContext.custom_focus ? `🔍 Custom Focus: ${systemContext.custom_focus}` : ''}
 
-Key Concerns:
-${degradedMetrics.length > 0 ? 
-  degradedMetrics.map(d => `- ${d.label} degraded by ${Math.abs(d.pct || 0).toFixed(1)}%`).join('\n') : 
-  'No significant degradations detected'}
+METRICS CHANGES SUMMARY:
+📈 Improved: ${improvedMetrics.length} metrics
+📉 Degraded: ${degradedMetrics.length} metrics  
+🚨 Critical: ${criticalMetrics.length} metrics (>20% degradation)
 
-Please provide 3-5 specific insights focusing on the most critical performance issues and actionable optimization recommendations.
+DETAILED METRICS ANALYSIS:
+${diffs.map(d => {
+  const emoji = d.trend === 'improved' ? '✅' : d.trend === 'worse' ? '❌' : '➡️';
+  const impact = Math.abs(d.pct || 0) > 20 ? '🚨 CRITICAL' : Math.abs(d.pct || 0) > 10 ? '⚠️ HIGH' : '📊 NORMAL';
+  return `${emoji} ${d.label}: ${d.baseline} → ${d.current} (${d.pct?.toFixed(1)}% change) [${impact}]`;
+}).join('\n')}
+
+PRIORITY CONCERNS:
+${criticalMetrics.length > 0 ? 
+  criticalMetrics.map(d => `🚨 ${d.label}: ${Math.abs(d.pct || 0).toFixed(1)}% degradation - ${getMetricContext(d.key)}`).join('\n') : 
+  degradedMetrics.length > 0 ?
+  degradedMetrics.map(d => `⚠️ ${d.label}: ${Math.abs(d.pct || 0).toFixed(1)}% degradation`).join('\n') :
+  '✅ No significant performance degradations detected'}
+
+ANALYSIS REQUIREMENTS:
+1. ${getBusinessFocus(systemContext.business_criticality)} - ${systemContext.business_criticality || 'medium'} business impact
+2. ${getTeamFocus(systemContext.team)} perspective and recommendations
+3. ${getUrgencyFocus(systemContext.urgency)} - ${systemContext.urgency || 'medium'} priority response
+4. Root cause analysis for critical issues with ${systemContext.stack || 'general'} context
+5. Implementation effort estimates (Low/Medium/High) for ${systemContext.environment || 'production'}
+6. ${systemContext.performance_goals ? `Align with goals: ${systemContext.performance_goals}` : 'Focus on general performance optimization'}
+7. ${systemContext.known_issues ? `Consider known issues: ${systemContext.known_issues}` : 'Identify potential unknown issues'}
+
+Please provide 3-5 prioritized insights with clear action items.
 `;
+}
+
+// Helper functions for enhanced context
+function getEnvironmentDetails(env) {
+  const details = {
+    'prod': 'Live user traffic, high reliability required',
+    'staging': 'Pre-production testing, mirrors production',
+    'dev': 'Development environment, experimental changes'
+  };
+  return details[env] || 'unknown environment type';
+}
+
+function getScaleDetails(scale) {
+  const details = {
+    'small': '< 100 RPS, single server likely',
+    'medium': '100-1K RPS, load balanced setup',
+    'large': '> 1K RPS, distributed architecture'
+  };
+  return details[scale] || 'unknown scale';
+}
+
+function getMetricContext(metricKey) {
+  const contexts = {
+    'responseTimeAvg': 'affects user experience directly',
+    'responseTimeP95': 'impacts 95% of users',
+    'responseTimeP99': 'affects slowest users',
+    'throughput': 'capacity and revenue impact',
+    'errorRate': 'user experience and reliability',
+    'cpu': 'cost and scalability concern',
+    'memory': 'stability and performance risk'
+  };
+  return contexts[metricKey] || 'performance impact';
+}
+
+function getBusinessFocus(criticality) {
+  const focuses = {
+    'low': 'Cost optimization and efficiency',
+    'medium': 'Balance performance and resource usage',
+    'high': 'User experience and reliability priority',
+    'critical': 'Mission-critical system stability and immediate fixes'
+  };
+  return focuses[criticality] || 'Balanced performance optimization';
+}
+
+function getTeamFocus(team) {
+  const focuses = {
+    'frontend': 'UI performance, rendering, and user experience',
+    'backend': 'API performance, database optimization, and scalability',
+    'devops': 'Infrastructure, deployment, and system-level optimization',
+    'fullstack': 'End-to-end performance across frontend and backend'
+  };
+  return focuses[team] || 'General development team';
+}
+
+function getUrgencyFocus(urgency) {
+  const focuses = {
+    'low': 'Comprehensive analysis with long-term improvements',
+    'medium': 'Balanced approach with actionable recommendations',
+    'high': 'Quick wins and immediate impact solutions',
+    'emergency': 'Critical issue resolution and hotfixes'
+  };
+  return focuses[urgency] || 'Standard analysis approach';
 }
 
 async function generatePredictions(current, systemContext) {
   try {
-    if (!openai) {
+    if (!aiClient) {
       console.log('🔄 Using fallback predictions');
       return [];
     }
@@ -235,8 +418,9 @@ System Context: ${JSON.stringify(systemContext, null, 2)}
 
 Provide predictions as JSON array with type: "prediction", severity, confidence, title, description, actionable_steps, affected_metrics.`;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const selectedModel = systemContext?.selectedModel;
+    const completion = await aiClient.chat.completions.create({
+      model: getModelName(selectedModel),
       messages: [
         {
           role: "system",
@@ -258,9 +442,9 @@ Provide predictions as JSON array with type: "prediction", severity, confidence,
   }
 }
 
-async function generateExplanation(diffs, insights) {
+async function generateExplanation(diffs, insights, systemContext) {
   try {
-    if (!openai) {
+    if (!aiClient) {
       console.log('🔄 Using fallback explanation');
       return 'Performance analysis completed. Review the detailed insights above for specific recommendations.';
     }
@@ -272,8 +456,9 @@ Key Insights: ${insights.map(i => i.title).join(', ')}
 
 Provide a 2-3 sentence summary explanation.`;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const selectedModel = systemContext?.selectedModel;
+    const completion = await aiClient.chat.completions.create({
+      model: getModelName(selectedModel),
       messages: [
         {
           role: "system",
@@ -417,7 +602,7 @@ app.post('/api/ai/analyze', authenticateAPI, async (req, res) => {
     const predictions = await generatePredictions(current, systemContext);
     
     // Generate explanation
-    const explanation = await generateExplanation(diffs, insights);
+    const explanation = await generateExplanation(diffs, insights, systemContext);
     
     // Store for historical analysis
     await storeHistoricalData(baseline, current, insights);
@@ -493,7 +678,7 @@ async function startServer() {
     console.log(`🚀 AI Performance Insights API Server running on port ${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/health`);
     console.log(`🔑 API Authentication: ${process.env.API_SECRET_KEY ? 'Enabled' : 'DISABLED - Set API_SECRET_KEY!'}`);
-    console.log(`🤖 OpenAI Integration: ${process.env.OPENAI_API_KEY ? 'Enabled' : 'DISABLED - Set OPENAI_API_KEY!'}`);
+    console.log(`🤖 OpenRouter Integration: ${process.env.OPENROUTER_API_KEY ? 'Enabled (Free Models)' : 'DISABLED - Set OPENROUTER_API_KEY!'}`);
   });
 }
 
