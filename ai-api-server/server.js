@@ -622,6 +622,87 @@ app.post('/api/ai/analyze', authenticateAPI, async (req, res) => {
   }
 });
 
+// 1b. Conversational Chat endpoint (general Q&A / metric follow-ups)
+app.post('/api/ai/chat', authenticateAPI, async (req, res) => {
+  try {
+    const { messages = [], selectedModel } = req.body || {};
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'messages array required' });
+    }
+
+    // Normalize messages to OpenAI style
+    const trimmed = messages.slice(-15); // keep last 15 for context
+    const hasSystem = trimmed.find(m => m.role === 'system');
+    if (!hasSystem) {
+      trimmed.unshift({ role: 'system', content: 'You are a concise performance engineering assistant. Keep answers short and actionable.' });
+    }
+
+    // If no AI client, fallback heuristic immediately
+    if (!aiClient) {
+      const reply = heuristicChatReply(trimmed);
+      return res.json({ reply, provider: 'fallback', messages: [...trimmed, { role: 'assistant', content: reply }] });
+    }
+
+    // Call AI provider
+    const completion = await aiClient.chat.completions.create({
+      model: getModelName(selectedModel),
+      messages: trimmed.map(m => ({ role: m.role, content: m.content })),
+      temperature: 0.4,
+      max_tokens: 400
+    });
+
+    const reply = completion.choices?.[0]?.message?.content?.trim() || 'No response';
+    res.json({ reply, provider: aiProvider, model: completion.model || getModelName(selectedModel), messages: [...trimmed, { role: 'assistant', content: reply }] });
+  } catch (error) {
+    console.error('Chat endpoint error:', error);
+    // Last ditch heuristic
+    try {
+      const { messages = [] } = req.body || {};
+      const reply = heuristicChatReply(messages.slice(-10));
+      return res.json({ reply, provider: 'fallback-error', messages: [...messages, { role: 'assistant', content: reply }], error: error.message });
+    } catch (e2) {
+      return res.status(500).json({ error: 'chat failed' });
+    }
+  }
+});
+
+// Convenience GET so hitting the URL in browser gives a helpful message instead of 404
+app.get('/api/ai/chat', authenticateAPI, (req, res) => {
+  res.json({
+    info: 'Chat endpoint is POST-only. Send POST { messages:[{role:"user", content:"your question"}] }',
+    example: {
+      messages: [
+        { role: 'system', content: 'You are a helpful assistant.' },
+        { role: 'user', content: 'Explain latency regressions.' }
+      ]
+    }
+  });
+});
+
+// Simple heuristic reply used when AI provider unavailable
+function heuristicChatReply(messages) {
+  const lastUser = [...messages].reverse().find(m => m.role === 'user')?.content || '';
+  if (/help|what can you do|capab/i.test(lastUser)) {
+    return 'I can compare baseline vs current metrics, highlight regressions, and suggest latency / error / throughput optimizations. Ask about any metric name you see.';
+  }
+  if (/latency|slow|response/i.test(lastUser)) {
+    return 'Investigate the worst latency regressions first: check DB query plans, enable caching, reduce render blocking assets, and profile the slow endpoints.';
+  }
+  if (/error|fail/i.test(lastUser)) {
+    return 'Correlate error spikes with recent deployments, review logs & trace IDs, and examine dependency health (DB, cache, upstream APIs). Lower error % is better.';
+  }
+  if (/cpu|memory|mem/i.test(lastUser)) {
+    return 'For high CPU: profile hotspots, eliminate unnecessary JSON serialization, and batch I/O. For memory: watch for object retention, enable pooling, and right-size caches.';
+  }
+  if (/throughput|rps|tps/i.test(lastUser)) {
+    return 'Higher throughput comes from reducing per-request work, adding horizontal scaling, using async I/O, and optimizing critical code paths.';
+  }
+  if (/improv|optimi|improve/i.test(lastUser)) {
+    return 'Target high-impact regressions (>10%), ship quick wins (index missing queries, compress assets), then schedule deeper refactors for chronic hotspots.';
+  }
+  return 'Ask me about latency, errors, CPU, memory, throughput, or how to interpret a specific metric.';
+}
+
 // 2. Historical Data endpoint
 app.get('/api/reports/history', authenticateAPI, async (req, res) => {
   try {

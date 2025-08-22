@@ -54,7 +54,7 @@ export class SimplifiedAI {
   /**
    * Make API call with automatic fallback
    */
-  private async makeAPICall(prompt: string, maxTokens: number = 1500, selectedModel?: string): Promise<string> {
+  private async makeAPICall(prompt: string, maxTokens: number = 25000, selectedModel?: string): Promise<string> {
     // Only use OpenRouter (free models) - no OpenAI fallback
     if (this.provider === 'openrouter' && this.openrouterKey) {
       try {

@@ -1,5 +1,372 @@
 [
   {
+    "id": "1755890437089",
+    "timestamp": "2025-08-22T19:20:37.089Z",
+    "baseline": {
+      "name": "Baseline v1",
+      "timestamp": "2025-08-18T00:00:00Z",
+      "metrics": {
+        "errors.rate": 0.07,
+        "successful_requests.rate": 0.93,
+        "throughput": 420,
+        "cpu": 95,
+        "memory": 1150,
+        "browser_web_vital_lcp.avg": 2250,
+        "browser_web_vital_lcp.p95": 3000,
+        "browser_web_vital_fcp.avg": 1600,
+        "browser_web_vital_fcp.p95": 2050,
+        "browser_web_vital_inp.avg": 118,
+        "browser_web_vital_inp.p95": 175,
+        "browser_web_vital_ttfb.avg": 420,
+        "browser_web_vital_ttfb.p95": 610,
+        "browser_http_req_duration.avg": 325,
+        "browser_http_req_duration.p95": 540,
+        "page_load_time.avg": 3000,
+        "page_load_time.p95": 3850
+      }
+    },
+    "current": {
+      "name": "Current Trimmed",
+      "timestamp": "2025-08-22T00:00:00Z",
+      "metrics": {
+        "errors.rate": 0.025,
+        "successful_requests.rate": 0.977,
+        "throughput": 520,
+        "cpu": 122,
+        "memory": 1930,
+        "browser_web_vital_lcp.avg": 1700,
+        "browser_web_vital_lcp.p95": 2200,
+        "browser_web_vital_fcp.avg": 1100,
+        "browser_web_vital_fcp.p95": 1480,
+        "browser_web_vital_inp.avg": 85,
+        "browser_web_vital_inp.p95": 123,
+        "browser_web_vital_ttfb.avg": 330,
+        "browser_web_vital_ttfb.p95": 470,
+        "browser_http_req_duration.avg": 240.4,
+        "browser_http_req_duration.p95": 410,
+        "page_load_time.avg": 3500,
+        "page_load_time.p95": 3100
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Significant degradation in CPU (%)",
+        "description": "CPU (%) has degraded by 28.4%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "cpu"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in Memory (MB)",
+        "description": "Memory (MB) has degraded by 67.8%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "memory"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 14,
+      "worse": 3,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755890219538",
+    "timestamp": "2025-08-22T19:16:59.538Z",
+    "baseline": {
+      "name": "Baseline v2",
+      "timestamp": "2025-08-20T00:00:00Z",
+      "metrics": {
+        "errors.rate": 0.05,
+        "successful_requests.rate": 0.95,
+        "throughput": 470,
+        "cpu": 85,
+        "memory": 1050,
+        "browser_web_vital_lcp.avg": 2000,
+        "browser_web_vital_lcp.p95": 2650,
+        "browser_web_vital_fcp.avg": 1350,
+        "browser_web_vital_fcp.p95": 1800,
+        "browser_web_vital_inp.avg": 104,
+        "browser_web_vital_inp.p95": 155,
+        "browser_web_vital_ttfb.avg": 380,
+        "browser_web_vital_ttfb.p95": 555,
+        "browser_http_req_duration.avg": 295,
+        "browser_http_req_duration.p95": 500,
+        "page_load_time.avg": 2820,
+        "page_load_time.p95": 3550
+      }
+    },
+    "current": {
+      "name": "Current Trimmed",
+      "timestamp": "2025-08-22T00:00:00Z",
+      "metrics": {
+        "errors.rate": 0.025,
+        "successful_requests.rate": 0.977,
+        "throughput": 520,
+        "cpu": 122,
+        "memory": 1930,
+        "browser_web_vital_lcp.avg": 1700,
+        "browser_web_vital_lcp.p95": 2200,
+        "browser_web_vital_fcp.avg": 1100,
+        "browser_web_vital_fcp.p95": 1480,
+        "browser_web_vital_inp.avg": 85,
+        "browser_web_vital_inp.p95": 123,
+        "browser_web_vital_ttfb.avg": 330,
+        "browser_web_vital_ttfb.p95": 470,
+        "browser_http_req_duration.avg": 240.4,
+        "browser_http_req_duration.p95": 410,
+        "page_load_time.avg": 3500,
+        "page_load_time.p95": 3100
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Significant degradation in CPU (%)",
+        "description": "CPU (%) has degraded by 43.5%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "cpu"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in Memory (MB)",
+        "description": "Memory (MB) has degraded by 83.8%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "memory"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Significant degradation in page load time.avg",
+        "description": "page load time.avg has degraded by 24.1%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "page_load_time.avg"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 13,
+      "worse": 3,
+      "same": 1,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755886177533",
+    "timestamp": "2025-08-22T18:09:37.533Z",
+    "baseline": {
+      "name": "Baseline v1",
+      "timestamp": "2025-08-18T00:00:00Z",
+      "metrics": {
+        "errors.rate": 0.07,
+        "successful_requests.rate": 0.93,
+        "throughput": 420,
+        "cpu": 95,
+        "memory": 1150,
+        "browser_web_vital_lcp.avg": 2250,
+        "browser_web_vital_lcp.p95": 3000,
+        "browser_web_vital_fcp.avg": 1600,
+        "browser_web_vital_fcp.p95": 2050,
+        "browser_web_vital_inp.avg": 118,
+        "browser_web_vital_inp.p95": 175,
+        "browser_web_vital_ttfb.avg": 420,
+        "browser_web_vital_ttfb.p95": 610,
+        "browser_http_req_duration.avg": 325,
+        "browser_http_req_duration.p95": 540,
+        "page_load_time.avg": 3000,
+        "page_load_time.p95": 3850
+      }
+    },
+    "current": {
+      "name": "Current Trimmed",
+      "timestamp": "2025-08-22T00:00:00Z",
+      "metrics": {
+        "errors.rate": 0.025,
+        "successful_requests.rate": 0.977,
+        "throughput": 520,
+        "cpu": 122,
+        "memory": 1930,
+        "browser_web_vital_lcp.avg": 1700,
+        "browser_web_vital_lcp.p95": 2200,
+        "browser_web_vital_fcp.avg": 1100,
+        "browser_web_vital_fcp.p95": 1480,
+        "browser_web_vital_inp.avg": 85,
+        "browser_web_vital_inp.p95": 123,
+        "browser_web_vital_ttfb.avg": 330,
+        "browser_web_vital_ttfb.p95": 470,
+        "browser_http_req_duration.avg": 240.4,
+        "browser_http_req_duration.p95": 410,
+        "page_load_time.avg": 3500,
+        "page_load_time.p95": 3100
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Significant degradation in CPU (%)",
+        "description": "CPU (%) has degraded by 28.4%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "cpu"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in Memory (MB)",
+        "description": "Memory (MB) has degraded by 67.8%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "memory"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 14,
+      "worse": 3,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755885934196",
+    "timestamp": "2025-08-22T18:05:34.196Z",
+    "baseline": {
+      "name": "Baseline v1",
+      "timestamp": "2025-08-18T00:00:00Z",
+      "metrics": {
+        "errors.rate": 0.07,
+        "successful_requests.rate": 0.93,
+        "throughput": 420,
+        "cpu": 95,
+        "memory": 1150,
+        "browser_web_vital_lcp.avg": 2250,
+        "browser_web_vital_lcp.p95": 3000,
+        "browser_web_vital_fcp.avg": 1600,
+        "browser_web_vital_fcp.p95": 2050,
+        "browser_web_vital_inp.avg": 118,
+        "browser_web_vital_inp.p95": 175,
+        "browser_web_vital_ttfb.avg": 420,
+        "browser_web_vital_ttfb.p95": 610,
+        "browser_http_req_duration.avg": 325,
+        "browser_http_req_duration.p95": 540,
+        "page_load_time.avg": 3000,
+        "page_load_time.p95": 3850
+      }
+    },
+    "current": {
+      "name": "Current Trimmed",
+      "timestamp": "2025-08-22T00:00:00Z",
+      "metrics": {
+        "errors.rate": 0.025,
+        "successful_requests.rate": 0.977,
+        "throughput": 520,
+        "cpu": 122,
+        "memory": 1930,
+        "browser_web_vital_lcp.avg": 1700,
+        "browser_web_vital_lcp.p95": 2200,
+        "browser_web_vital_fcp.avg": 1100,
+        "browser_web_vital_fcp.p95": 1480,
+        "browser_web_vital_inp.avg": 85,
+        "browser_web_vital_inp.p95": 123,
+        "browser_web_vital_ttfb.avg": 330,
+        "browser_web_vital_ttfb.p95": 470,
+        "browser_http_req_duration.avg": 240.4,
+        "browser_http_req_duration.p95": 410,
+        "page_load_time.avg": 3500,
+        "page_load_time.p95": 3100
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Significant degradation in CPU (%)",
+        "description": "CPU (%) has degraded by 28.4%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "cpu"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in Memory (MB)",
+        "description": "Memory (MB) has degraded by 67.8%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "memory"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 14,
+      "worse": 3,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
     "id": "1755771775493",
     "timestamp": "2025-08-21T10:22:55.493Z",
     "baseline": {

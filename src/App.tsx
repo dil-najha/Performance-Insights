@@ -11,6 +11,8 @@ import { deepAnalyze } from './utils/deepAI';
 import type { PerformanceReport, EnhancedComparisonResult } from './types';
 import { aiService } from './services/aiService';
 import { compareReports, suggestionsFromDiffs, computeImpact, coerceReport } from './utils/compare';
+import { generateFreeInsights } from './utils/freeInsightModel';
+import { groqAnalyze } from './services/groqService';
 
 export default function App() {
   const [baseline, setBaseline] = useState<PerformanceReport | null>(null);
@@ -114,6 +116,7 @@ export default function App() {
   }, []);
 
   return (
+    <>
     <ErrorBoundary>
       <div className="min-h-screen">
         <div className="animated-bar h-1 w-full"></div>
@@ -248,15 +251,24 @@ export default function App() {
                     let enhanced: EnhancedComparisonResult = { ...base } as EnhancedComparisonResult;
                     if (aiEnabled) {
                       try {
-                        const res = await aiService.analyzePerformance(baseline, current, {});
-                        enhanced = res;
+                        // 1. Try Groq LLM if key present
+                        const groq = await groqAnalyze(baseline, current);
+                        if (groq) {
+                          enhanced = groq;
+                        } else {
+                          // 2. Fallback to existing secure AI service
+                          const res = await aiService.analyzePerformance(baseline, current, {});
+                          enhanced = res;
+                        }
                       } catch (e:any) {
-                        console.error('AI analysis failed, falling back to heuristic', e);
-                        setAiError('AI service unavailable, using heuristic insights.');
-                        enhanced = { ...base } as EnhancedComparisonResult;
+                        console.error('LLM analysis failed, using free local model', e);
+                        setAiError('LLM unavailable, using free local insights.');
+                        enhanced = generateFreeInsights(enhanced);
                       } finally {
                         setAiLoading(false);
                       }
+                    } else {
+                      enhanced = generateFreeInsights(enhanced);
                     }
                     setResult(enhanced);
                     setLastAnalysisTime(new Date().toLocaleString());
@@ -540,6 +552,7 @@ export default function App() {
         </main>
       </div>
     </ErrorBoundary>
+    </>
   );
 }
 
