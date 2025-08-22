@@ -1,5 +1,6 @@
- # Node dependencies
+# Node dependencies
 node_modules/
+
 # Build output
 /dist/
 /build/
@@ -66,3 +67,4 @@ ai-api-server/logs/
 # Temporary files
 .cache/
 .parcel-cache/
+node_modules

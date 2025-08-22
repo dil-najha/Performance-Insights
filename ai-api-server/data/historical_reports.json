@@ -1,5 +1,679 @@
 [
   {
+    "id": "1755812452809",
+    "timestamp": "2025-08-21T21:40:52.809Z",
+    "baseline": {
+      "name": "baseline",
+      "timestamp": "2025-08-21T21:40:42.848Z",
+      "metrics": {
+        "checks_rate": 1,
+        "http_req_failed_rate": 0.001,
+        "inp_avg_ms": 80,
+        "inp_p95_ms": 115,
+        "navigation_avg_ms": 1200,
+        "successful_requests_rate": 0.98,
+        "successful_requests_threshold_ok": 1,
+        "http_req_avg_ms": 250.5,
+        "http_req_p95_ms": 420.7,
+        "fid_avg_ms": 45,
+        "fid_p95_ms": 75,
+        "cls_avg": 0.025,
+        "page_load_avg_ms": 2800,
+        "page_load_p95_ms": 3300,
+        "error_rate": 0.02,
+        "errors_threshold_ok": 1,
+        "fcp_avg_ms": 1200,
+        "fcp_p95_ms": 1550,
+        "lcp_avg_ms": 1800,
+        "lcp_p95_ms": 2300,
+        "login_avg_ms": 1800,
+        "login_p95_ms": 2400,
+        "login_time_threshold_ok": 1,
+        "ttfb_avg_ms": 350,
+        "ttfb_p95_ms": 500,
+        "checks_total_passes": 40,
+        "checks_total_fails": 0,
+        "checks_success_rate": 1
+      }
+    },
+    "current": {
+      "name": "current",
+      "timestamp": "2025-08-21T21:40:18.771Z",
+      "metrics": {
+        "checks_rate": 0.8,
+        "http_req_failed_rate": 0.011627906976744186,
+        "inp_avg_ms": 32,
+        "inp_p95_ms": 32,
+        "total_iterations": 1,
+        "navigation_avg_ms": 4659,
+        "successful_requests_rate": 0.6,
+        "successful_requests_threshold_ok": 0,
+        "http_req_avg_ms": 1657.9489186046517,
+        "http_req_p95_ms": 4756.96365,
+        "total_requests": 2,
+        "fid_avg_ms": 2,
+        "fid_p95_ms": 2.720000010728836,
+        "cls_avg": 0.010938189160492686,
+        "page_load_avg_ms": 28102,
+        "page_load_p95_ms": 28102,
+        "error_rate": 1,
+        "errors_threshold_ok": 0,
+        "fcp_avg_ms": 4814.666666666667,
+        "fcp_p95_ms": 6539.2,
+        "lcp_avg_ms": 5598.666666666667,
+        "lcp_p95_ms": 7326,
+        "login_avg_ms": 8940,
+        "login_p95_ms": 8940,
+        "login_time_threshold_ok": 0,
+        "ttfb_avg_ms": 1130.1428571343422,
+        "ttfb_p95_ms": 2296.469999989867,
+        "checks_total_passes": 4,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.8
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in http req failed rate",
+        "description": "http req failed rate has degraded by 1062.8%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "http_req_failed_rate"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in navigation avg ms",
+        "description": "navigation avg ms has degraded by 288.3%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "navigation_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Significant degradation in successful requests rate",
+        "description": "successful requests rate has degraded by 38.8%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "successful_requests_rate"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in http req avg ms",
+        "description": "http req avg ms has degraded by 561.9%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "http_req_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in http req p95 ms",
+        "description": "http req p95 ms has degraded by 1030.7%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "http_req_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in page load avg ms",
+        "description": "page load avg ms has degraded by 903.6%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "page_load_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in page load p95 ms",
+        "description": "page load p95 ms has degraded by 751.6%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "page_load_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in error rate",
+        "description": "error rate has degraded by 4900.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "error_rate"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in fcp avg ms",
+        "description": "fcp avg ms has degraded by 301.2%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "fcp_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in fcp p95 ms",
+        "description": "fcp p95 ms has degraded by 321.9%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "fcp_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in lcp avg ms",
+        "description": "lcp avg ms has degraded by 211.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "lcp_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in lcp p95 ms",
+        "description": "lcp p95 ms has degraded by 218.5%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "lcp_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in login avg ms",
+        "description": "login avg ms has degraded by 396.7%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "login_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in login p95 ms",
+        "description": "login p95 ms has degraded by 272.5%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "login_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in ttfb avg ms",
+        "description": "ttfb avg ms has degraded by 222.9%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "ttfb_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in ttfb p95 ms",
+        "description": "ttfb p95 ms has degraded by 359.3%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "ttfb_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in checks total passes",
+        "description": "checks total passes has degraded by 90.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "checks_total_passes"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 6,
+      "worse": 18,
+      "same": 0,
+      "unknown": 6
+    }
+  },
+  {
+    "id": "1755811664426",
+    "timestamp": "2025-08-21T21:27:44.426Z",
+    "baseline": {
+      "name": "baseline",
+      "timestamp": "2025-08-21T21:27:33.826Z",
+      "metrics": {
+        "checks_rate": 1,
+        "http_req_failed_rate": 0.001,
+        "inp_avg_ms": 80,
+        "inp_p95_ms": 115,
+        "navigation_avg_ms": 1200,
+        "successful_requests_rate": 0.98,
+        "successful_requests_threshold_ok": 1,
+        "http_req_avg_ms": 250.5,
+        "http_req_p95_ms": 420.7,
+        "fid_avg_ms": 45,
+        "fid_p95_ms": 75,
+        "cls_avg": 0.025,
+        "page_load_avg_ms": 2800,
+        "page_load_p95_ms": 3300,
+        "error_rate": 0.02,
+        "errors_threshold_ok": 1,
+        "fcp_avg_ms": 1200,
+        "fcp_p95_ms": 1550,
+        "lcp_avg_ms": 1800,
+        "lcp_p95_ms": 2300,
+        "login_avg_ms": 1800,
+        "login_p95_ms": 2400,
+        "login_time_threshold_ok": 1,
+        "ttfb_avg_ms": 350,
+        "ttfb_p95_ms": 500,
+        "checks_total_passes": 40,
+        "checks_total_fails": 0,
+        "checks_success_rate": 1
+      }
+    },
+    "current": {
+      "name": "current",
+      "timestamp": "2025-08-21T21:27:09.840Z",
+      "metrics": {
+        "checks_rate": 0.8,
+        "http_req_failed_rate": 0.011627906976744186,
+        "inp_avg_ms": 32,
+        "inp_p95_ms": 32,
+        "total_iterations": 1,
+        "navigation_avg_ms": 4659,
+        "successful_requests_rate": 0.6,
+        "successful_requests_threshold_ok": 0,
+        "http_req_avg_ms": 1657.9489186046517,
+        "http_req_p95_ms": 4756.96365,
+        "total_requests": 2,
+        "fid_avg_ms": 2,
+        "fid_p95_ms": 2.720000010728836,
+        "cls_avg": 0.010938189160492686,
+        "page_load_avg_ms": 28102,
+        "page_load_p95_ms": 28102,
+        "error_rate": 1,
+        "errors_threshold_ok": 0,
+        "fcp_avg_ms": 4814.666666666667,
+        "fcp_p95_ms": 6539.2,
+        "lcp_avg_ms": 5598.666666666667,
+        "lcp_p95_ms": 7326,
+        "login_avg_ms": 8940,
+        "login_p95_ms": 8940,
+        "login_time_threshold_ok": 0,
+        "ttfb_avg_ms": 1130.1428571343422,
+        "ttfb_p95_ms": 2296.469999989867,
+        "checks_total_passes": 4,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.8
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in http req failed rate",
+        "description": "http req failed rate has degraded by 1062.8%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "http_req_failed_rate"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in navigation avg ms",
+        "description": "navigation avg ms has degraded by 288.3%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "navigation_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Significant degradation in successful requests rate",
+        "description": "successful requests rate has degraded by 38.8%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "successful_requests_rate"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in http req avg ms",
+        "description": "http req avg ms has degraded by 561.9%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "http_req_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in http req p95 ms",
+        "description": "http req p95 ms has degraded by 1030.7%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "http_req_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in page load avg ms",
+        "description": "page load avg ms has degraded by 903.6%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "page_load_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in page load p95 ms",
+        "description": "page load p95 ms has degraded by 751.6%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "page_load_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in error rate",
+        "description": "error rate has degraded by 4900.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "error_rate"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in fcp avg ms",
+        "description": "fcp avg ms has degraded by 301.2%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "fcp_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in fcp p95 ms",
+        "description": "fcp p95 ms has degraded by 321.9%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "fcp_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in lcp avg ms",
+        "description": "lcp avg ms has degraded by 211.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "lcp_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in lcp p95 ms",
+        "description": "lcp p95 ms has degraded by 218.5%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "lcp_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in login avg ms",
+        "description": "login avg ms has degraded by 396.7%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "login_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in login p95 ms",
+        "description": "login p95 ms has degraded by 272.5%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "login_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in ttfb avg ms",
+        "description": "ttfb avg ms has degraded by 222.9%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "ttfb_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in ttfb p95 ms",
+        "description": "ttfb p95 ms has degraded by 359.3%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "ttfb_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in checks total passes",
+        "description": "checks total passes has degraded by 90.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "checks_total_passes"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 6,
+      "worse": 18,
+      "same": 0,
+      "unknown": 6
+    }
+  },
+  {
     "id": "1755771775493",
     "timestamp": "2025-08-21T10:22:55.493Z",
     "baseline": {
