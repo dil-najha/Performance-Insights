@@ -16,3 +16,17 @@ pnpm-debug.log*
 # Build output (add if generated)
 dist/
 build/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Local server data/history
+ai-api-server/data/
+
+# Stop tracking generated and secret files
+.gitignore
+!.env.local
+!dist
+!build
+!ai-api-server/data
+!*.tsbuildinfo
