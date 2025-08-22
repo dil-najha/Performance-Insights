@@ -1,85 +1,66 @@
-// AI Configuration and Environment Variables
+// Amazon Bedrock AI Configuration
+// Clean implementation with only Bedrock support
+
 export const AI_CONFIG = {
-  // OpenRouter Configuration (Primary)
-  openrouter: {
-    apiKey: import.meta.env.VITE_OPENROUTER_API_KEY || '',
-    baseUrl: 'https://openrouter.ai/api/v1',
-    siteUrl: import.meta.env.VITE_SITE_URL || 'http://localhost:5173',
-    siteName: import.meta.env.VITE_SITE_NAME || 'Performance Insights Dashboard',
-    primaryModel: import.meta.env.VITE_PRIMARY_MODEL || 'deepseek/deepseek-chat-v3-0324:free',
-    freeModels: [
+  // AWS Bedrock Configuration (Only AI Provider)
+  bedrock: {
+    enabled: import.meta.env.VITE_BEDROCK_ENABLED !== 'false', // Default enabled
+    region: import.meta.env.VITE_AWS_REGION || 'us-west-2',
+    primaryModel: import.meta.env.VITE_BEDROCK_MODEL || 'anthropic.claude-3-5-haiku-20241022-v1:0',
+    models: [
       {
-        id: 'deepseek/deepseek-chat-v3-0324:free',
-        name: 'DeepSeek V3 (Free)',
-        description: 'Advanced reasoning model, excellent for analysis',
-        provider: 'DeepSeek',
-        tier: 'free'
+        id: 'anthropic.claude-3-5-haiku-20241022-v1:0',
+        name: 'Claude 3.5 Haiku',
+        description: 'Latest fast and cost-effective model with enhanced capabilities',
+        provider: 'AWS Bedrock',
+        tier: 'enterprise',
+        maxTokens: 200000,
+        cost: 'low',
+        speed: 'very-fast'
       },
       {
-        id: 'deepseek/deepseek-r1-0528:free',
-        name: 'DeepSeek R1 (Free)',
-        description: 'Latest reasoning model with enhanced capabilities',
-        provider: 'DeepSeek',
-        tier: 'free'
+        id: 'anthropic.claude-3-haiku-20240307-v1:0',
+        name: 'Claude 3 Haiku',
+        description: 'Fast and cost-effective for analysis',
+        provider: 'AWS Bedrock',
+        tier: 'enterprise',
+        maxTokens: 200000,
+        cost: 'low',
+        speed: 'fast'
       },
       {
-        id: 'google/gemini-2.0-flash-exp:free',
-        name: 'Gemini 2.0 Flash (Free)',
-        description: 'Fast and efficient Google model',
-        provider: 'Google',
-        tier: 'free'
+        id: 'anthropic.claude-sonnet-4-20250514-v1:0',
+        name: 'Claude 3.5 Sonnet',
+        description: 'Latest high-performance model (requires inference profile)',
+        provider: 'AWS Bedrock',
+        tier: 'enterprise',
+        maxTokens: 200000,
+        cost: 'medium',
+        speed: 'fast'
       },
       {
-        id: 'google/gemma-3-27b-it:free',
-        name: 'Gemma 3 27B (Free)',
-        description: 'Large context Google model',
-        provider: 'Google',
-        tier: 'free'
+        id: 'anthropic.claude-3-sonnet-20240229-v1:0',
+        name: 'Claude 3 Sonnet',
+        description: 'Balanced performance and capability',
+        provider: 'AWS Bedrock', 
+        tier: 'enterprise',
+        maxTokens: 200000,
+        cost: 'medium',
+        speed: 'medium'
       },
       {
-        id: 'google/gemma-3n-e2b-it:free',
-        name: 'Gemma 3N E2B (Free)',
-        description: 'Optimized Google model for efficiency',
-        provider: 'Google',
-        tier: 'free'
-      },
-      {
-        id: 'openai/gpt-oss-20b:free',
-        name: 'GPT OSS 20B (Free)',
-        description: 'Open source style GPT model',
-        provider: 'OpenAI',
-        tier: 'free'
-      },
-      {
-        id: 'deepseek/deepseek-r1-0528-qwen3-8b:free',
-        name: 'DeepSeek R1 Qwen (Free)',
-        description: 'Hybrid reasoning model with Qwen base',
-        provider: 'DeepSeek',
-        tier: 'free'
+        id: 'anthropic.claude-3-opus-20240229-v1:0',
+        name: 'Claude 3 Opus',
+        description: 'Highest capability for complex analysis',
+        provider: 'AWS Bedrock',
+        tier: 'enterprise', 
+        maxTokens: 200000,
+        cost: 'high',
+        speed: 'slow'
       }
     ],
-    fallbackModels: [
-      'deepseek/deepseek-chat-v3-0324:free',
-      'google/gemini-2.0-flash-exp:free',
-      'deepseek/deepseek-r1-0528:free',
-      'google/gemma-3-27b-it:free'
-    ],
-    maxTokens: parseInt(import.meta.env.VITE_OPENAI_MAX_TOKENS || '15000'),
+    maxTokens: 200000,
     temperature: 0.3
-  },
-
-  // OpenAI Configuration (Disabled - Using Free Models Only)
-  openai: {
-    apiKey: '', // Disabled - using OpenRouter free models only
-    baseUrl: import.meta.env.VITE_OPENAI_BASE_URL || 'https://api.openai.com/v1',
-    model: 'deepseek/deepseek-chat-v3-0324:free', // Free alternative
-    maxTokens: parseInt(import.meta.env.VITE_OPENAI_MAX_TOKENS || '15000'),
-  },
-
-  // Local ML Models (TensorFlow.js)
-  local: {
-    enabled: import.meta.env.VITE_LOCAL_ML_ENABLED === 'true',
-    modelPath: import.meta.env.VITE_LOCAL_MODEL_PATH || '/models',
   },
 
   // API Endpoints
@@ -95,16 +76,7 @@ export const AI_CONFIG = {
     rootCauseAnalysis: import.meta.env.VITE_AI_ROOT_CAUSE !== 'false',
     predictions: import.meta.env.VITE_AI_PREDICTIONS !== 'false',
     naturalLanguage: import.meta.env.VITE_AI_NATURAL_LANGUAGE !== 'false',
-  },
-
-  // Fallback Options
-  fallback: {
-    enableBasicAnalysis: true,
-    enableStatisticalAnomaly: true,
-    enableRuleBasedSuggestions: true,
-  },
-
-
+  }
 };
 
 // Environment validation
@@ -112,88 +84,133 @@ export function validateAIConfig(): {
   valid: boolean; 
   errors: string[]; 
   providers: {
-    openrouter: boolean;
-    openai: boolean;
+    bedrock: boolean;
     recommended: string;
   };
 } {
   const errors: string[] = [];
 
-  // Check for AI provider availability
-  const hasOpenRouter = !!AI_CONFIG.openrouter.apiKey;
-  const hasOpenAI = !!AI_CONFIG.openai.apiKey;
+  // Check for Bedrock availability
+  const hasBedrock = AI_CONFIG.bedrock.enabled;
   
-  if (AI_CONFIG.features.smartSuggestions && !hasOpenRouter && !hasOpenAI) {
-    errors.push('Either OpenRouter or OpenAI API key is required for smart suggestions');
+  if (AI_CONFIG.features.smartSuggestions && !hasBedrock) {
+    errors.push('AWS Bedrock is required for AI-powered smart suggestions');
   }
 
   if (AI_CONFIG.api.timeout < 5000) {
     errors.push('API timeout should be at least 5 seconds');
   }
 
+  // Bedrock-specific validations
+  if (hasBedrock) {
+    if (!AI_CONFIG.bedrock.region) {
+      errors.push('AWS region is required when Bedrock is enabled');
+    }
+    if (!AI_CONFIG.bedrock.primaryModel) {
+      errors.push('Primary Bedrock model must be specified');
+    }
+  }
+
   return {
     valid: errors.length === 0,
     errors,
     providers: {
-      openrouter: hasOpenRouter,
-      openai: hasOpenAI,
-      recommended: hasOpenRouter ? 'openrouter' : hasOpenAI ? 'openai' : 'none'
+      bedrock: hasBedrock,
+      recommended: hasBedrock ? 'bedrock' : 'none'
     }
   };
 }
 
-// Provider selection logic - Force OpenRouter for free models
-export function getPreferredProvider(): 'openrouter' | 'openai' | 'local' {
+// Provider selection logic - Bedrock only
+export function getPreferredProvider(): 'bedrock' | 'local' {
   const validation = validateAIConfig();
   
-  // Always prefer OpenRouter if API key is available (for free models)
-  if (validation.providers.openrouter) {
-    console.log('🌟 Using OpenRouter (free models available)');
-    return 'openrouter';
+  // Always prefer Bedrock if enabled
+  if (validation.providers.bedrock) {
+    console.log('🏆 Using AWS Bedrock (enterprise Claude models)');
+    return 'bedrock';
   }
   
-  // Fallback to local analysis (no paid models)
-  console.log('🏠 No OpenRouter key - using local analysis');
+  // Fallback to local analysis (no AI)
+  console.log('🏠 No AWS Bedrock - using local analysis only');
   return 'local';
+}
+
+// Get available models (Bedrock only)
+export function getAvailableModels() {
+  return AI_CONFIG.bedrock.models;
+}
+
+// Get model by ID
+export function getModelById(modelId: string) {
+  return AI_CONFIG.bedrock.models.find(model => model.id === modelId);
 }
 
 // Development setup instructions
 export const SETUP_INSTRUCTIONS = `
-🤖 AI Integration Setup Instructions:
+🏆 Amazon Bedrock Setup Instructions:
 
 1. Environment Variables (add to .env.local):
    
-   🌟 RECOMMENDED: OpenRouter.ai (Multi-model access + cost control)
-   VITE_OPENROUTER_API_KEY=your_openrouter_api_key_here
-   VITE_SITE_URL=http://localhost:5173
-   VITE_SITE_NAME="Performance Insights Dashboard"
-   VITE_PRIMARY_MODEL=deepseek/deepseek-chat-v3-0324:free
-   
-   📦 OR: Direct OpenAI (Single provider)
-   VITE_OPENAI_API_KEY=your_openai_api_key_here
-   
-   🔧 Backend Configuration:
-   VITE_AI_API_BASE_URL=http://localhost:3001/api/ai
+   🔧 Frontend Configuration:
+   VITE_BEDROCK_ENABLED=true
+   VITE_AWS_REGION=us-west-2
+   VITE_BEDROCK_MODEL=anthropic.claude-3-haiku-20240307-v1:0
+   VITE_AI_API_BASE_URL=http://localhost:3001/api
    VITE_API_SECRET_KEY=your_secure_api_key
    
-2. Feature Flags (optional):
-   VITE_AI_ANOMALY_DETECTION=true
-   VITE_AI_SMART_SUGGESTIONS=true
-   VITE_AI_ROOT_CAUSE=true
-   VITE_AI_PREDICTIONS=true
+2. Backend Configuration (ai-api-server/.env):
+   
+   🔑 AWS Credentials:
+   AWS_ACCESS_KEY_ID=your_aws_access_key_id
+   AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+   AWS_REGION=us-west-2
+   
+   🔧 Server Settings:
+   PORT=3001
+   FRONTEND_URL=http://localhost:5173
+   API_SECRET_KEY=your_secure_api_key
+   
+3. AWS Setup Requirements:
+   
+   ✅ Create AWS IAM user with Bedrock permissions:
+      - bedrock:InvokeModel
+      - bedrock:ListModels (optional)
+   
+   ✅ Enable Bedrock access in your AWS region
+   
+   ✅ Ensure Claude models are available in your region
 
-3. Backend API Server:
-   - Set up Express.js server at localhost:3001
-   - Configure OpenRouter/OpenAI API integration
-   - Handle secure API proxying
+4. Available Models:
+   
+   🚀 Claude 3 Haiku (Fast & Cost-effective)
+      - Model: anthropic.claude-3-haiku-20240307-v1:0
+      - Best for: Quick analysis, high throughput
+   
+   ⚖️ Claude 3 Sonnet (Balanced)
+      - Model: anthropic.claude-3-sonnet-20240229-v1:0
+      - Best for: Balanced performance and capability
+   
+   🧠 Claude 3 Opus (Highest Capability)
+      - Model: anthropic.claude-3-opus-20240229-v1:0
+      - Best for: Complex analysis, detailed insights
 
-4. OpenRouter Benefits:
-   ✅ Cost controls & spending limits
-   ✅ Multi-model fallback (OpenAI, Anthropic, Meta, Google)
-   ✅ Enhanced security monitoring
-   ✅ GitHub secret scanning integration
+5. Installation:
+   
+   cd ai-api-server
+   npm install @aws-sdk/client-bedrock-runtime @aws-sdk/credential-providers
+   npm run start
+   
+6. Testing:
+   
+   curl http://localhost:3001/health
+   curl -H "Authorization: Bearer your-api-key" http://localhost:3001/health/bedrock
 
-5. Local ML Models (fallback):
-   VITE_LOCAL_ML_ENABLED=true
-   VITE_LOCAL_MODEL_PATH=/models
+7. Benefits:
+   
+   ✅ Enterprise-grade security & compliance
+   ✅ Latest Claude 3 models with 200K context
+   ✅ Advanced reasoning capabilities  
+   ✅ AWS infrastructure reliability
+   ✅ Pay-per-use pricing model
 `;

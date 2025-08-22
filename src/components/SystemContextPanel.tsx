@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { SystemContext } from '../types';
-import { AI_CONFIG } from '../config/ai';
+import { AI_CONFIG, getPreferredProvider } from '../config/ai';
 
 interface Props {
   context: SystemContext;
@@ -90,16 +90,16 @@ export default function SystemContextPanel({ context, onContextChange, aiEnabled
               <div className="form-control">
                 <label className="label label-text text-xs">
                   AI Model
-                  <span className="ml-1 text-green-600 text-xs">🆓</span>
+                  <span className="ml-1 text-xs opacity-60">(AWS Bedrock)</span>
                 </label>
                 <select 
                   className="select select-bordered select-xs"
-                  value={context.selectedModel || AI_CONFIG.openrouter.primaryModel}
+                  value={context.selectedModel || AI_CONFIG.bedrock.primaryModel}
                   onChange={(e) => updateContext('selectedModel', e.target.value)}
                 >
-                  {AI_CONFIG.openrouter.freeModels.map((model) => (
+                  {AI_CONFIG.bedrock.models.map((model) => (
                     <option key={model.id} value={model.id}>
-                      {model.name} {model.tier === 'free' ? '🆓' : '💳'}
+                      {model.name} - {model.description}
                     </option>
                   ))}
                 </select>
@@ -217,11 +217,11 @@ export default function SystemContextPanel({ context, onContextChange, aiEnabled
 
             <div className="text-xs opacity-60 mt-2 space-y-1">
               <p>💡 Providing context helps AI generate more relevant and actionable suggestions</p>
-              <p>🆓 Free models are available without additional cost • 💳 Paid models offer enhanced capabilities</p>
+              <p>🏆 Powered by AWS Bedrock with enterprise-grade Claude 3 models</p>
               {context.selectedModel && (
                 <p>
                   <span className="font-semibold">Selected:</span> {
-                    AI_CONFIG.openrouter.freeModels.find((model: any) => model.id === context.selectedModel)?.name || context.selectedModel
+                    AI_CONFIG.bedrock.models.find((model: any) => model.id === context.selectedModel)?.name || context.selectedModel
                   }
                 </p>
               )}
@@ -232,7 +232,7 @@ export default function SystemContextPanel({ context, onContextChange, aiEnabled
         {/* Message when AI is disabled */}
         {!aiEnabled && (
           <div className="text-sm opacity-60 mt-2 text-center">
-            📊 Enable AI Analysis to configure system context for enhanced insights
+            🏆 Enable AI Analysis to use AWS Bedrock for enhanced performance insights
           </div>
         )}
       </div>

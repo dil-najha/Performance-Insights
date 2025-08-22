@@ -23,7 +23,7 @@ export default function App() {
     stack: '',
     environment: 'prod',
     scale: 'medium',
-    selectedModel: AI_CONFIG.openrouter.primaryModel // Default to configured primary model
+    selectedModel: AI_CONFIG.bedrock.primaryModel // Default to Bedrock primary model
   });
   const [result, setResult] = useState<EnhancedComparisonResult | null>(null);
   const [showHistory, setShowHistory] = useState(false);
