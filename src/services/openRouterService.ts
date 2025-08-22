@@ -100,7 +100,7 @@ export class OpenRouterService {
   private async makeAPICall(
     model: string,
     messages: any[],
-    maxTokens: number = 1500
+    maxTokens: number = 15000
   ): Promise<any> {
     try {
       console.log(`🚀 Making OpenRouter API call with model: ${model}`);
@@ -187,10 +187,38 @@ export class OpenRouterService {
     try {
       const prompt = this.buildInsightsPrompt(diffs, context);
       
+      // Build enhanced system prompt based on available context
+      let systemPrompt = 'You are a performance optimization expert. Analyze performance metrics and provide specific, actionable insights.';
+      
+      // Enhance system prompt when advanced context is provided
+      if (context) {
+        const hasAdvancedContext = context.business_criticality || context.recent_changes?.trim() || 
+                                  context.performance_goals?.trim() || context.known_issues?.trim() || 
+                                  context.custom_focus?.trim();
+        
+        if (hasAdvancedContext) {
+          systemPrompt = `You are a senior performance optimization expert with deep knowledge of modern web applications, infrastructure, and monitoring systems.
+
+ANALYSIS REQUIREMENTS:
+- Provide specific, actionable insights based on the performance metrics and system context provided
+- Consider business criticality, recent changes, and team context when prioritizing recommendations
+- Focus on root cause analysis and measurable optimization opportunities
+- Adapt recommendations to the technology stack and environment specified
+
+PRIORITIZATION:
+${context.business_criticality ? `- This is a ${context.business_criticality} priority system - adjust severity accordingly` : ''}
+${context.urgency ? `- Urgency level is ${context.urgency} - factor this into recommendations` : ''}
+${context.recent_changes?.trim() ? '- Pay special attention to recent changes as potential causes' : ''}
+${context.known_issues?.trim() ? '- Consider known issues when analyzing root causes' : ''}`;
+        }
+      }
+      
+      systemPrompt += '\n\nRespond with a JSON array of insights, each having: type (anomaly/suggestion/prediction), severity (low/medium/high/critical), confidence (0-1), title, description, actionable_steps (array), affected_metrics (array).';
+
       const messages = [
         {
           role: 'system',
-          content: 'You are a performance optimization expert. Analyze performance metrics and provide specific, actionable insights. Respond with a JSON array of insights, each having: type (anomaly/suggestion/prediction), severity (low/medium/high/critical), confidence (0-1), title, description, actionable_steps (array), affected_metrics (array).'
+          content: systemPrompt
         },
         {
           role: 'user',
@@ -328,12 +356,29 @@ export class OpenRouterService {
     
     let contextInfo = '';
     if (context) {
-      contextInfo = `
+      // Build enhanced context with all available fields (only when provided)
+      const contextLines = [];
+      
+      // Basic context
+      if (context.environment) contextLines.push(`Environment: ${context.environment}`);
+      if (context.stack) contextLines.push(`Technology Stack: ${context.stack}`);
+      if (context.scale) contextLines.push(`Scale: ${context.scale}`);
+      
+      // Advanced context (only when user provides details)
+      if (context.business_criticality) contextLines.push(`Business Criticality: ${context.business_criticality}`);
+      if (context.recent_changes?.trim()) contextLines.push(`Recent Changes: ${context.recent_changes}`);
+      if (context.performance_goals?.trim()) contextLines.push(`Performance Goals: ${context.performance_goals}`);
+      if (context.known_issues?.trim()) contextLines.push(`Known Issues: ${context.known_issues}`);
+      if (context.custom_focus?.trim()) contextLines.push(`Custom Focus: ${context.custom_focus}`);
+      if (context.team) contextLines.push(`Team: ${context.team}`);
+      if (context.urgency) contextLines.push(`Urgency Level: ${context.urgency}`);
+      
+      if (contextLines.length > 0) {
+        contextInfo = `
 System Context:
-- Environment: ${context.environment || 'unknown'}
-- Technology Stack: ${context.stack || 'unknown'}
-- Scale: ${context.scale || 'unknown'}
+${contextLines.map(item => `- ${item}`).join('\n')}
 `;
+      }
     }
 
     return `
