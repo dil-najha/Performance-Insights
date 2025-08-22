@@ -7,6 +7,16 @@ node_modules/
 .tmp/
 .temp/
 
+# Environment files
+.env
+.env.*
+.env.local
+!.env.example
+!.env*.example
+
+# Setup scripts (contains API keys) 
+setup-env.bat
+
 # Vite cache
 .vite/
 node_modules/.vite/
@@ -36,11 +46,8 @@ pids/
 *.seed
 *.pid.lock
 
-# Environment variables
-.env
-.env.*
-!.env.example
-!.env*.example
+# Additional environment patterns (if needed)
+# .env files are already ignored above
 
 # Editor and IDE folders
 .vscode/*

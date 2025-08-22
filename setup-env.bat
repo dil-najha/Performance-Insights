@@ -5,7 +5,7 @@ echo Creating .env.local with OpenRouter configuration...
 echo # AI Performance Insights - Frontend Configuration
 echo.
 echo # === PRIMARY: OpenRouter Configuration (Free Models Only) ===
-echo VITE_OPENROUTER_API_KEY=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
+echo VITE_OPENROUTER_API_KEY=sk-or-v1-
 echo VITE_SITE_URL=http://localhost:5173
 echo VITE_SITE_NAME=Performance Insights Dashboard
 echo VITE_PRIMARY_MODEL=deepseek/deepseek-chat-v3-0324:free
@@ -34,7 +34,7 @@ echo Creating ai-api-server/.env with OpenRouter configuration...
 echo # AI Performance Insights Backend Configuration
 echo.
 echo # === PRIMARY: OpenRouter Configuration (Free Models Only) ===
-echo OPENROUTER_API_KEY=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
+echo OPENROUTER_API_KEY=sk-or-v1-
 echo PRIMARY_MODEL=deepseek/deepseek-chat-v3-0324:free
 echo SITE_URL=http://localhost:5173
 echo SITE_NAME=Performance Insights Dashboard

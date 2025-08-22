@@ -54,7 +54,7 @@ export class SimplifiedAI {
   /**
    * Make API call with automatic fallback
    */
-  private async makeAPICall(prompt: string, maxTokens: number = 1500, selectedModel?: string): Promise<string> {
+  private async makeAPICall(prompt: string, maxTokens: number = 15000, selectedModel?: string): Promise<string> {
     // Only use OpenRouter (free models) - no OpenAI fallback
     if (this.provider === 'openrouter' && this.openrouterKey) {
       try {
@@ -166,15 +166,37 @@ export class SimplifiedAI {
     }
 
     try {
-      const prompt = this.buildInsightsPrompt(diffs);
-      console.log('📝 Sending prompt to AI provider:', this.provider);
+      const prompt = this.buildInsightsPrompt(diffs, context);
+      console.log('📝 Sending prompt with context to AI provider:', this.provider);
 
-      const systemPrompt = 'You are a performance optimization expert. Analyze performance metrics and provide specific, actionable insights. Respond with a JSON array of insights, each having: type (anomaly/suggestion/prediction), severity (low/medium/high/critical), confidence (0-1), title, description, actionable_steps (array), affected_metrics (array).';
+      // Build enhanced system prompt based on available context
+      let systemPrompt = 'You are a performance optimization expert. Analyze performance metrics and provide specific, actionable insights.';
+      
+      // Enhance system prompt when advanced context is provided
+      if (context) {
+        const hasAdvancedContext = context.business_criticality || context.recent_changes?.trim() || 
+                                  context.performance_goals?.trim() || context.known_issues?.trim() || 
+                                  context.custom_focus?.trim();
+        
+        if (hasAdvancedContext) {
+          systemPrompt = `You are a senior performance optimization expert specializing in ${context.stack || 'web applications'}.
+          
+${context.business_criticality ? `This is a ${context.business_criticality} priority system. ` : ''}
+${context.recent_changes?.trim() ? `Recent changes: ${context.recent_changes}. ` : ''}
+${context.known_issues?.trim() ? `Known issues: ${context.known_issues}. ` : ''}
+${context.custom_focus?.trim() ? `Focus area: ${context.custom_focus}. ` : ''}
+
+Analyze performance metrics and provide specific, actionable insights considering the above context.`;
+        }
+      }
+      
+      systemPrompt += ' Respond with a JSON array of insights, each having: type (anomaly/suggestion/prediction), severity (low/medium/high/critical), confidence (0-1), title, description, actionable_steps (array), affected_metrics (array).';
+      
       const fullPrompt = `${systemPrompt}\n\nUser Query: ${prompt}`;
       
-      // Use selected model from context if provided
+      // Use selected model from context if provided and increase token limit
       const selectedModel = context?.selectedModel;
-      const aiContent = await this.makeAPICall(fullPrompt, 1500, selectedModel);
+      const aiContent = await this.makeAPICall(fullPrompt, 15000, selectedModel);
       console.log('✅ Raw AI response:', aiContent);
 
       // Parse the AI response
@@ -190,12 +212,25 @@ export class SimplifiedAI {
     }
   }
 
-  private buildInsightsPrompt(diffs: MetricDiff[]): string {
+  private buildInsightsPrompt(diffs: MetricDiff[], context?: SystemContext): string {
     const worseMetrics = diffs.filter(d => d.trend === 'worse');
     const improvedMetrics = diffs.filter(d => d.trend === 'improved');
     
+    // Include advanced context in prompt (only when provided)
+    const contextLines = [];
+    if (context?.environment) contextLines.push(`Environment: ${context.environment}`);
+    if (context?.stack) contextLines.push(`Technology Stack: ${context.stack}`);
+    if (context?.scale) contextLines.push(`Scale: ${context.scale}`);
+    if (context?.business_criticality) contextLines.push(`Business Impact: ${context.business_criticality}`);
+    if (context?.performance_goals?.trim()) contextLines.push(`Goals: ${context.performance_goals}`);
+    if (context?.known_issues?.trim()) contextLines.push(`Known Issues: ${context.known_issues}`);
+    if (context?.custom_focus?.trim()) contextLines.push(`Focus Area: ${context.custom_focus}`);
+    
+    const contextSection = contextLines.length > 0 ? 
+      `\nSYSTEM CONTEXT:\n${contextLines.map(item => `- ${item}`).join('\n')}\n` : '';
+    
     return `
-Performance Analysis Report:
+Performance Analysis Report:${contextSection}
 
 DEGRADED METRICS (need attention):
 ${worseMetrics.map(d => `- ${d.label}: ${d.baseline} → ${d.current} (${d.pct?.toFixed(1)}% ${d.trend})`).join('\n')}
@@ -205,8 +240,8 @@ ${improvedMetrics.map(d => `- ${d.label}: ${d.baseline} → ${d.current} (${d.pc
 
 Please analyze this performance data and provide 2-4 specific, actionable insights. Focus on:
 1. Root cause analysis for degraded metrics
-2. Specific optimization recommendations
-3. Priority ranking based on impact
+2. Specific optimization recommendations  
+3. Priority ranking based on business impact and context
 
 Return as JSON array with insights having: type, severity, confidence, title, description, actionable_steps, affected_metrics.
     `.trim();
@@ -280,12 +315,18 @@ Return as JSON array with insights having: type, severity, confidence, title, de
       const prompt = this.buildExplanationPrompt(diffs);
       console.log('📝 Getting AI explanation from:', this.provider);
 
-      const systemPrompt = 'You are a performance analyst. Provide a concise, business-friendly summary of performance changes in 1-2 sentences.';
+      // Build context-aware system prompt for explanations
+      let systemPrompt = 'You are a performance analyst. Provide a concise, business-friendly summary of performance changes in 1-2 sentences.';
+      
+      if (context?.business_criticality || context?.custom_focus?.trim()) {
+        systemPrompt += ` Focus on ${context.business_criticality ? `${context.business_criticality} priority` : 'business'} impact${context.custom_focus?.trim() ? ` and ${context.custom_focus}` : ''}.`;
+      }
+      
       const fullPrompt = `${systemPrompt}\n\nUser Query: ${prompt}`;
       
       // Use selected model from context if provided
       const selectedModel = context?.selectedModel;
-      const explanation = await this.makeAPICall(fullPrompt, 200, selectedModel);
+      const explanation = await this.makeAPICall(fullPrompt, 500, selectedModel);
       const trimmedExplanation = explanation.trim();
       
       console.log('✅ AI explanation:', trimmedExplanation);

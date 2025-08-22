@@ -64,7 +64,7 @@ export const AI_CONFIG = {
       'deepseek/deepseek-r1-0528:free',
       'google/gemma-3-27b-it:free'
     ],
-    maxTokens: parseInt(import.meta.env.VITE_OPENAI_MAX_TOKENS || '1500'),
+    maxTokens: parseInt(import.meta.env.VITE_OPENAI_MAX_TOKENS || '15000'),
     temperature: 0.3
   },
 
@@ -73,7 +73,7 @@ export const AI_CONFIG = {
     apiKey: '', // Disabled - using OpenRouter free models only
     baseUrl: import.meta.env.VITE_OPENAI_BASE_URL || 'https://api.openai.com/v1',
     model: 'deepseek/deepseek-chat-v3-0324:free', // Free alternative
-    maxTokens: parseInt(import.meta.env.VITE_OPENAI_MAX_TOKENS || '1500'),
+    maxTokens: parseInt(import.meta.env.VITE_OPENAI_MAX_TOKENS || '15000'),
   },
 
   // Local ML Models (TensorFlow.js)
