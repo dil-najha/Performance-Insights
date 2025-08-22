@@ -28,8 +28,8 @@ export default function DiffTable({ diffs }: { diffs: MetricDiff[] }) {
           {diffs.map(d => (
             <tr key={d.key}>
               <td>{d.label}</td>
-              <td className="text-right">{d.baseline ?? '-'}</td>
-              <td className="text-right">{d.current ?? '-'}</td>
+              <td className="text-right">{d.baseline !== null ? d.baseline.toFixed(2) : '-'}</td>
+              <td className="text-right">{d.current !== null ? d.current.toFixed(2) : '-'}</td>
               <td className="text-right">{d.change === null ? '-' : d.change.toFixed(2)}</td>
               <td className="text-right">{d.pct === null ? '-' : `${d.pct.toFixed(1)}%`}</td>
               <td><span className={trendBadge(d.trend)}>{d.trend}</span></td>
