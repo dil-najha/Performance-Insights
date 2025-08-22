@@ -1,0 +1,17 @@
+{
+  "name": "Baseline Trimmed",
+  "timestamp": "2025-08-21T00:00:00Z",
+  "metrics": {
+    "errors": { "values": { "rate": 0.040 } },
+    "successful_requests": { "values": { "rate": 0.960 } },
+    "throughput": 480,
+    "cpu": 80,
+    "memory": 1000,
+    "browser_web_vital_lcp": { "values": { "avg": 1900, "p(95)": 2500 } },
+    "browser_web_vital_fcp": { "values": { "avg": 1300, "p(95)": 1700 } },
+    "browser_web_vital_inp": { "values": { "avg": 95, "p(95)": 140 } },
+    "browser_web_vital_ttfb": { "values": { "avg": 360, "p(95)": 520 } },
+    "browser_http_req_duration": { "values": { "avg": 280.0, "p(95)": 480.0 } },
+    "page_load_time": { "values": { "avg": 2700, "p(95)": 3400 } }
+  }
+}

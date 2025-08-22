@@ -1,1 +1,24 @@
-/* Component-level styles if needed */
+/* Navbar enhancements */
+.enhanced-navbar { position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(6px); transition:background-color .4s ease, box-shadow .4s ease; }
+.enhanced-navbar:before { content:""; position:absolute; inset:0; background:linear-gradient(120deg,rgba(16,185,129,.25),rgba(59,130,246,.18),rgba(245,158,11,.22)); opacity:.65; pointer-events:none; mix-blend-mode:overlay; }
+.enhanced-navbar:after { content:""; position:absolute; left:0; bottom:0; width:100%; height:3px; background:linear-gradient(90deg,#22c55e,#06b6d4,#f59e0b,#f43f5e); background-size:220% 100%; animation:nav-bar-slide 9s linear infinite; }
+.nav-scrolled { box-shadow:0 4px 18px -4px rgba(0,0,0,.18), 0 2px 6px -2px rgba(0,0,0,.08); }
+.nav-scrolled:before { opacity:.85; }
+
+@keyframes nav-bar-slide { 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
+
+/* Button micro interactions */
+.nav-cta { position:relative; overflow:hidden; }
+.nav-cta:after { content:""; position:absolute; inset:0; background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.35),transparent 60%); opacity:0; transition:opacity .5s; }
+.nav-cta:hover:after { opacity:.35; }
+
+/* Logo subtle pulse */
+.logo-pulse { animation:logoPulse 6s ease-in-out infinite; }
+@keyframes logoPulse { 0%,100%{filter:drop-shadow(0 0 0 rgba(34,197,94,.0)); transform:scale(1);} 50%{filter:drop-shadow(0 0 6px rgba(34,197,94,.45)); transform:scale(1.02);} }
+
+/* Dropdown fade */
+.dropdown-content { animation:fadeIn .25s ease-out; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(4px);} to { opacity:1; transform:translateY(0);} }
+
+/* Reduce motion preference */
+@media (prefers-reduced-motion: reduce) { .enhanced-navbar:after { animation:none; } .logo-pulse { animation:none; } }

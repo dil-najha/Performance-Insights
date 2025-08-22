@@ -9,19 +9,22 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import AIInsights from './components/AIInsights';
 import { deepAnalyze } from './utils/deepAI';
 import type { PerformanceReport, EnhancedComparisonResult } from './types';
-import { compareReports, suggestionsFromDiffs, computeImpact } from './utils/compare';
+import { aiService } from './services/aiService';
+import { compareReports, suggestionsFromDiffs, computeImpact, coerceReport } from './utils/compare';
 
 export default function App() {
   const [baseline, setBaseline] = useState<PerformanceReport | null>(null);
   const [current, setCurrent] = useState<PerformanceReport | null>(null);
   const [loadingSample, setLoadingSample] = useState(false);
-  // AI removed
   const [result, setResult] = useState<EnhancedComparisonResult | null>(null);
+  const [aiEnabled, setAiEnabled] = useState<boolean>(import.meta.env.VITE_ENABLE_AI === 'true');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [lastAnalysisTime, setLastAnalysisTime] = useState<string>('');
   const [showTopMetricsOnly, setShowTopMetricsOnly] = useState(true);
-
-  // AI removed
+  const [baselineVersion, setBaselineVersion] = useState<string>('');
+  const [baselineMode, setBaselineMode] = useState<'version' | 'upload'>('version');
 
   // Basic comparison (fallback)
   const basicResult = useMemo(() => {
@@ -36,13 +39,17 @@ export default function App() {
       return;
     }
     
-    // Clear previous results when new data is loaded
-    // Analysis will be triggered manually via "Start Analysis" button
+  // Clear previous results when new data is loaded
     setResult(null);
   }, [baseline, current]);
 
   const tips = useMemo(() => result ? suggestionsFromDiffs(result.diffs) : [], [result]);
-  const deepAI = useMemo(() => result ? deepAnalyze(result) : null, [result]);
+  const deepAI = useMemo(() => {
+    // Use heuristic only if no AI insights present or AI disabled
+    if (!result) return null;
+    if (result.aiInsights && result.aiInsights.length > 0) return null;
+    return deepAnalyze(result);
+  }, [result]);
 
   const loadSample = async () => {
     setLoadingSample(true);
@@ -58,6 +65,22 @@ export default function App() {
       alert('Failed to load sample data. Please check if the sample files exist.');
     } finally {
       setLoadingSample(false);
+    }
+  };
+
+  const loadBaselineVersion = async (ver: string) => {
+    try {
+      if (!ver) return;
+      const raw = await fetch(`/baselines/baseline-${ver}.json`).then(r => r.json());
+      const coerced = coerceReport(raw, `Baseline ${ver}`);
+      if (coerced) {
+        setBaseline(coerced);
+        setBaselineVersion(ver);
+      } else {
+        console.warn('Baseline version file did not parse into metrics', ver);
+      }
+    } catch (e) {
+      console.error('Failed to load baseline version', ver, e);
     }
   };
 
@@ -81,15 +104,24 @@ export default function App() {
     console.log('🗑️ All data cleared');
   };
 
+  // Navbar scroll effect
+  const [navScrolled, setNavScrolled] = useState(false);
+  React.useEffect(()=>{
+    const onScroll = () => setNavScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive:true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen">
         <div className="animated-bar h-1 w-full"></div>
-        <div className="navbar bg-base-200/80 backdrop-blur shadow-md">
+  <div className={`navbar enhanced-navbar bg-base-200/70 ${navScrolled ? 'nav-scrolled' : ''}`}>
           <div className="container mx-auto px-6 md:px-8 py-3">
             <div className="flex-1 items-center gap-3 animate-fade-in-up">
               <div className="flex items-center gap-6">
-                <img src="/shared%20image.jpg" alt="SpotLag.AI logo" className="h-12 w-auto rounded-md shadow hidden sm:block ring-1 ring-primary/20 animate-float" />
+    <img src="/shared%20image.jpg" alt="SpotLag.AI logo" className="h-12 w-auto rounded-md shadow hidden sm:block ring-1 ring-primary/20 animate-float logo-pulse" />
                 <div className="flex flex-col">
                   <span className="text-2xl md:text-3xl font-black tracking-tight text-gradient-animated">SpotLag.AI</span>
                   <span className="mt-1 text-[11px] sm:text-sm text-glow opacity-90">Spot the Lag, Squash the Bug</span>
@@ -99,18 +131,24 @@ export default function App() {
                 <span className="ml-2 text-xs opacity-60">Last analysis: {lastAnalysisTime}</span>
               )}
             </div>
-            <div className="flex-none gap-4 md:gap-5">
+            <div className="flex-none gap-4 md:gap-5 flex items-center">
+              <div className="form-control hidden sm:block">
+                <label className="label cursor-pointer gap-2">
+                  <span className="label-text text-xs">AI</span>
+                  <input type="checkbox" className="toggle toggle-primary toggle-xs" checked={aiEnabled} onChange={()=> setAiEnabled(v=>!v)} />
+                </label>
+              </div>
               <button 
-                className="btn btn-outline btn-sm transition-all duration-200 hover:-translate-y-0.5 mr-2" 
+                className="btn btn-outline btn-sm nav-cta transition-all duration-200 hover:-translate-y-0.5 mr-2" 
                 onClick={() => setShowHistory(!showHistory)}
               >📊 History</button>
               <button 
-                className={`btn btn-primary btn-sm transition-all duration-200 hover:-translate-y-0.5 ${loadingSample ? 'loading' : ''}`} 
+                className={`btn btn-primary btn-sm nav-cta transition-all duration-200 hover:-translate-y-0.5 ${loadingSample ? 'loading' : ''}`} 
                 onClick={loadSample} 
                 disabled={loadingSample}
               >{!loadingSample && '📄'} Load Sample</button>
               {(baseline || current) && (
-                <button className="btn btn-ghost btn-sm transition-all duration-200 hover:-translate-y-0.5" onClick={clearData}>🗑️ Clear</button>
+                <button className="btn btn-ghost btn-sm nav-cta transition-all duration-200 hover:-translate-y-0.5" onClick={clearData}>🗑️ Clear</button>
               )}
             </div>
           </div>
@@ -128,13 +166,62 @@ export default function App() {
 
           {/* Upload Panels */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <ErrorBoundary fallback={<div className="alert alert-error">Upload panel error</div>}>
-        <div className="animate-pop"><UploadPanel label="Benchmark (Baseline)" onLoaded={setBaseline} /></div>
-            </ErrorBoundary>
-            <ErrorBoundary fallback={<div className="alert alert-error">Upload panel error</div>}>
-        <div className="animate-pop" style={{animationDelay:'80ms'}}><UploadPanel label="Normal (Current)" onLoaded={setCurrent} /></div>
-            </ErrorBoundary>
+        {/* Baseline selection now via dropdown only */}
+  <div className="card bg-base-100 shadow-md border border-primary/30 animate-pop">
+          <div className="card-body py-3 px-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-xs tracking-wide">Benchmark (Baseline)</h3>
+              {baseline && (
+                <button className="btn btn-ghost btn-xs" onClick={()=>{setBaseline(null); setBaselineVersion('');}}>Clear</button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <button
+                className={`btn btn-xs flex-1 ${baselineMode==='version'?'btn-primary':'btn-outline'}`}
+                onClick={()=>setBaselineMode('version')}
+              >Versions</button>
+              <button
+                className={`btn btn-xs flex-1 ${baselineMode==='upload'?'btn-primary':'btn-outline'}`}
+                onClick={()=>{setBaselineMode('upload'); setBaselineVersion('');}}
+              >Upload</button>
+            </div>
+            {baselineMode === 'version' && (
+              <div className="space-y-2">
+                <select
+                  className="select select-bordered select-xs w-full"
+                  value={baselineVersion}
+                  onChange={(e)=>{
+                    const v = e.target.value; 
+                    if (!v) { setBaseline(null); setBaselineVersion(''); return; }
+                    loadBaselineVersion(v);
+                  }}
+                >
+                  <option value="">-- choose baseline --</option>
+                  <option value="v1">Baseline v1 (oldest)</option>
+                  <option value="v2">Baseline v2 (mid)</option>
+                  <option value="v3">Baseline v3 (recent)</option>
+                </select>
+                {!baseline && <p className="text-[10px] opacity-60 leading-snug">Pick a predefined version. Or switch to Upload for a custom JSON baseline.</p>}
+                {baseline && (
+                  <div className="flex flex-wrap gap-2 text-[10px]">
+                    <span className="badge badge-neutral badge-xs">Ver {baselineVersion || '—'}</span>
+                    <span className="badge badge-info badge-xs">Metrics {Object.keys(baseline.metrics).length}</span>
+                  </div>
+                )}
+              </div>
+            )}
+            {baselineMode === 'upload' && (
+              <div className="mt-1">
+                <div className="text-[10px] mb-1 opacity-70">Upload custom baseline JSON</div>
+                <UploadPanel label="Custom Baseline" onLoaded={(r)=>{setBaseline(r); setBaselineVersion('');}} />
+              </div>
+            )}
           </div>
+        </div>
+        <ErrorBoundary fallback={<div className="alert alert-error">Upload panel error</div>}>
+          <div className="animate-pop" style={{animationDelay:'80ms'}}><UploadPanel label="Normal (Current)" onLoaded={setCurrent} /></div>
+        </ErrorBoundary>
+      </div>
 
           {/* Start Analysis Button & Instructions */}
           {baseline && current && (
@@ -152,17 +239,31 @@ export default function App() {
               {/* Start Analysis Button */}
               <div className="flex justify-center py-4">
                 <button 
-                  className="btn btn-primary btn-lg gap-2"
-                  onClick={() => {
-                    console.log('🚀 Start Analysis clicked!', { baseline: !!baseline, current: !!current });
-                    if (baseline && current) {
-                      setResult(compareReports(baseline, current));
-                      setLastAnalysisTime(new Date().toLocaleString());
+                  className={`btn btn-primary btn-lg gap-2 ${aiLoading ? 'loading' : ''}`}
+                  onClick={async () => {
+                    if (!baseline || !current) return;
+                    setAiError(null);
+                    setAiLoading(aiEnabled);
+                    const base = compareReports(baseline, current);
+                    let enhanced: EnhancedComparisonResult = { ...base } as EnhancedComparisonResult;
+                    if (aiEnabled) {
+                      try {
+                        const res = await aiService.analyzePerformance(baseline, current, {});
+                        enhanced = res;
+                      } catch (e:any) {
+                        console.error('AI analysis failed, falling back to heuristic', e);
+                        setAiError('AI service unavailable, using heuristic insights.');
+                        enhanced = { ...base } as EnhancedComparisonResult;
+                      } finally {
+                        setAiLoading(false);
+                      }
                     }
+                    setResult(enhanced);
+                    setLastAnalysisTime(new Date().toLocaleString());
                   }}
                   disabled={!baseline || !current}
                 >
-                  🚀 Start Analysis
+                  {aiLoading ? '' : '🚀'} Start Analysis
                 </button>
               </div>
 
@@ -174,7 +275,7 @@ export default function App() {
                     <p>Baseline: {baseline ? '✅ Loaded' : '❌ Not loaded'}</p>
                     <p>Current: {current ? '✅ Loaded' : '❌ Not loaded'}</p>
                     <p>Result: {result ? '✅ Available' : '❌ No results'}</p>
-                    <p>AI Removed</p>
+                    <p>AI Enabled: {aiEnabled ? 'Yes' : 'No'}</p>
                     <p>Show Button: {(baseline && current) ? '✅ Yes' : '❌ No'}</p>
                   </div>
                 </details>
@@ -198,8 +299,14 @@ export default function App() {
                   <div className="stat-title">Same</div>
                   <div className="stat-value">{result.summary.same}</div>
                 </div>
-                {/* AI stats (heuristic) */}
-                {deepAI && (
+                {/* AI stats */}
+                {result.aiInsights && result.aiInsights.length > 0 && (
+                  <div className="stat">
+                    <div className="stat-title">AI Insights</div>
+                    <div className="stat-value text-info">{result.aiInsights.length}</div>
+                  </div>
+                )}
+                {!result.aiInsights && deepAI && (
                   <div className="stat">
                     <div className="stat-title">Heuristic Insights</div>
                     <div className="stat-value text-info">{deepAI.aiInsights.length}</div>
@@ -226,11 +333,7 @@ export default function App() {
                           )}
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-                        <div>
-                          <div className="text-[11px] opacity-70">Net Score</div>
-                          <div className={`text-lg font-bold ${impact.netImprovementScore >= 0 ? 'text-success' : 'text-error'}`}>{impact.netImprovementScore}</div>
-                        </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                         <div>
                           <div className="text-[11px] opacity-70">Avg % Gain</div>
                           <div className="text-lg font-bold">{impact.avgPctImprovement !== null ? `${impact.avgPctImprovement}%` : '—'}</div>
@@ -320,13 +423,43 @@ export default function App() {
                 </div>
               </ErrorBoundary>
 
-              {/* Heuristic AI Insights */}
-              {deepAI && (
+              {/* AI or Heuristic Insights */}
+              {aiError && (
+                <div className="alert alert-warning animate-pop text-xs">{aiError}</div>
+              )}
+              {result.aiInsights && result.aiInsights.length > 0 && (
+                <div className="animate-pop">
+                  <AIInsights insights={result.aiInsights} explanation={result.explanation} />
+                </div>
+              )}
+              {!result.aiInsights && deepAI && (
                 <div className="animate-pop">
                   <AIInsights insights={deepAI.aiInsights} explanation={deepAI.explanation} />
                 </div>
               )}
-              {deepAI && deepAI.predictions.length > 0 && (
+              {result.predictions && result.predictions.length > 0 && (
+                <div className="card bg-base-200 shadow animate-pop">
+                  <div className="card-body">
+                    <h3 className="card-title">🔮 AI Trend Projections</h3>
+                    <div className="space-y-2">
+                      {result.predictions.map((p,i)=>(
+                        <div key={i} className="alert alert-info">
+                          <div>
+                            <h4 className="font-bold">{p.title}</h4>
+                            <p className="text-sm">{p.description}</p>
+                            {p.actionable_steps && p.actionable_steps.length>0 && (
+                              <ul className="text-xs mt-2 list-disc list-inside">
+                                {p.actionable_steps.map((s,j)=>(<li key={j}>{s}</li>))}
+                              </ul>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {!result.predictions && deepAI && deepAI.predictions.length > 0 && (
                 <div className="card bg-base-200 shadow animate-pop">
                   <div className="card-body">
                     <h3 className="card-title">🔮 Heuristic Trend Projections</h3>

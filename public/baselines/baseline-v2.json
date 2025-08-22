@@ -1,0 +1,17 @@
+{
+  "name": "Baseline v2",
+  "timestamp": "2025-08-20T00:00:00Z",
+  "metrics": {
+    "errors": { "values": { "rate": 0.050 } },
+    "successful_requests": { "values": { "rate": 0.950 } },
+    "throughput": 470,
+    "cpu": 85,
+    "memory": 1050,
+    "browser_web_vital_lcp": { "values": { "avg": 2000, "p(95)": 2650 } },
+    "browser_web_vital_fcp": { "values": { "avg": 1350, "p(95)": 1800 } },
+    "browser_web_vital_inp": { "values": { "avg": 104, "p(95)": 155 } },
+    "browser_web_vital_ttfb": { "values": { "avg": 380, "p(95)": 555 } },
+    "browser_http_req_duration": { "values": { "avg": 295.0, "p(95)": 500.0 } },
+    "page_load_time": { "values": { "avg": 2820, "p(95)": 3550 } }
+  }
+}
