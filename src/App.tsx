@@ -1,65 +1,27 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState } from 'react';
 import UploadPanel from './components/UploadPanel';
 import DiffTable from './components/DiffTable';
 import MetricDiffChart from './components/MetricDiffChart';
 import Suggestions from './components/Suggestions';
-import AIInsights from './components/AIInsights';
-import SystemContextPanel from './components/SystemContextPanel';
 import HistoricalReports from './components/HistoricalReports';
 import ExportPanel from './components/ExportPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import type { PerformanceReport, SystemContext, EnhancedComparisonResult } from './types';
+import AIInsights from './components/AIInsights';
+import { deepAnalyze } from './utils/deepAI';
+import type { PerformanceReport, EnhancedComparisonResult } from './types';
 import { compareReports, suggestionsFromDiffs, computeImpact } from './utils/compare';
-import { aiService } from './services/secureAIService';
-import { AI_CONFIG, getPreferredProvider } from './config/ai';
 
 export default function App() {
   const [baseline, setBaseline] = useState<PerformanceReport | null>(null);
   const [current, setCurrent] = useState<PerformanceReport | null>(null);
   const [loadingSample, setLoadingSample] = useState(false);
-  const [aiEnabled, setAIEnabled] = useState(true);
-  const [aiLoading, setAILoading] = useState(false);
-  const [systemContext, setSystemContext] = useState<SystemContext>({
-    stack: '',
-    environment: 'prod',
-    scale: 'medium',
-    selectedModel: AI_CONFIG.openrouter.primaryModel // Default to configured primary model
-  });
+  // AI removed
   const [result, setResult] = useState<EnhancedComparisonResult | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [lastAnalysisTime, setLastAnalysisTime] = useState<string>('');
+  const [showTopMetricsOnly, setShowTopMetricsOnly] = useState(true);
 
-  // Debounced AI analysis to prevent excessive API calls
-  const runAIAnalysis = useCallback(
-    debounce(async (baseline: PerformanceReport, current: PerformanceReport, context: SystemContext) => {
-      if (!aiEnabled) return;
-
-      setAILoading(true);
-      try {
-        console.log('🤖 Starting AI Analysis...');
-        console.log('📊 Analysis Context:', {
-          selectedModel: context.selectedModel,
-          aiEnabled,
-          provider: getPreferredProvider()
-        });
-        const aiResult = await aiService.analyzePerformance(baseline, current, context);
-        console.log('✅ AI Analysis completed:', aiResult);
-        setResult(aiResult);
-        setLastAnalysisTime(new Date().toLocaleString());
-      } catch (error) {
-        console.error('❌ AI Analysis failed:', error);
-        // Fallback to basic analysis
-        const basicResult = compareReports(baseline, current);
-        setResult({
-          ...basicResult,
-          explanation: 'Analysis completed using basic algorithms due to AI service unavailability.'
-        });
-      } finally {
-        setAILoading(false);
-      }
-    }, 1000),
-    [aiEnabled]
-  );
+  // AI removed
 
   // Basic comparison (fallback)
   const basicResult = useMemo(() => {
@@ -80,6 +42,7 @@ export default function App() {
   }, [baseline, current]);
 
   const tips = useMemo(() => result ? suggestionsFromDiffs(result.diffs) : [], [result]);
+  const deepAI = useMemo(() => result ? deepAnalyze(result) : null, [result]);
 
   const loadSample = async () => {
     setLoadingSample(true);
@@ -98,15 +61,7 @@ export default function App() {
     }
   };
 
-  const toggleAI = () => {
-    setAIEnabled(!aiEnabled);
-    // Clear cache when toggling AI mode
-    aiService.clearCache();
-    // Clear previous results - user will need to click "Start Analysis" again
-    if (baseline && current && result) {
-      setResult(null);
-    }
-  };
+  // AI toggle removed
 
   const handleHistoricalReportSelect = (historicalBaseline: any, historicalCurrent: any) => {
     setBaseline(historicalBaseline);
@@ -119,9 +74,7 @@ export default function App() {
     setCurrent(null);
     setResult(null);
     setLastAnalysisTime('');
-    // Clear any cached data
-    aiService.clearCache();
-    // Clear localStorage if any exists
+  // Clear localStorage if any exists
     localStorage.removeItem('performanceBaseline');
     localStorage.removeItem('performanceCurrent');
     localStorage.removeItem('performanceResults');
@@ -171,15 +124,7 @@ export default function App() {
             </ErrorBoundary>
           )}
 
-          {/* System Context Panel with AI Toggle */}
-          <ErrorBoundary fallback={<div className="alert alert-warning">Context panel unavailable</div>}>
-            <SystemContextPanel 
-              context={systemContext} 
-              onContextChange={setSystemContext}
-              aiEnabled={aiEnabled}
-              onAIToggle={toggleAI}
-            />
-          </ErrorBoundary>
+          {/* AI system context removed */}
 
           {/* Upload Panels */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -199,10 +144,7 @@ export default function App() {
                 <div className="alert alert-info">
                   <div>
                     <h3 className="font-bold">Ready for Analysis!</h3>
-                    <p className="text-sm">
-                      Both files are loaded. Click "Start Analysis" to begin 
-                      {aiEnabled ? ' AI-powered performance analysis.' : ' basic performance comparison.'}
-                    </p>
+                    <p className="text-sm">Both files are loaded. Click "Start Analysis" to run the comparison.</p>
                   </div>
                 </div>
               )}
@@ -210,30 +152,17 @@ export default function App() {
               {/* Start Analysis Button */}
               <div className="flex justify-center py-4">
                 <button 
-                  className={`btn btn-primary btn-lg gap-2 ${aiLoading ? 'loading' : ''}`}
+                  className="btn btn-primary btn-lg gap-2"
                   onClick={() => {
-                    console.log('🚀 Start Analysis clicked!', { baseline: !!baseline, current: !!current, aiEnabled });
+                    console.log('🚀 Start Analysis clicked!', { baseline: !!baseline, current: !!current });
                     if (baseline && current) {
-                      if (aiEnabled) {
-                        runAIAnalysis(baseline, current, systemContext);
-                      } else {
-                        setResult(compareReports(baseline, current));
-                        setLastAnalysisTime(new Date().toLocaleString());
-                      }
+                      setResult(compareReports(baseline, current));
+                      setLastAnalysisTime(new Date().toLocaleString());
                     }
                   }}
-                  disabled={!baseline || !current || aiLoading}
+                  disabled={!baseline || !current}
                 >
-                  {aiLoading ? (
-                    <>
-                      <span className="loading loading-spinner loading-sm"></span>
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      🚀 Start Analysis
-                    </>
-                  )}
+                  🚀 Start Analysis
                 </button>
               </div>
 
@@ -245,8 +174,7 @@ export default function App() {
                     <p>Baseline: {baseline ? '✅ Loaded' : '❌ Not loaded'}</p>
                     <p>Current: {current ? '✅ Loaded' : '❌ Not loaded'}</p>
                     <p>Result: {result ? '✅ Available' : '❌ No results'}</p>
-                    <p>AI Enabled: {aiEnabled ? '✅ Yes' : '❌ No'}</p>
-                    <p>Loading: {aiLoading ? '⏳ Yes' : '✅ No'}</p>
+                    <p>AI Removed</p>
                     <p>Show Button: {(baseline && current) ? '✅ Yes' : '❌ No'}</p>
                   </div>
                 </details>
@@ -270,80 +198,160 @@ export default function App() {
                   <div className="stat-title">Same</div>
                   <div className="stat-value">{result.summary.same}</div>
                 </div>
-                {aiEnabled && result.aiInsights && (
+                {/* AI stats (heuristic) */}
+                {deepAI && (
                   <div className="stat">
-                    <div className="stat-title">AI Insights</div>
-                    <div className="stat-value text-info">{result.aiInsights.length}</div>
+                    <div className="stat-title">Heuristic Insights</div>
+                    <div className="stat-value text-info">{deepAI.aiInsights.length}</div>
                   </div>
                 )}
-                <div className="stat">
-                  <div className="stat-title">Analysis Mode</div>
-                  <div className="stat-value text-sm">
-                    {aiLoading ? (
-                      <span className="loading loading-spinner loading-sm"></span>
-                    ) : (
-                      aiEnabled ? '🤖 AI' : '📊 Basic'
-                    )}
-                  </div>
-                </div>
               </div>
 
               {/* Impact Summary (numeric emphasis) */}
               {(() => {
                 const impact = computeImpact(result);
                 return (
-                  <div className="card bg-base-100 shadow-lg border border-primary/20 animate-pop">
-                    <div className="card-body py-4 px-5">
-                      <div className="flex items-center justify-between mb-2">
+                  <div className="card bg-base-100 shadow-lg border border-primary/30 animate-pop">
+                    <div className="card-body py-4 px-5 space-y-4">
+                      <div className="flex flex-wrap items-center gap-3 justify-between mb-1">
                         <h3 className="card-title text-sm">📈 Impact Summary</h3>
-                        <span className="badge badge-primary badge-sm">Numbers</span>
+                        <div className="flex gap-2 items-center text-xs">
+                          {impact.currentOverallBetter ? (
+                            <span className="badge badge-success badge-sm">Current Better</span>
+                          ) : (
+                            <span className="badge badge-error badge-sm">Baseline Better</span>
+                          )}
+                          {impact.performanceScore !== null && (
+                            <span className="badge badge-neutral badge-sm">Score {impact.performanceScore}</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
                         <div>
-                          <div className="text-xs opacity-70">Net Score</div>
+                          <div className="text-[11px] opacity-70">Net Score</div>
                           <div className={`text-lg font-bold ${impact.netImprovementScore >= 0 ? 'text-success' : 'text-error'}`}>{impact.netImprovementScore}</div>
                         </div>
                         <div>
-                          <div className="text-xs opacity-70">Avg % Gain</div>
+                          <div className="text-[11px] opacity-70">Avg % Gain</div>
                           <div className="text-lg font-bold">{impact.avgPctImprovement !== null ? `${impact.avgPctImprovement}%` : '—'}</div>
                         </div>
                         <div>
-                          <div className="text-xs opacity-70">Latency Saved</div>
+                          <div className="text-[11px] opacity-70">Latency Saved</div>
                           <div className="text-lg font-bold">{impact.latencyImprovementMs !== null ? `${impact.latencyImprovementMs} ms` : '—'}</div>
                           {impact.latencyImprovementPct !== null && (
                             <div className="text-[10px] opacity-60">({impact.latencyImprovementPct}% faster)</div>
                           )}
                         </div>
                         <div>
-                          <div className="text-xs opacity-70">Time / 1k Req</div>
+                          <div className="text-[11px] opacity-70">Time / 1k Req</div>
                           <div className="text-lg font-bold">{impact.estTimeSavedPer1kRequestsMs !== null ? `${impact.estTimeSavedPer1kRequestsMs} ms` : '—'}</div>
                         </div>
-                        <div className="col-span-2 md:col-span-4">
-                          <div className="text-xs opacity-70">Suggestion Effectiveness</div>
-                          <div className="text-base font-semibold">{impact.suggestionEffectivenessPct !== null ? `${impact.suggestionEffectivenessPct}% of affected metrics improved` : '—'}</div>
+                        <div>
+                          <div className="text-[11px] opacity-70">Hours Saved / Day</div>
+                          <div className="text-lg font-bold">{impact.estUserHoursSavedPerDay !== null ? impact.estUserHoursSavedPerDay : '—'}</div>
                         </div>
                       </div>
-                      <p className="mt-3 text-[10px] leading-tight opacity-60">Estimates derived from metric deltas. Latency savings use primary response-time metric. Suggestion effectiveness is the share of changed metrics that improved. Treat as directional, validate in production.</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div>
+                          <div className="text-[11px] opacity-70">Throughput Δ</div>
+                          <div className={`${impact.throughputChangePct && impact.throughputChangePct > 0 ? 'text-success' : impact.throughputChangePct && impact.throughputChangePct < 0 ? 'text-error' : ''} font-semibold`}>{impact.throughputChangePct !== null ? `${impact.throughputChangePct}%` : '—'}</div>
+                        </div>
+                        <div>
+                          <div className="text-[11px] opacity-70">Error Rate Δ</div>
+                          <div className={`${impact.errorRateChangePct && impact.errorRateChangePct > 0 ? 'text-success' : impact.errorRateChangePct && impact.errorRateChangePct < 0 ? 'text-error' : ''} font-semibold`}>{impact.errorRateChangePct !== null ? `${impact.errorRateChangePct}%` : '—'}</div>
+                        </div>
+                        <div>
+                          <div className="text-[11px] opacity-70">CPU Δ</div>
+                          <div className={`${impact.cpuChangePct && impact.cpuChangePct > 0 ? 'text-success' : impact.cpuChangePct && impact.cpuChangePct < 0 ? 'text-error' : ''} font-semibold`}>{impact.cpuChangePct !== null ? `${impact.cpuChangePct}%` : '—'}</div>
+                        </div>
+                        <div>
+                          <div className="text-[11px] opacity-70">Memory Δ</div>
+                          <div className={`${impact.memoryChangePct && impact.memoryChangePct > 0 ? 'text-success' : impact.memoryChangePct && impact.memoryChangePct < 0 ? 'text-error' : ''} font-semibold`}>{impact.memoryChangePct !== null ? `${impact.memoryChangePct}%` : '—'}</div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <div className="text-[11px] opacity-70 mb-1">Top Improvements</div>
+                          {impact.topImproved.length ? (
+                            <ul className="text-xs space-y-1">
+                              {impact.topImproved.map(m => (
+                                <li key={m.label} className="flex justify-between"><span>{m.label}</span><span className="text-success font-semibold">+{m.pct}%</span></li>
+                              ))}
+                            </ul>
+                          ) : <div className="text-xs opacity-50">None</div>}
+                        </div>
+                        <div>
+                          <div className="text-[11px] opacity-70 mb-1">Top Regressions</div>
+                          {impact.topRegressed.length ? (
+                            <ul className="text-xs space-y-1">
+                              {impact.topRegressed.map(m => (
+                                <li key={m.label} className="flex justify-between"><span>{m.label}</span><span className="text-error font-semibold">{m.pct}%</span></li>
+                              ))}
+                            </ul>
+                          ) : <div className="text-xs opacity-50">None</div>}
+                        </div>
+                      </div>
+                      <div className="pt-1">
+                        <div className="text-[11px] opacity-70">Suggestion Effectiveness</div>
+                        <div className="text-sm font-semibold">{impact.suggestionEffectivenessPct !== null ? `${impact.suggestionEffectivenessPct}% of changed metrics improved` : '—'}</div>
+                      </div>
+                      <p className="mt-1 text-[10px] leading-tight opacity-60">Δ values are directionally normalized (positive = better). Hours saved assumes consistent throughput; validate in production. Performance score blends normalized percent improvements and regressions.</p>
                     </div>
                   </div>
                 );
               })()}
 
-              {/* AI Insights (if enabled) */}
-              {aiEnabled && (
-                <ErrorBoundary fallback={<div className="alert alert-warning">AI insights unavailable</div>}>
-                  <div className="animate-pop"><AIInsights insights={result.aiInsights || []} explanation={result.explanation} loading={aiLoading} /></div>
-                </ErrorBoundary>
+              {/* Metric Differences Table moved just below Impact Summary */}
+              <ErrorBoundary fallback={<div className="alert alert-warning">Table display error</div>}>
+                <div className="card bg-base-100 shadow-lg p-4 animate-pop space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold text-sm">Metric Differences</h3>
+                    <div className="form-control">
+                      <label className="label cursor-pointer gap-2">
+                        <span className="label-text text-xs">Top 25 only</span>
+                        <input type="checkbox" className="toggle toggle-primary toggle-xs" checked={showTopMetricsOnly} onChange={e=>setShowTopMetricsOnly(e.target.checked)} />
+                      </label>
+                    </div>
+                  </div>
+                  <DiffTable diffs={result.diffs} topOnly={showTopMetricsOnly} max={25} />
+                  {showTopMetricsOnly && result.diffs.length > 25 && (
+                    <p className="text-[10px] opacity-60">Showing top 25 important metrics (latency, errors, throughput, web vitals, resource). Toggle off to view all {result.diffs.length} metrics.</p>
+                  )}
+                </div>
+              </ErrorBoundary>
+
+              {/* Heuristic AI Insights */}
+              {deepAI && (
+                <div className="animate-pop">
+                  <AIInsights insights={deepAI.aiInsights} explanation={deepAI.explanation} />
+                </div>
+              )}
+              {deepAI && deepAI.predictions.length > 0 && (
+                <div className="card bg-base-200 shadow animate-pop">
+                  <div className="card-body">
+                    <h3 className="card-title">🔮 Heuristic Trend Projections</h3>
+                    <div className="space-y-2">
+                      {deepAI.predictions.map((p,i)=>(
+                        <div key={i} className="alert alert-info">
+                          <div>
+                            <h4 className="font-bold">{p.title}</h4>
+                            <p className="text-sm">{p.description}</p>
+                            {p.actionable_steps.length>0 && (
+                              <ul className="text-xs mt-2 list-disc list-inside">
+                                {p.actionable_steps.map((s,j)=>(<li key={j}>{s}</li>))}
+                              </ul>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               )}
 
-              {/* Charts */}
+              {/* Charts (now after table) */}
               <ErrorBoundary fallback={<div className="alert alert-warning">Chart display error</div>}>
                 <div className="card bg-base-100 shadow-lg p-4 animate-pop"><MetricDiffChart diffs={result.diffs} /></div>
-              </ErrorBoundary>
-              
-              {/* Detailed Table */}
-              <ErrorBoundary fallback={<div className="alert alert-warning">Table display error</div>}>
-                <div className="card bg-base-100 shadow-lg p-4 animate-pop"><DiffTable diffs={result.diffs} /></div>
               </ErrorBoundary>
 
               {/* Export Panel */}
@@ -356,33 +364,6 @@ export default function App() {
                 <div className="animate-pop"><Suggestions tips={tips} /></div>
               </ErrorBoundary>
               
-              {/* AI Predictions (if available) */}
-              {aiEnabled && result.predictions && result.predictions.length > 0 && (
-                <ErrorBoundary fallback={<div className="alert alert-warning">Predictions unavailable</div>}>
-                  <div className="card bg-base-200 shadow">
-                    <div className="card-body">
-                      <h3 className="card-title">🔮 Performance Predictions</h3>
-                      <div className="space-y-2">
-                        {result.predictions.map((prediction: any, i: number) => (
-                          <div key={i} className="alert alert-info">
-                            <div>
-                              <h4 className="font-bold">{prediction.title}</h4>
-                              <p className="text-sm">{prediction.description}</p>
-                              {prediction.actionable_steps && prediction.actionable_steps.length > 0 && (
-                                <ul className="text-xs mt-2 list-disc list-inside">
-                                  {prediction.actionable_steps.map((step: string, j: number) => (
-                                    <li key={j}>{step}</li>
-                                  ))}
-                                </ul>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </ErrorBoundary>
-              )}
             </>
           )}
 
@@ -393,7 +374,7 @@ export default function App() {
                 <div className="text-sm space-y-1">
                   <p>📁 Upload both reports or click "Load Sample" to try it out</p>
                   <p>🚀 After uploading both files, click "Start Analysis" to begin</p>
-                  <p>🤖 Toggle AI Analysis in System Context for enhanced insights</p>
+                  {/* AI toggle removed */}
                   <p>📊 View historical reports to compare past analyses</p>
                 </div>
               </div>
@@ -429,14 +410,4 @@ export default function App() {
   );
 }
 
-// Debounce utility function
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  delay: number
-): (...args: Parameters<T>) => void {
-  let timeoutId: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
-}
+// Debounce removed with AI removal

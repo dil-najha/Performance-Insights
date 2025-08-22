@@ -1,5 +1,6 @@
 import React from 'react';
 import type { MetricDiff } from '../types';
+import { selectTopImportantDiffs } from '../utils/compare';
 
 function trendBadge(trend: MetricDiff['trend']): string {
   switch (trend) {
@@ -10,7 +11,14 @@ function trendBadge(trend: MetricDiff['trend']): string {
   }
 }
 
-export default function DiffTable({ diffs }: { diffs: MetricDiff[] }) {
+interface Props {
+  diffs: MetricDiff[];
+  topOnly?: boolean;
+  max?: number;
+}
+
+export default function DiffTable({ diffs, topOnly = false, max = 25 }: Props) {
+  const shown = topOnly ? selectTopImportantDiffs(diffs, max) : diffs;
   return (
     <div className="overflow-x-auto bg-base-200 rounded-lg">
       <table className="table table-zebra">
@@ -25,7 +33,7 @@ export default function DiffTable({ diffs }: { diffs: MetricDiff[] }) {
           </tr>
         </thead>
         <tbody>
-          {diffs.map(d => (
+          {shown.map(d => (
             <tr key={d.key}>
               <td>{d.label}</td>
               <td className="text-right">{d.baseline ?? '-'}</td>

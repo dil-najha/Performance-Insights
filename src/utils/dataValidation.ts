@@ -9,6 +9,27 @@ export interface ValidationResult {
 }
 
 export class DataValidator {
+  // Flatten nested objects collecting numeric leaves. Similar to compare.ts flattenNumeric but localized to avoid coupling.
+  private static flattenNumeric(obj: any, basePath = '', out: Record<string, number> = {}, depth = 0): Record<string, number> {
+    if (!obj || typeof obj !== 'object') return out;
+    if (depth > 8) return out; // safety guard
+    for (const [rawKey, v] of Object.entries(obj)) {
+      if (rawKey === 'name' || rawKey === 'timestamp') continue; // skip meta
+      const sanitizedKey = rawKey.replace(/p\((\d+)\)/i, 'p$1');
+      const newPath = rawKey === 'values' ? basePath : (basePath ? `${basePath}.${sanitizedKey}` : sanitizedKey);
+      if (typeof v === 'number' && isFinite(v)) {
+        out[newPath] = v;
+      } else if (typeof v === 'string') {
+        const num = Number(v);
+        if (!isNaN(num) && isFinite(num)) out[newPath] = num;
+      } else if (v && typeof v === 'object') {
+        // Recursively flatten nested metrics or value aggregates
+        this.flattenNumeric(v, newPath, out, depth + 1);
+      }
+    }
+    return out;
+  }
+
   static validatePerformanceReport(data: any, reportName = 'Unknown'): ValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -22,21 +43,17 @@ export class DataValidator {
       };
     }
 
-    // Check if it has metrics property
-    if (!data.metrics && !this.isFlat(data)) {
-      errors.push('Missing "metrics" property in report structure');
-    }
-
-    // Extract metrics
+    // Extract metrics (generic): prefer data.metrics if present, else flatten full object.
     let metrics: Record<string, number> = {};
-    
     if (data.metrics && typeof data.metrics === 'object') {
-      metrics = data.metrics;
-    } else if (this.isFlat(data)) {
-      // If it's a flat object, treat top-level numeric values as metrics
-      metrics = this.extractMetricsFromFlat(data);
-    } else {
-      errors.push('No valid metrics found in the data');
+      metrics = this.flattenNumeric(data.metrics);
+    }
+    if (Object.keys(metrics).length === 0) {
+      // Attempt full-object flatten as fallback
+      metrics = this.flattenNumeric(data);
+    }
+    if (Object.keys(metrics).length === 0) {
+      errors.push('No numeric metrics found in JSON (after flattening)');
     }
 
     // Validate metrics
@@ -136,7 +153,7 @@ export class DataValidator {
     }
 
     if (Object.keys(sanitized).length === 0) {
-      errors.push('No valid numeric metrics found');
+      errors.push('No valid numeric metrics found after validation');
     }
 
     return { sanitized, errors, warnings };

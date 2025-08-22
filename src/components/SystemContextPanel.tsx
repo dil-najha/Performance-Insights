@@ -1,6 +1,5 @@
 import React from 'react';
 import type { SystemContext } from '../types';
-import { AI_CONFIG } from '../config/ai';
 
 interface Props {
   context: SystemContext;
@@ -20,8 +19,8 @@ export default function SystemContextPanel({ context, onContextChange, aiEnabled
   return (
     <div className="card bg-base-200 shadow-sm">
       <div className="card-body p-4">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="card-title text-sm">⚙️ System Context (Improves AI Suggestions)</h3>
+        <div className="flex justify-end items-center mb-3">
+          {/* Removed heading per user request */}
           <div className="form-control">
             <label className="label cursor-pointer gap-2">
               <span className="label-text text-sm">AI Analysis</span>
@@ -86,23 +85,7 @@ export default function SystemContextPanel({ context, onContextChange, aiEnabled
                 </select>
               </div>
 
-              <div className="form-control">
-                <label className="label label-text text-xs">
-                  AI Model
-                  <span className="ml-1 text-green-600 text-xs">🆓</span>
-                </label>
-                <select 
-                  className="select select-bordered select-xs"
-                  value={context.selectedModel || AI_CONFIG.openrouter.primaryModel}
-                  onChange={(e) => updateContext('selectedModel', e.target.value)}
-                >
-                  {AI_CONFIG.openrouter.freeModels.map((model) => (
-                    <option key={model.id} value={model.id}>
-                      {model.name} {model.tier === 'free' ? '🆓' : '💳'}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Model selection removed */}
             </div>
 
             {/* ✅ NEW ADVANCED CONTEXT FIELDS */}
@@ -201,13 +184,7 @@ export default function SystemContextPanel({ context, onContextChange, aiEnabled
             <div className="text-xs opacity-60 mt-2 space-y-1">
               <p>💡 Providing context helps AI generate more relevant and actionable suggestions</p>
               <p>🆓 Free models are available without additional cost • 💳 Paid models offer enhanced capabilities</p>
-              {context.selectedModel && (
-                <p>
-                  <span className="font-semibold">Selected:</span> {
-                    AI_CONFIG.openrouter.freeModels.find((model: any) => model.id === context.selectedModel)?.name || context.selectedModel
-                  }
-                </p>
-              )}
+              {/* Removed selected model display */}
             </div>
           </div>
         )}

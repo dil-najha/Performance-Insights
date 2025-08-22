@@ -10,7 +10,7 @@ const friendlyLabels: Record<string, string> = {
   errorRate: 'Error Rate (%)',
   failures: 'Failures (%)',
   cpu: 'CPU (%)',
-  memory: 'Memory (MB)',
+  memory: 'Memory (MB)'
 };
 
 const lowerIsBetter = /(latency|response|time|p\d+|error|fail|cpu|mem(ory)?)/i;
@@ -22,12 +22,44 @@ function betterWhenForKey(key: string): 'lower' | 'higher' {
 }
 
 function labelForKey(key: string): string {
-  return friendlyLabels[key] ?? key
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/_/g, ' ')
-    .replace(/\b(p\d{2})\b/i, (m) => m.toUpperCase())
+  if (friendlyLabels[key]) return friendlyLabels[key];
+  return key
+    .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase -> spaces
+    .replace(/_/g, ' ') // snake_case -> spaces
+    .replace(/\./g, ' / ') // dot.path -> hierarchy indicator
+    .replace(/p\((\d+)\)/gi, 'p$1') // p(95) -> p95
+    .replace(/\b(p\d{2})\b/gi, (m) => m.toUpperCase())
     .replace(/^cpu$/i, 'CPU (%)')
     .replace(/^mem(ory)?$/i, 'Memory');
+}
+
+// Recursively flatten any nested JSON object collecting numeric leaves into a metrics map.
+// Special handling: if key === 'values', we do not include it in the flattened path so that
+// a metric like metricName.values.avg becomes metricName.avg.
+function flattenNumeric(obj: any, basePath = '', out: Record<string, number> = {}, depth = 0) {
+  if (!obj || typeof obj !== 'object') return out;
+  // Safety guard to avoid extremely deep recursion on pathological JSON
+  if (depth > 8) return out;
+  for (const [kRaw, v] of Object.entries(obj)) {
+    const k = kRaw; // raw key before sanitation for path decisions
+    const sanitizedKey = k.replace(/p\((\d+)\)/i, 'p$1');
+    const newPath = k === 'values' ? basePath : (basePath ? `${basePath}.${sanitizedKey}` : sanitizedKey);
+    if (typeof v === 'number' && isFinite(v)) {
+      out[newPath] = v;
+    } else if (typeof v === 'string') {
+      const num = Number(v);
+      if (!isNaN(num) && isFinite(num)) out[newPath] = num;
+    } else if (v && typeof v === 'object') {
+      // Skip obviously non-metric structural booleans-only objects (like { ok: true }) unless numeric inside
+      const values = Object.values(v);
+      const hasNumeric = values.some(x => typeof x === 'number');
+      const hasNestedObjects = values.some(x => x && typeof x === 'object');
+      if (hasNumeric || hasNestedObjects) {
+        flattenNumeric(v, newPath, out, depth + 1);
+      }
+    }
+  }
+  return out;
 }
 
 export function coerceReport(raw: any, fallbackName: string): PerformanceReport | null {
@@ -35,23 +67,23 @@ export function coerceReport(raw: any, fallbackName: string): PerformanceReport 
     if (!raw) return null;
     if (typeof raw === 'string') raw = JSON.parse(raw);
 
+    let metrics: Record<string, number> = {};
+
     if (raw.metrics && typeof raw.metrics === 'object') {
-      const metrics: Record<string, number> = {};
-      for (const [k, v] of Object.entries(raw.metrics)) {
-        const num = typeof v === 'number' ? v : Number(v);
-        if (!Number.isNaN(num)) metrics[k] = num;
-      }
-      return { name: raw.name ?? fallbackName, timestamp: raw.timestamp, metrics };
+      // Could be flat or nested (k6-style). Use flatten to be generic.
+      metrics = flattenNumeric(raw.metrics);
     }
 
-    // If top-level is an object with numeric values, treat it as metrics
-    if (typeof raw === 'object' && !Array.isArray(raw)) {
-      const metrics: Record<string, number> = {};
-      for (const [k, v] of Object.entries(raw)) {
-        const num = typeof v === 'number' ? v : Number(v);
-        if (!Number.isNaN(num)) metrics[k] = num;
-      }
-      return { name: raw.name ?? fallbackName, timestamp: (raw as any).timestamp, metrics };
+    // If still empty, attempt flatten on full object (excluding name/timestamp like keys)
+    if (Object.keys(metrics).length === 0 && typeof raw === 'object' && !Array.isArray(raw)) {
+      const clone = { ...raw };
+      delete (clone as any).name;
+      delete (clone as any).timestamp;
+      metrics = flattenNumeric(clone);
+    }
+
+    if (Object.keys(metrics).length > 0) {
+      return { name: raw.name ?? fallbackName, timestamp: raw.timestamp, metrics };
     }
 
     return null;
@@ -105,6 +137,37 @@ export function compareReports(baseline: PerformanceReport, current: Performance
   return { diffs: diffs.sort((a,b) => a.label.localeCompare(b.label)), summary };
 }
 
+// Heuristic importance scoring for selecting a concise subset of metrics.
+// Scores based on presence of key performance indicators (latency, errors, throughput, core web vitals, resource usage).
+export function scoreMetricImportance(key: string): number {
+  let score = 0;
+  const k = key.toLowerCase();
+  if (/\b(lcp|fcp|cls|fid|inp|ttfb)\b/.test(k)) score += 9; // Core Web Vitals
+  if (/(latency|response|duration|time|load)/.test(k)) score += 8; // Timing
+  if (/(throughput|rps|reqs_per_sec|requestspersec|requests_per_sec|reqs|requests)/.test(k)) score += 7; // Capacity
+  if (/(error|fail)/.test(k)) score += 8; // Reliability
+  if (/(cpu|memory|heap|rss)/.test(k)) score += 6; // Resource
+  if (/(p95|p99)/.test(k)) score += 5; // Tail latency
+  if (/(avg|median|med)/.test(k)) score += 3; // Central tendency
+  if (/rate/.test(k)) score += 2; // Generic rate
+  // Penalize extremely deep/derived metrics to prefer primary metrics
+  const depth = key.split('.').length;
+  score -= Math.max(0, depth - 3); // slight penalty
+  return score;
+}
+
+export function selectTopImportantDiffs(all: MetricDiff[], max = 25): MetricDiff[] {
+  // Keep all if already small
+  if (all.length <= max) return all;
+  // Score & sort
+  return [...all]
+    .map(d => ({ d, s: scoreMetricImportance(d.key) }))
+    .sort((a,b) => b.s - a.s)
+    .slice(0, max)
+    .map(x => x.d)
+    .sort((a,b) => a.label.localeCompare(b.label));
+}
+
 export function suggestionsFromDiffs(diffs: MetricDiff[]): string[] {
   const tips = new Set<string>();
 
@@ -154,19 +217,13 @@ export function computeImpact(result: ComparisonResult): ImpactSummary {
   const { diffs, summary } = result;
   const improved = diffs.filter(d => d.trend === 'improved');
   const worse = diffs.filter(d => d.trend === 'worse');
-
-  // Latency / response primary metric preference order
-  const latencyKeyOrder = [
-    'responseTimeAvg',
-    'latencyAvg',
-    'responseTimeP95',
-    'responseTimeP99'
-  ];
-  let latencyDiff: MetricDiff | undefined;
-  for (const key of latencyKeyOrder) {
-    latencyDiff = diffs.find(d => d.key === key);
-    if (latencyDiff) break;
-  }
+  // Dynamically pick a primary latency/time metric instead of hard-coded keys.
+  // Preference: improved metrics whose key indicates time/latency and includes an average/median/p95/p99 indicator.
+  const latencyPattern = /(latency|response|time|duration|lcp|fcp|ttfb|load)/i;
+  const centralTendencyPattern = /(\bavg\b|\.avg$|median|med|p95|p99)/i;
+  let latencyDiff: MetricDiff | undefined = diffs.find(d => d.trend === 'improved' && latencyPattern.test(d.key) && centralTendencyPattern.test(d.key));
+  if (!latencyDiff) latencyDiff = diffs.find(d => latencyPattern.test(d.key) && centralTendencyPattern.test(d.key));
+  if (!latencyDiff) latencyDiff = diffs.find(d => latencyPattern.test(d.key));
 
   let latencyImprovementMs: number | null = null;
   let latencyImprovementPct: number | null = null;
@@ -198,6 +255,74 @@ export function computeImpact(result: ComparisonResult): ImpactSummary {
     ? Number(((improved.length / (improved.length + worse.length)) * 100).toFixed(1))
     : null;
 
+  // Helper to fetch metric diff by regex list
+  const findMetric = (patterns: RegExp[]) => {
+    for (const p of patterns) {
+      const m = diffs.find(d => p.test(d.key));
+      if (m) return m;
+    }
+    return undefined;
+  };
+
+  const throughputDiff = findMetric([/(throughput|rps|requestsPerSec|requests_per_sec|reqs_per_sec|reqs|requests)/i]);
+  const errorDiff = findMetric([/(errorRate|failures?|errors?\.rate|errors?)/i]);
+  const cpuDiff = findMetric([/^cpu$/i]);
+  const memDiff = findMetric([/^memory$/i]);
+
+  function normalizedPct(d?: MetricDiff): number | null {
+    if (!d || d.pct === null) return null;
+    // For lower-is-better metrics invert sign so improvement is positive
+    const val = d.betterWhen === 'lower' ? -d.pct : d.pct;
+    return val;
+  }
+
+  const throughputChangePct = normalizedPct(throughputDiff) !== null ? Number((normalizedPct(throughputDiff) as number).toFixed(2)) : null;
+  // Error rate improvement: positive if error rate decreased
+  let errorRateChangePct: number | null = null;
+  if (errorDiff && errorDiff.pct !== null) {
+    errorRateChangePct = errorDiff.betterWhen === 'lower' ? -errorDiff.pct : errorDiff.pct;
+    errorRateChangePct = Number(errorRateChangePct.toFixed(2));
+  }
+  const cpuChangePct = normalizedPct(cpuDiff) !== null ? Number((normalizedPct(cpuDiff) as number).toFixed(2)) : null;
+  const memoryChangePct = normalizedPct(memDiff) !== null ? Number((normalizedPct(memDiff) as number).toFixed(2)) : null;
+
+  // Composite performance score: (sum positive improvements - sum regressions) / total * 100
+  const normalizedAll = diffs
+    .filter(d => d.pct !== null && d.trend !== 'same' && d.trend !== 'unknown')
+    .map(d => (d.betterWhen === 'lower' ? -d.pct! : d.pct!));
+  let performanceScore: number | null = null;
+  if (normalizedAll.length) {
+    const positives = normalizedAll.filter(v => v > 0).reduce((a,b)=>a+b,0);
+    const negatives = normalizedAll.filter(v => v < 0).reduce((a,b)=>a+b,0); // negative sum
+    performanceScore = ((positives + negatives) / normalizedAll.length); // negatives already negative
+    performanceScore = Number(Math.max(-100, Math.min(100, performanceScore)).toFixed(1));
+  }
+
+  // Estimated user hours saved per day (if throughput & latency improvement present)
+  let estUserHoursSavedPerDay: number | null = null;
+  if (throughputDiff && throughputDiff.baseline !== null && throughputDiff.current !== null && latencyImprovementMs !== null) {
+    // Use current throughput (requests/sec)
+    const currentThroughput = throughputDiff.current;
+    const secondsPerDay = 86400;
+    const msSavedPerRequest = latencyImprovementMs; // ms
+    const totalMsSavedPerDay = currentThroughput * secondsPerDay * msSavedPerRequest;
+    estUserHoursSavedPerDay = Number((totalMsSavedPerDay / 1000 / 3600).toFixed(2));
+  }
+
+  // Top improved / regressed by absolute percent magnitude (normalized so higher positive is better)
+  const decorated = diffs
+    .filter(d => d.pct !== null && d.trend !== 'same' && d.trend !== 'unknown')
+    .map(d => ({
+      d,
+      norm: d.betterWhen === 'lower' ? -d.pct! : d.pct!
+    }));
+  const topImproved = decorated.filter(x => x.norm > 0).sort((a,b)=>b.norm - a.norm).slice(0,3)
+    .map(x => ({ label: x.d.label, pct: Number(x.norm.toFixed(1)) }));
+  const topRegressed = decorated.filter(x => x.norm < 0).sort((a,b)=>a.norm - b.norm).slice(0,3)
+    .map(x => ({ label: x.d.label, pct: Number(x.norm.toFixed(1)) }));
+
+  const currentOverallBetter = performanceScore !== null ? performanceScore > 0 : (summary.improved >= summary.worse);
+
   return {
     improvedMetrics: summary.improved,
     worseMetrics: summary.worse,
@@ -208,5 +333,14 @@ export function computeImpact(result: ComparisonResult): ImpactSummary {
     latencyImprovementPct: latencyImprovementPct !== null ? Number(latencyImprovementPct.toFixed(2)) : null,
     estTimeSavedPer1kRequestsMs,
     suggestionEffectivenessPct,
+    throughputChangePct,
+    errorRateChangePct,
+    cpuChangePct,
+    memoryChangePct,
+    performanceScore,
+    estUserHoursSavedPerDay,
+    topImproved,
+    topRegressed,
+    currentOverallBetter,
   };
 }

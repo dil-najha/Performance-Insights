@@ -73,4 +73,13 @@ export interface ImpactSummary {
   latencyImprovementPct: number | null; // percent change for primary latency metric
   estTimeSavedPer1kRequestsMs: number | null; // latencyImprovementMs * 1000 when available
   suggestionEffectivenessPct: number | null; // heuristic: improved / (improved + worse)
+  throughputChangePct: number | null; // positive means more throughput
+  errorRateChangePct: number | null; // positive means error rate decreased
+  cpuChangePct: number | null; // positive means cpu decreased
+  memoryChangePct: number | null; // positive means memory decreased
+  performanceScore: number | null; // composite score -100..+100
+  estUserHoursSavedPerDay: number | null; // hours saved per day based on latency improvement & throughput
+  topImproved: { label: string; pct: number }[]; // top 3 improved metrics
+  topRegressed: { label: string; pct: number }[]; // top 3 regressed metrics
+  currentOverallBetter: boolean; // whether current run is overall better
 }
