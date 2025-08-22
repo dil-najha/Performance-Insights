@@ -29,14 +29,24 @@ export interface ComparisonResult {
 
 // AI-related types
 export interface AIInsight {
-  type: 'anomaly' | 'suggestion' | 'prediction' | 'root_cause' | 'explanation';
+  type: 'critical_issue' | 'root_cause' | 'optimization' | 'monitoring' | 'anomaly' | 'suggestion' | 'prediction' | 'explanation';
   severity: 'low' | 'medium' | 'high' | 'critical';
   confidence: number;
   title: string;
   description: string;
-  actionable_steps: string[];
+  actionable_steps?: string[]; // Legacy field
   affected_metrics: string[];
   timestamp?: string;
+  business_impact?: string;
+  effort_estimate?: 'low' | 'medium' | 'high';
+  
+  // New systematic prompt fields
+  root_cause_analysis?: string;
+  immediate_actions?: string[];
+  code_optimizations?: string[];
+  long_term_solutions?: string[];
+  priority_score?: number; // 1-10
+  expected_improvement?: string;
 }
 
 export interface SystemContext {

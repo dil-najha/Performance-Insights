@@ -11,10 +11,10 @@ A sophisticated AI-powered performance testing dashboard that provides comprehen
 - **Root Cause Analysis**: Correlation analysis between metrics
 
 ### 🤖 **AI Capabilities**
-- **GPT-4 Integration**: Context-aware optimization recommendations
-- **Performance Predictions**: Trend-based forecasting
-- **Natural Language Explanations**: Human-readable insights
-- **System Context Awareness**: Environment and stack-specific suggestions
+- **AWS Bedrock Integration**: Enterprise-grade Claude 3.5 models
+- **Performance Analysis**: Context-aware optimization recommendations  
+- **Root Cause Detection**: AI-driven issue identification
+- **Business Impact Assessment**: Stack and environment-specific insights
 
 ### 📊 **Data Management**
 - **Historical Reports**: Persistent storage and trending
@@ -82,8 +82,10 @@ npm run start:dev
 # API Security
 API_SECRET_KEY=your-secure-api-key-here
 
-# OpenAI Integration
-OPENAI_API_KEY=your-openai-api-key
+# AWS Bedrock Integration  
+AWS_ACCESS_KEY_ID=your-aws-access-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+AWS_REGION=us-west-2
 
 # Server Settings
 PORT=3001
@@ -181,7 +183,7 @@ Content-Type: application/json
 ### **Common Issues**
 
 1. **AI Analysis Failing**
-   - Check OpenAI API key in backend `.env`
+   - Check AWS Bedrock credentials in backend `.env`
    - Verify API quota and rate limits
    - Falls back to basic analysis automatically
 
@@ -267,7 +269,7 @@ npm run start:dev
 
 ### **Tech Stack**
 - **Frontend**: React 18, TypeScript, TailwindCSS, DaisyUI
-- **Backend**: Node.js, Express, OpenAI API
+- **Backend**: Node.js, Express, AWS Bedrock
 - **Charts**: Recharts
 - **Build**: Vite
 

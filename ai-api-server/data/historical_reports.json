@@ -1,5 +1,1752 @@
 [
   {
+    "id": "1755896347123",
+    "timestamp": "2025-08-22T20:59:07.123Z",
+    "baseline": {
+      "name": "Baseline Trimmed",
+      "timestamp": "2025-08-21T00:00:00.000Z",
+      "metrics": {
+        "throughput": 480,
+        "cpu": 80,
+        "memory": 1000
+      }
+    },
+    "current": {
+      "name": "Current Trimmed",
+      "timestamp": "2025-08-22T00:00:00.000Z",
+      "metrics": {
+        "throughput": 520,
+        "cpu": 122,
+        "memory": 1930
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Severe Memory Consumption Spike",
+        "description": "93% increase in memory usage from 1000MB to 1930MB indicates potential memory leak or inefficient resource management in Node.js application",
+        "business_impact": "Risk of system instability, potential service interruptions, increased infrastructure costs by ~50%",
+        "root_cause_analysis": "Likely caused by memory-intensive operations, uncontrolled object references, or poor garbage collection management",
+        "immediate_actions": [
+          "Implement immediate memory heap profiling",
+          "Configure aggressive garbage collection settings",
+          "Temporarily increase server memory allocation"
+        ],
+        "code_optimizations": [
+          "Use weak references for large object caches",
+          "Implement manual memory cleanup in long-running processes",
+          "Leverage stream processing for large data transformations"
+        ],
+        "long_term_solutions": [
+          "Refactor memory-intensive code paths",
+          "Implement comprehensive memory monitoring",
+          "Design stateless microservices architecture"
+        ],
+        "affected_metrics": [
+          "memory_usage",
+          "server_stability"
+        ],
+        "priority_score": 9,
+        "effort_estimate": "high",
+        "expected_improvement": "Reduce memory consumption by 60-70%"
+      },
+      {
+        "type": "root_cause",
+        "severity": "critical",
+        "confidence": 0.85,
+        "title": "CPU Utilization Extreme Escalation",
+        "description": "52.5% CPU usage increase from 80% to 122%, indicating potential computational bottlenecks",
+        "business_impact": "Potential system performance degradation, increased operational costs, risk of service unavailability",
+        "root_cause_analysis": "Possible inefficient algorithmic complexity, unoptimized database queries, or resource-intensive background tasks",
+        "immediate_actions": [
+          "Enable CPU profiling",
+          "Identify top CPU consuming functions",
+          "Implement temporary request throttling"
+        ],
+        "code_optimizations": [
+          "Replace synchronous with asynchronous processing",
+          "Optimize computational complexity of core algorithms",
+          "Implement efficient caching mechanisms"
+        ],
+        "long_term_solutions": [
+          "Horizontal scaling with load balancing",
+          "Implement advanced performance monitoring",
+          "Design event-driven, non-blocking architecture"
+        ],
+        "affected_metrics": [
+          "cpu_utilization",
+          "request_processing_time"
+        ],
+        "priority_score": 8,
+        "effort_estimate": "high",
+        "expected_improvement": "Reduce CPU utilization by 40-50%"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.75,
+        "title": "Performance Monitoring and Alerting Enhancement",
+        "description": "Current monitoring insufficient to proactively detect performance degradation",
+        "business_impact": "Reduced ability to prevent performance incidents, increased mean time to resolution",
+        "root_cause_analysis": "Lack of comprehensive performance observability and real-time alerting",
+        "immediate_actions": [
+          "Implement advanced APM (Application Performance Monitoring)",
+          "Configure granular performance thresholds",
+          "Set up automated incident response workflows"
+        ],
+        "code_optimizations": [
+          "Add detailed performance instrumentation",
+          "Implement structured logging with performance metrics",
+          "Create custom performance monitoring decorators"
+        ],
+        "long_term_solutions": [
+          "Integrate AI-driven anomaly detection",
+          "Develop comprehensive performance dashboards",
+          "Establish performance engineering culture"
+        ],
+        "affected_metrics": [
+          "incident_response_time",
+          "system_observability"
+        ],
+        "priority_score": 6,
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce incident detection time by 40%"
+      }
+    ],
+    "summary": {
+      "improved": 1,
+      "worse": 2,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755895721144",
+    "timestamp": "2025-08-22T20:48:41.144Z",
+    "baseline": {
+      "name": "baseline",
+      "timestamp": "2025-08-22T20:48:03.830Z",
+      "metrics": {
+        "checks_rate": 1,
+        "http_req_failed_rate": 0.001,
+        "inp_avg_ms": 80,
+        "inp_p95_ms": 115,
+        "navigation_avg_ms": 1200,
+        "successful_requests_rate": 0.98,
+        "successful_requests_threshold_ok": 1,
+        "http_req_avg_ms": 250.5,
+        "http_req_p95_ms": 420.7,
+        "fid_avg_ms": 45,
+        "fid_p95_ms": 75,
+        "cls_avg": 0.025,
+        "page_load_avg_ms": 2800,
+        "page_load_p95_ms": 3300,
+        "error_rate": 0.02,
+        "errors_threshold_ok": 1,
+        "fcp_avg_ms": 1200,
+        "fcp_p95_ms": 1550,
+        "lcp_avg_ms": 1800,
+        "lcp_p95_ms": 2300,
+        "login_avg_ms": 1800,
+        "login_p95_ms": 2400,
+        "login_time_threshold_ok": 1,
+        "ttfb_avg_ms": 350,
+        "ttfb_p95_ms": 500,
+        "checks_total_passes": 40,
+        "checks_total_fails": 0,
+        "checks_success_rate": 1
+      }
+    },
+    "current": {
+      "name": "current",
+      "timestamp": "2025-08-22T20:47:26.830Z",
+      "metrics": {
+        "checks_rate": 0.8,
+        "http_req_failed_rate": 0.011627906976744186,
+        "inp_avg_ms": 32,
+        "inp_p95_ms": 32,
+        "total_iterations": 1,
+        "navigation_avg_ms": 4659,
+        "successful_requests_rate": 0.6,
+        "successful_requests_threshold_ok": 0,
+        "http_req_avg_ms": 1657.9489186046517,
+        "http_req_p95_ms": 4756.96365,
+        "total_requests": 2,
+        "fid_avg_ms": 2,
+        "fid_p95_ms": 2.720000010728836,
+        "cls_avg": 0.010938189160492686,
+        "page_load_avg_ms": 28102,
+        "page_load_p95_ms": 28102,
+        "error_rate": 1,
+        "errors_threshold_ok": 0,
+        "fcp_avg_ms": 4814.666666666667,
+        "fcp_p95_ms": 6539.2,
+        "lcp_avg_ms": 5598.666666666667,
+        "lcp_p95_ms": 7326,
+        "login_avg_ms": 8940,
+        "login_p95_ms": 8940,
+        "login_time_threshold_ok": 0,
+        "ttfb_avg_ms": 1130.1428571343422,
+        "ttfb_p95_ms": 2296.469999989867,
+        "checks_total_passes": 4,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.8
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic Error Rate and Request Failure Spike",
+        "description": "Error rate escalated from 0.02 to 1.0 (4900% increase), with successful request rates dropping from 0.98 to 0.6 (-38.8%), indicating systemic application failure",
+        "business_impact": "Potential revenue loss of 40-60% due to complete service degradation, high risk of customer churn and brand reputation damage",
+        "root_cause_analysis": "Likely caused by recent deployment introducing critical runtime errors, potential unhandled exceptions or infrastructure misconfiguration",
+        "immediate_actions": [
+          "Immediate rollback to previous stable deployment",
+          "Implement emergency circuit breakers",
+          "Activate comprehensive error monitoring"
+        ],
+        "code_optimizations": [
+          "Add global error handlers in Node.js entry points",
+          "Implement comprehensive try/catch blocks",
+          "Create robust request validation middleware"
+        ],
+        "long_term_solutions": [
+          "Develop advanced error tracking infrastructure",
+          "Implement comprehensive pre-deployment testing",
+          "Create canary deployment mechanisms"
+        ],
+        "affected_metrics": [
+          "error_rate",
+          "successful_requests_rate",
+          "http_req_failed_rate"
+        ],
+        "priority_score": 10,
+        "effort_estimate": "high",
+        "expected_improvement": "Restore 95%+ request success rate"
+      },
+      {
+        "type": "root_cause",
+        "severity": "critical",
+        "confidence": 0.85,
+        "title": "Extreme Page Load and Navigation Performance Collapse",
+        "description": "Page load times exploded from 2800ms to 28102ms (903.6% increase), with navigation times rising from 1200ms to 4659ms (288.3% increase)",
+        "business_impact": "Estimated 70-80% potential user abandonment, direct conversion rate reduction, significant SEO ranking degradation",
+        "root_cause_analysis": "Potential memory leaks, inefficient database queries, unoptimized frontend rendering, or massive backend processing bottlenecks",
+        "immediate_actions": [
+          "Profile application memory consumption",
+          "Analyze database query performance",
+          "Implement aggressive caching strategies"
+        ],
+        "code_optimizations": [
+          "Use Redis/Memcached for critical query caching",
+          "Optimize database indexing",
+          "Implement lazy loading for non-critical resources"
+        ],
+        "long_term_solutions": [
+          "Redesign application state management",
+          "Implement server-side rendering optimization",
+          "Create microservice architecture for load distribution"
+        ],
+        "affected_metrics": [
+          "page_load_avg_ms",
+          "navigation_avg_ms",
+          "ttfb_avg_ms"
+        ],
+        "priority_score": 9,
+        "effort_estimate": "high",
+        "expected_improvement": "Reduce page load times by 70-80%"
+      },
+      {
+        "type": "optimization",
+        "severity": "high",
+        "confidence": 0.75,
+        "title": "Network Request and API Response Time Degradation",
+        "description": "HTTP request average time increased from 250.5ms to 1657.9ms (561.9% increase), with p95 times jumping from 420.7ms to 4756.96ms (1030.7% increase)",
+        "business_impact": "Estimated 40-50% user experience reduction, potential revenue loss through slow transaction processing",
+        "root_cause_analysis": "Potential network configuration issues, inefficient API design, lack of request parallelization",
+        "immediate_actions": [
+          "Implement request timeout mechanisms",
+          "Add comprehensive network latency monitoring",
+          "Optimize API endpoint designs"
+        ],
+        "code_optimizations": [
+          "Use Promise.all() for parallel requests",
+          "Implement request batching strategies",
+          "Add sophisticated retry mechanisms"
+        ],
+        "long_term_solutions": [
+          "Develop advanced API gateway",
+          "Implement intelligent request scheduling",
+          "Create comprehensive performance testing framework"
+        ],
+        "affected_metrics": [
+          "http_req_avg_ms",
+          "http_req_p95_ms"
+        ],
+        "priority_score": 8,
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce API response times by 60-70%"
+      },
+      {
+        "type": "monitoring",
+        "severity": "medium",
+        "confidence": 0.65,
+        "title": "Login and Authentication Performance Bottleneck",
+        "description": "Login process time increased from 1800ms to 8940ms (396.7% increase), indicating potential authentication service issues",
+        "business_impact": "User onboarding friction, potential 25-35% registration abandonment rate",
+        "root_cause_analysis": "Inefficient authentication middleware, complex user validation processes, potential database connection pooling issues",
+        "immediate_actions": [
+          "Profile authentication service performance",
+          "Optimize user validation logic",
+          "Implement connection pooling"
+        ],
+        "code_optimizations": [
+          "Streamline authentication middleware",
+          "Use lightweight JWT tokens",
+          "Implement efficient database connection management"
+        ],
+        "long_term_solutions": [
+          "Consider dedicated authentication microservice",
+          "Implement advanced caching for user sessions",
+          "Create multi-tier authentication strategies"
+        ],
+        "affected_metrics": [
+          "login_avg_ms",
+          "login_p95_ms"
+        ],
+        "priority_score": 6,
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce login times by 50-60%"
+      },
+      {
+        "type": "critical_issue",
+        "severity": "high",
+        "confidence": 0.7,
+        "title": "Core Web Vitals and Frontend Performance Regression",
+        "description": "First Contentful Paint (FCP) degraded from 1200ms to 4814ms (301.2% increase), Largest Contentful Paint (LCP) worsened from 1800ms to 5598ms (211% increase)",
+        "business_impact": "SEO ranking reduction, estimated 30-40% organic traffic loss, significant user experience degradation",
+        "root_cause_analysis": "Potential issues with frontend bundle size, inefficient rendering strategies, unoptimized asset loading",
+        "immediate_actions": [
+          "Analyze frontend bundle composition",
+          "Implement code splitting",
+          "Optimize critical rendering path"
+        ],
+        "code_optimizations": [
+          "Use dynamic imports for non-critical modules",
+          "Implement lazy loading for components",
+          "Minimize render-blocking resources"
+        ],
+        "long_term_solutions": [
+          "Migrate to server-side rendering",
+          "Implement progressive loading strategies",
+          "Create comprehensive performance budget"
+        ],
+        "affected_metrics": [
+          "fcp_avg_ms",
+          "lcp_avg_ms",
+          "cls_avg"
+        ],
+        "priority_score": 7,
+        "effort_estimate": "high",
+        "expected_improvement": "Improve Core Web Vitals by 60-70%"
+      }
+    ],
+    "summary": {
+      "improved": 6,
+      "worse": 18,
+      "same": 0,
+      "unknown": 6
+    }
+  },
+  {
+    "id": "1755895508666",
+    "timestamp": "2025-08-22T20:45:08.666Z",
+    "baseline": {
+      "name": "Baseline Trimmed",
+      "timestamp": "2025-08-21T00:00:00Z",
+      "metrics": {
+        "throughput": 480,
+        "cpu": 80,
+        "memory": 1000
+      }
+    },
+    "current": {
+      "name": "Current Trimmed",
+      "timestamp": "2025-08-22T00:00:00Z",
+      "metrics": {
+        "throughput": 520,
+        "cpu": 122,
+        "memory": 1930
+      }
+    },
+    "insights": {
+      "performance_insights": [
+        {
+          "type": "root_cause",
+          "severity": "critical",
+          "confidence": 0.92,
+          "title": "Node.js Memory Leak and Resource Exhaustion",
+          "description": "Exponential memory growth and CPU saturation indicate potential memory management failures in application runtime",
+          "actionable_steps": [
+            "Profile memory heap using v8 inspector",
+            "Implement memory leak detection scripts",
+            "Review async/promise handling in core service modules",
+            "Set aggressive garbage collection parameters"
+          ],
+          "affected_metrics": [
+            "memory_usage",
+            "cpu_utilization",
+            "request_latency"
+          ],
+          "business_impact": "High risk of service unavailability and potential revenue loss",
+          "effort_estimate": "high"
+        },
+        {
+          "type": "suggestion",
+          "severity": "high",
+          "confidence": 0.85,
+          "title": "Microservice Resource Optimization",
+          "description": "Current infrastructure scaling cannot handle growing workload efficiently",
+          "actionable_steps": [
+            "Implement horizontal pod autoscaling",
+            "Configure CPU/memory request and limits",
+            "Use node affinity for workload distribution",
+            "Add predictive scaling based on traffic patterns"
+          ],
+          "affected_metrics": [
+            "cpu_utilization",
+            "memory_usage",
+            "request_throughput"
+          ],
+          "business_impact": "Improve system resilience and reduce infrastructure costs",
+          "effort_estimate": "medium"
+        },
+        {
+          "type": "prediction",
+          "severity": "medium",
+          "confidence": 0.78,
+          "title": "Performance Capacity Forecast",
+          "description": "Current growth trajectory suggests imminent infrastructure bottlenecks",
+          "actionable_steps": [
+            "Conduct comprehensive performance load testing",
+            "Design capacity expansion roadmap",
+            "Evaluate distributed caching strategies",
+            "Consider migration to more efficient runtime"
+          ],
+          "affected_metrics": [
+            "request_latency",
+            "system_throughput",
+            "resource_utilization"
+          ],
+          "business_impact": "Proactively prevent potential service degradation",
+          "effort_estimate": "high"
+        }
+      ]
+    },
+    "summary": {
+      "improved": 1,
+      "worse": 2,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755895443232",
+    "timestamp": "2025-08-22T20:44:03.232Z",
+    "baseline": {
+      "name": "Benchmark",
+      "timestamp": "2025-08-01T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 120,
+        "responseTimeP95": 200,
+        "throughput": 500,
+        "errorRate": 0.5,
+        "cpu": 65,
+        "memory": 800
+      }
+    },
+    "current": {
+      "name": "Current",
+      "timestamp": "2025-08-15T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 110,
+        "responseTimeP95": 140,
+        "throughput": 460,
+        "errorRate": 1.2,
+        "cpu": 25,
+        "memory": 950
+      }
+    },
+    "insights": [
+      {
+        "type": "suggestion",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Performance Analysis Completed",
+        "description": "Based on the comprehensive performance analysis, here's a strategic performance optimization insights report:\n\n```json\n[\n  {\n    \"type\": \"root_cause\",\n    \"severity\": \"critical\", \n    \"confidence\": 0.85,\n    \"title\": \"Unexpected Error Rate Spike Indicates System Instability\",\n    \"description\": \"Error rate escalated 140% from 0.5% to 1.2%, signaling potential architectural vulnerabilities\",\n    \"actionable_steps\": [\n      \"Conduct comprehensive error log trace analysis\",\n      \"Implement enhance...",
+        "actionable_steps": [
+          "Review the full analysis results"
+        ],
+        "affected_metrics": [],
+        "business_impact": "Performance analysis insights provided"
+      }
+    ],
+    "summary": {
+      "improved": 3,
+      "worse": 3,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755894570190",
+    "timestamp": "2025-08-22T20:29:30.190Z",
+    "baseline": {
+      "name": "baseline",
+      "timestamp": "2025-08-22T20:21:10.145Z",
+      "metrics": {
+        "checks_rate": 1,
+        "http_req_failed_rate": 0.001,
+        "inp_avg_ms": 80,
+        "inp_p95_ms": 115,
+        "navigation_avg_ms": 1200,
+        "successful_requests_rate": 0.98,
+        "successful_requests_threshold_ok": 1,
+        "http_req_avg_ms": 250.5,
+        "http_req_p95_ms": 420.7,
+        "fid_avg_ms": 45,
+        "fid_p95_ms": 75,
+        "cls_avg": 0.025,
+        "page_load_avg_ms": 2800,
+        "page_load_p95_ms": 3300,
+        "error_rate": 0.02,
+        "errors_threshold_ok": 1,
+        "fcp_avg_ms": 1200,
+        "fcp_p95_ms": 1550,
+        "lcp_avg_ms": 1800,
+        "lcp_p95_ms": 2300,
+        "login_avg_ms": 1800,
+        "login_p95_ms": 2400,
+        "login_time_threshold_ok": 1,
+        "ttfb_avg_ms": 350,
+        "ttfb_p95_ms": 500,
+        "checks_total_passes": 40,
+        "checks_total_fails": 0,
+        "checks_success_rate": 1
+      }
+    },
+    "current": {
+      "name": "current",
+      "timestamp": "2025-08-22T20:20:48.420Z",
+      "metrics": {
+        "checks_rate": 0.8,
+        "http_req_failed_rate": 0.011627906976744186,
+        "inp_avg_ms": 32,
+        "inp_p95_ms": 32,
+        "total_iterations": 1,
+        "navigation_avg_ms": 4659,
+        "successful_requests_rate": 0.6,
+        "successful_requests_threshold_ok": 0,
+        "http_req_avg_ms": 1657.9489186046517,
+        "http_req_p95_ms": 4756.96365,
+        "total_requests": 2,
+        "fid_avg_ms": 2,
+        "fid_p95_ms": 2.720000010728836,
+        "cls_avg": 0.010938189160492686,
+        "page_load_avg_ms": 28102,
+        "page_load_p95_ms": 28102,
+        "error_rate": 1,
+        "errors_threshold_ok": 0,
+        "fcp_avg_ms": 4814.666666666667,
+        "fcp_p95_ms": 6539.2,
+        "lcp_avg_ms": 5598.666666666667,
+        "lcp_p95_ms": 7326,
+        "login_avg_ms": 8940,
+        "login_p95_ms": 8940,
+        "login_time_threshold_ok": 0,
+        "ttfb_avg_ms": 1130.1428571343422,
+        "ttfb_p95_ms": 2296.469999989867,
+        "checks_total_passes": 4,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.8
+      }
+    },
+    "insights": [
+      {
+        "type": "suggestion",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Performance Analysis Completed",
+        "description": "Based on the comprehensive performance analysis, here's a strategic insights report:\n\n```json\n[\n  {\n    \"type\": \"root_cause\",\n    \"severity\": \"critical\", \n    \"confidence\": 0.92,\n    \"title\": \"Systemic HTTP Request Performance Collapse\",\n    \"description\": \"Massive degradation in HTTP request processing, with average response times increasing by 561% and critical failure rates\",\n    \"actionable_steps\": [\n      \"Analyze middleware and request handling layers\",\n      \"Profile database query perfor...",
+        "actionable_steps": [
+          "Review the full analysis results"
+        ],
+        "affected_metrics": [],
+        "business_impact": "Performance analysis insights provided"
+      }
+    ],
+    "summary": {
+      "improved": 6,
+      "worse": 18,
+      "same": 0,
+      "unknown": 6
+    }
+  },
+  {
+    "id": "1755894111324",
+    "timestamp": "2025-08-22T20:21:51.324Z",
+    "baseline": {
+      "name": "baseline",
+      "timestamp": "2025-08-22T20:21:10.145Z",
+      "metrics": {
+        "checks_rate": 1,
+        "http_req_failed_rate": 0.001,
+        "inp_avg_ms": 80,
+        "inp_p95_ms": 115,
+        "navigation_avg_ms": 1200,
+        "successful_requests_rate": 0.98,
+        "successful_requests_threshold_ok": 1,
+        "http_req_avg_ms": 250.5,
+        "http_req_p95_ms": 420.7,
+        "fid_avg_ms": 45,
+        "fid_p95_ms": 75,
+        "cls_avg": 0.025,
+        "page_load_avg_ms": 2800,
+        "page_load_p95_ms": 3300,
+        "error_rate": 0.02,
+        "errors_threshold_ok": 1,
+        "fcp_avg_ms": 1200,
+        "fcp_p95_ms": 1550,
+        "lcp_avg_ms": 1800,
+        "lcp_p95_ms": 2300,
+        "login_avg_ms": 1800,
+        "login_p95_ms": 2400,
+        "login_time_threshold_ok": 1,
+        "ttfb_avg_ms": 350,
+        "ttfb_p95_ms": 500,
+        "checks_total_passes": 40,
+        "checks_total_fails": 0,
+        "checks_success_rate": 1
+      }
+    },
+    "current": {
+      "name": "current",
+      "timestamp": "2025-08-22T20:20:48.420Z",
+      "metrics": {
+        "checks_rate": 0.8,
+        "http_req_failed_rate": 0.011627906976744186,
+        "inp_avg_ms": 32,
+        "inp_p95_ms": 32,
+        "total_iterations": 1,
+        "navigation_avg_ms": 4659,
+        "successful_requests_rate": 0.6,
+        "successful_requests_threshold_ok": 0,
+        "http_req_avg_ms": 1657.9489186046517,
+        "http_req_p95_ms": 4756.96365,
+        "total_requests": 2,
+        "fid_avg_ms": 2,
+        "fid_p95_ms": 2.720000010728836,
+        "cls_avg": 0.010938189160492686,
+        "page_load_avg_ms": 28102,
+        "page_load_p95_ms": 28102,
+        "error_rate": 1,
+        "errors_threshold_ok": 0,
+        "fcp_avg_ms": 4814.666666666667,
+        "fcp_p95_ms": 6539.2,
+        "lcp_avg_ms": 5598.666666666667,
+        "lcp_p95_ms": 7326,
+        "login_avg_ms": 8940,
+        "login_p95_ms": 8940,
+        "login_time_threshold_ok": 0,
+        "ttfb_avg_ms": 1130.1428571343422,
+        "ttfb_p95_ms": 2296.469999989867,
+        "checks_total_passes": 4,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.8
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic API Response Time and Error Rate Degradation",
+        "description": "System experiencing massive performance collapse with 1062.8% increase in HTTP request failure rates and 561.9% increase in average HTTP request latency",
+        "business_impact": "Potential 50%+ revenue loss, critical user experience breakdown, potential customer churn",
+        "root_cause_analysis": "Likely combination of backend resource exhaustion, inefficient database queries, and potential infrastructure scaling issues",
+        "immediate_actions": [
+          "Implement emergency circuit breakers",
+          "Rollback recent deployments",
+          "Increase server resources immediately"
+        ],
+        "code_optimizations": [
+          "Optimize database query indexing",
+          "Implement connection pooling",
+          "Add request timeout mechanisms"
+        ],
+        "long_term_solutions": [
+          "Comprehensive performance architecture review",
+          "Implement advanced caching strategies",
+          "Migrate to distributed microservice architecture"
+        ],
+        "affected_metrics": [
+          "http_req_failed_rate",
+          "http_req_avg_ms",
+          "error_rate"
+        ],
+        "priority_score": 10,
+        "effort_estimate": "high",
+        "expected_improvement": "70-85% performance recovery"
+      },
+      {
+        "type": "root_cause",
+        "severity": "critical",
+        "confidence": 0.85,
+        "title": "Severe Page Load and Navigation Performance Collapse",
+        "description": "Page load times increased by 903.6%, navigation times by 288.3%, indicating systemic performance breakdown",
+        "business_impact": "Potential 40% conversion rate reduction, severe SEO ranking damage",
+        "root_cause_analysis": "Likely frontend rendering bottlenecks, unoptimized asset loading, potential memory leaks in JavaScript",
+        "immediate_actions": [
+          "Enable browser-level performance monitoring",
+          "Implement lazy loading for critical resources",
+          "Compress and minify frontend assets"
+        ],
+        "code_optimizations": [
+          "Refactor React component rendering logic",
+          "Implement code splitting",
+          "Optimize JavaScript bundle size"
+        ],
+        "long_term_solutions": [
+          "Migrate to server-side rendering",
+          "Implement advanced performance budgeting",
+          "Develop comprehensive frontend optimization strategy"
+        ],
+        "affected_metrics": [
+          "page_load_avg_ms",
+          "navigation_avg_ms",
+          "fcp_avg_ms"
+        ],
+        "priority_score": 9,
+        "effort_estimate": "high",
+        "expected_improvement": "60-75% load time reduction"
+      },
+      {
+        "type": "optimization",
+        "severity": "high",
+        "confidence": 0.75,
+        "title": "Database Query and Backend Latency Optimization",
+        "description": "TTFB increased by 222.9%, indicating significant backend processing delays",
+        "business_impact": "25-35% potential performance overhead, increased infrastructure costs",
+        "root_cause_analysis": "Inefficient database queries, lack of proper indexing, potential N+1 query problems",
+        "immediate_actions": [
+          "Profile and analyze slow database queries",
+          "Add missing database indexes",
+          "Implement query result caching"
+        ],
+        "code_optimizations": [
+          "Use database query explain plans",
+          "Implement database-level query optimizations",
+          "Replace inefficient ORM operations"
+        ],
+        "long_term_solutions": [
+          "Implement read replicas",
+          "Design database sharding strategy",
+          "Develop comprehensive query optimization framework"
+        ],
+        "affected_metrics": [
+          "ttfb_avg_ms",
+          "ttfb_p95_ms"
+        ],
+        "priority_score": 8,
+        "effort_estimate": "medium",
+        "expected_improvement": "50-65% backend latency reduction"
+      },
+      {
+        "type": "monitoring",
+        "severity": "medium",
+        "confidence": 0.65,
+        "title": "Enhanced Performance Monitoring and Alerting",
+        "description": "Current monitoring insufficient to detect rapid performance degradation",
+        "business_impact": "Delayed incident response, increased operational risk",
+        "root_cause_analysis": "Lack of real-time performance monitoring and intelligent alerting mechanisms",
+        "immediate_actions": [
+          "Implement advanced APM tools",
+          "Set up proactive performance thresholds",
+          "Create comprehensive performance dashboards"
+        ],
+        "code_optimizations": [
+          "Add granular performance instrumentation",
+          "Develop custom performance tracking middleware",
+          "Implement distributed tracing"
+        ],
+        "long_term_solutions": [
+          "Build machine learning-based anomaly detection",
+          "Create automated performance regression testing",
+          "Develop comprehensive observability strategy"
+        ],
+        "affected_metrics": [
+          "checks_success_rate",
+          "total_requests"
+        ],
+        "priority_score": 6,
+        "effort_estimate": "medium",
+        "expected_improvement": "40-50% faster incident detection"
+      },
+      {
+        "type": "critical_issue",
+        "severity": "high",
+        "confidence": 0.7,
+        "title": "Login and Authentication Performance Bottleneck",
+        "description": "Login process experiencing 396.7% latency increase, critical user onboarding friction",
+        "business_impact": "Potential 30% user abandonment during authentication",
+        "root_cause_analysis": "Inefficient authentication middleware, complex login validation, potential external service dependencies",
+        "immediate_actions": [
+          "Simplify authentication flow",
+          "Implement lightweight token generation",
+          "Add connection timeouts for external services"
+        ],
+        "code_optimizations": [
+          "Optimize JWT token generation",
+          "Implement efficient session management",
+          "Use connection pooling for auth services"
+        ],
+        "long_term_solutions": [
+          "Develop microservice-based authentication",
+          "Implement advanced caching for user sessions",
+          "Create multi-tier authentication strategy"
+        ],
+        "affected_metrics": [
+          "login_avg_ms",
+          "login_p95_ms"
+        ],
+        "priority_score": 7,
+        "effort_estimate": "medium",
+        "expected_improvement": "60-70% login performance enhancement"
+      }
+    ],
+    "summary": {
+      "improved": 6,
+      "worse": 18,
+      "same": 0,
+      "unknown": 6
+    }
+  },
+  {
+    "id": "1755891428759",
+    "timestamp": "2025-08-22T19:37:08.759Z",
+    "baseline": {
+      "name": "baseline",
+      "timestamp": "2025-08-22T19:36:40.753Z",
+      "metrics": {
+        "checks_rate": 1,
+        "http_req_failed_rate": 0.001,
+        "inp_avg_ms": 80,
+        "inp_p95_ms": 115,
+        "navigation_avg_ms": 1200,
+        "successful_requests_rate": 0.98,
+        "successful_requests_threshold_ok": 1,
+        "http_req_avg_ms": 250.5,
+        "http_req_p95_ms": 420.7,
+        "fid_avg_ms": 45,
+        "fid_p95_ms": 75,
+        "cls_avg": 0.025,
+        "page_load_avg_ms": 2800,
+        "page_load_p95_ms": 3300,
+        "error_rate": 0.02,
+        "errors_threshold_ok": 1,
+        "fcp_avg_ms": 1200,
+        "fcp_p95_ms": 1550,
+        "lcp_avg_ms": 1800,
+        "lcp_p95_ms": 2300,
+        "login_avg_ms": 1800,
+        "login_p95_ms": 2400,
+        "login_time_threshold_ok": 1,
+        "ttfb_avg_ms": 350,
+        "ttfb_p95_ms": 500,
+        "checks_total_passes": 40,
+        "checks_total_fails": 0,
+        "checks_success_rate": 1
+      }
+    },
+    "current": {
+      "name": "current",
+      "timestamp": "2025-08-22T19:36:18.022Z",
+      "metrics": {
+        "checks_rate": 0.8,
+        "http_req_failed_rate": 0.011627906976744186,
+        "inp_avg_ms": 32,
+        "inp_p95_ms": 32,
+        "total_iterations": 1,
+        "navigation_avg_ms": 4659,
+        "successful_requests_rate": 0.6,
+        "successful_requests_threshold_ok": 0,
+        "http_req_avg_ms": 1657.9489186046517,
+        "http_req_p95_ms": 4756.96365,
+        "total_requests": 2,
+        "fid_avg_ms": 2,
+        "fid_p95_ms": 2.720000010728836,
+        "cls_avg": 0.010938189160492686,
+        "page_load_avg_ms": 28102,
+        "page_load_p95_ms": 28102,
+        "error_rate": 1,
+        "errors_threshold_ok": 0,
+        "fcp_avg_ms": 4814.666666666667,
+        "fcp_p95_ms": 6539.2,
+        "lcp_avg_ms": 5598.666666666667,
+        "lcp_p95_ms": 7326,
+        "login_avg_ms": 8940,
+        "login_p95_ms": 8940,
+        "login_time_threshold_ok": 0,
+        "ttfb_avg_ms": 1130.1428571343422,
+        "ttfb_p95_ms": 2296.469999989867,
+        "checks_total_passes": 4,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.8
+      }
+    },
+    "insights": [
+      {
+        "type": "suggestion",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Performance Analysis Completed",
+        "description": "Based on the comprehensive performance metrics analysis, here are the prioritized insights:\n\n```json\n[\n  {\n    \"type\": \"root_cause\",\n    \"severity\": \"critical\",\n    \"confidence\": 0.95,\n    \"title\": \"Catastrophic HTTP Request Performance Degradation\",\n    \"description\": \"Massive increase in HTTP request latency and failure rates indicating systemic backend infrastructure issues\",\n    \"actionable_steps\": [\n      \"Immediate investigation of backend service health\",\n      \"Review recent infrastructu...",
+        "actionable_steps": [
+          "Review the full analysis results"
+        ],
+        "affected_metrics": [],
+        "business_impact": "Performance analysis insights provided"
+      }
+    ],
+    "summary": {
+      "improved": 6,
+      "worse": 18,
+      "same": 0,
+      "unknown": 6
+    }
+  },
+  {
+    "id": "1755890679373",
+    "timestamp": "2025-08-22T19:24:39.373Z",
+    "baseline": {
+      "name": "baseline",
+      "timestamp": "2025-08-22T19:24:11.645Z",
+      "metrics": {
+        "checks_rate": 1,
+        "http_req_failed_rate": 0.001,
+        "inp_avg_ms": 80,
+        "inp_p95_ms": 115,
+        "navigation_avg_ms": 1200,
+        "successful_requests_rate": 0.98,
+        "successful_requests_threshold_ok": 1,
+        "http_req_avg_ms": 250.5,
+        "http_req_p95_ms": 420.7,
+        "fid_avg_ms": 45,
+        "fid_p95_ms": 75,
+        "cls_avg": 0.025,
+        "page_load_avg_ms": 2800,
+        "page_load_p95_ms": 3300,
+        "error_rate": 0.02,
+        "errors_threshold_ok": 1,
+        "fcp_avg_ms": 1200,
+        "fcp_p95_ms": 1550,
+        "lcp_avg_ms": 1800,
+        "lcp_p95_ms": 2300,
+        "login_avg_ms": 1800,
+        "login_p95_ms": 2400,
+        "login_time_threshold_ok": 1,
+        "ttfb_avg_ms": 350,
+        "ttfb_p95_ms": 500,
+        "checks_total_passes": 40,
+        "checks_total_fails": 0,
+        "checks_success_rate": 1
+      }
+    },
+    "current": {
+      "name": "current",
+      "timestamp": "2025-08-22T19:23:50.991Z",
+      "metrics": {
+        "checks_rate": 0.8,
+        "http_req_failed_rate": 0.011627906976744186,
+        "inp_avg_ms": 32,
+        "inp_p95_ms": 32,
+        "total_iterations": 1,
+        "navigation_avg_ms": 4659,
+        "successful_requests_rate": 0.6,
+        "successful_requests_threshold_ok": 0,
+        "http_req_avg_ms": 1657.9489186046517,
+        "http_req_p95_ms": 4756.96365,
+        "total_requests": 2,
+        "fid_avg_ms": 2,
+        "fid_p95_ms": 2.720000010728836,
+        "cls_avg": 0.010938189160492686,
+        "page_load_avg_ms": 28102,
+        "page_load_p95_ms": 28102,
+        "error_rate": 1,
+        "errors_threshold_ok": 0,
+        "fcp_avg_ms": 4814.666666666667,
+        "fcp_p95_ms": 6539.2,
+        "lcp_avg_ms": 5598.666666666667,
+        "lcp_p95_ms": 7326,
+        "login_avg_ms": 8940,
+        "login_p95_ms": 8940,
+        "login_time_threshold_ok": 0,
+        "ttfb_avg_ms": 1130.1428571343422,
+        "ttfb_p95_ms": 2296.469999989867,
+        "checks_total_passes": 4,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.8
+      }
+    },
+    "insights": [
+      {
+        "type": "suggestion",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Performance Analysis Completed",
+        "description": "Based on the comprehensive performance metrics analysis, here are the critical insights:\n\n```json\n[\n  {\n    \"type\": \"root_cause\",\n    \"severity\": \"critical\", \n    \"confidence\": 0.95,\n    \"title\": \"Catastrophic System Performance Degradation\",\n    \"description\": \"Systemic performance collapse with multiple critical metrics showing 200-1000% deterioration across request handling, page load, and user interaction times\",\n    \"actionable_steps\": [\n      \"Immediate full system architecture and depende...",
+        "actionable_steps": [
+          "Review the full analysis results"
+        ],
+        "affected_metrics": [],
+        "business_impact": "Performance analysis insights provided"
+      }
+    ],
+    "summary": {
+      "improved": 6,
+      "worse": 18,
+      "same": 0,
+      "unknown": 6
+    }
+  },
+  {
+    "id": "1755890505022",
+    "timestamp": "2025-08-22T19:21:45.022Z",
+    "baseline": {
+      "name": "Baseline Trimmed",
+      "timestamp": "2025-08-21T00:00:00Z",
+      "metrics": {
+        "throughput": 480,
+        "cpu": 80,
+        "memory": 1000
+      }
+    },
+    "current": {
+      "name": "Current Trimmed",
+      "timestamp": "2025-08-22T00:00:00Z",
+      "metrics": {
+        "throughput": 520,
+        "cpu": 122,
+        "memory": 1930
+      }
+    },
+    "insights": [
+      {
+        "type": "suggestion",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Performance Analysis Completed",
+        "description": "Based on the performance metrics analysis, here's a comprehensive optimization insights report:\n\n```json\n[\n  {\n    \"type\": \"root_cause\",\n    \"severity\": \"critical\", \n    \"confidence\": 0.95,\n    \"title\": \"CPU and Memory Resource Overutilization\",\n    \"description\": \"Significant resource consumption spike indicates potential memory leaks, inefficient processing, or unoptimized code paths\",\n    \"actionable_steps\": [\n      \"Perform comprehensive memory profiling\",\n      \"Implement memory leak detect...",
+        "actionable_steps": [
+          "Review the full analysis results"
+        ],
+        "affected_metrics": [],
+        "business_impact": "Performance analysis insights provided"
+      }
+    ],
+    "summary": {
+      "improved": 1,
+      "worse": 2,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755890494673",
+    "timestamp": "2025-08-22T19:21:34.673Z",
+    "baseline": {
+      "name": "Test",
+      "metrics": {
+        "responseTimeAvg": 100
+      }
+    },
+    "current": {
+      "name": "Test",
+      "metrics": {
+        "responseTimeAvg": 200
+      }
+    },
+    "insights": [
+      {
+        "type": "suggestion",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Performance Analysis Completed",
+        "description": "Based on the performance analysis request, here's a comprehensive optimization insights report:\n\n```json\n[\n  {\n    \"type\": \"root_cause\",\n    \"severity\": \"critical\", \n    \"confidence\": 0.85,\n    \"title\": \"Response Time Exponential Degradation\",\n    \"description\": \"Significant 100% increase in average response time indicates potential systemic performance bottleneck\",\n    \"actionable_steps\": [\n      \"Conduct immediate database query profiling\",\n      \"Review recent code deployments for inefficient...",
+        "actionable_steps": [
+          "Review the full analysis results"
+        ],
+        "affected_metrics": [],
+        "business_impact": "Performance analysis insights provided"
+      }
+    ],
+    "summary": {
+      "improved": 0,
+      "worse": 1,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755890423074",
+    "timestamp": "2025-08-22T19:20:23.074Z",
+    "baseline": {
+      "metrics": {
+        "throughput": 50,
+        "responseTimeAvg": 100
+      },
+      "name": "Test Baseline"
+    },
+    "current": {
+      "metrics": {
+        "throughput": 40,
+        "responseTimeAvg": 200
+      },
+      "name": "Test Current"
+    },
+    "insights": {
+      "performance_insights": [
+        {
+          "type": "root_cause",
+          "severity": "critical",
+          "confidence": 0.85,
+          "title": "Response Time Degradation Root Cause Analysis",
+          "description": "Sharp 100% increase in average response time indicates potential systemic performance bottleneck",
+          "actionable_steps": [
+            "Profile application request lifecycle",
+            "Identify database query latency contributors",
+            "Review recent code deployments for inefficient algorithms"
+          ],
+          "affected_metrics": [
+            "response_time",
+            "throughput"
+          ],
+          "business_impact": "Direct revenue and user experience risk",
+          "effort_estimate": "medium"
+        },
+        {
+          "type": "suggestion",
+          "severity": "high",
+          "confidence": 0.75,
+          "title": "Throughput Optimization Strategy",
+          "description": "20% throughput reduction suggests potential scaling or architectural constraints",
+          "actionable_steps": [
+            "Implement horizontal service scaling",
+            "Optimize connection pooling",
+            "Review load balancing configuration"
+          ],
+          "affected_metrics": [
+            "request_per_second",
+            "concurrent_connections"
+          ],
+          "business_impact": "Potential service capacity reduction",
+          "effort_estimate": "medium"
+        },
+        {
+          "type": "prediction",
+          "severity": "medium",
+          "confidence": 0.65,
+          "title": "Performance Trend Forecasting",
+          "description": "Current degradation trajectory indicates potential exponential performance decline",
+          "actionable_steps": [
+            "Conduct comprehensive performance audit",
+            "Develop predictive performance model",
+            "Establish proactive monitoring thresholds"
+          ],
+          "affected_metrics": [
+            "response_time_trend",
+            "error_rate"
+          ],
+          "business_impact": "Long-term system reliability risk",
+          "effort_estimate": "high"
+        }
+      ]
+    },
+    "summary": {
+      "improved": 0,
+      "worse": 2,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755889985254",
+    "timestamp": "2025-08-22T19:13:05.254Z",
+    "baseline": {
+      "name": "Baseline Trimmed",
+      "timestamp": "2025-08-21T00:00:00Z",
+      "metrics": {
+        "throughput": 480,
+        "cpu": 80,
+        "memory": 1000
+      }
+    },
+    "current": {
+      "name": "Current Trimmed",
+      "timestamp": "2025-08-22T00:00:00Z",
+      "metrics": {
+        "throughput": 520,
+        "cpu": 122,
+        "memory": 1930
+      }
+    },
+    "insights": {
+      "performance_insights": [
+        {
+          "type": "root_cause",
+          "severity": "critical",
+          "confidence": 0.92,
+          "title": "Memory Leak and Resource Exhaustion Detected",
+          "description": "Significant memory growth (+93%) indicates potential memory management issues in Node.js application",
+          "actionable_steps": [
+            "Profile application memory usage using heapdump",
+            "Implement memory leak detection in CI/CD pipeline",
+            "Review long-running processes and object references",
+            "Add automated memory threshold monitoring"
+          ],
+          "affected_metrics": [
+            "memory_usage",
+            "cpu_utilization"
+          ],
+          "business_impact": "Increased infrastructure costs and potential service degradation",
+          "effort_estimate": "high"
+        },
+        {
+          "type": "suggestion",
+          "severity": "high",
+          "confidence": 0.85,
+          "title": "CPU Performance Optimization",
+          "description": "CPU utilization spike suggests inefficient processing patterns",
+          "actionable_steps": [
+            "Conduct performance profiling using Node.js built-in profiler",
+            "Optimize expensive computational loops",
+            "Implement worker threads for CPU-intensive tasks",
+            "Consider horizontal scaling strategy"
+          ],
+          "affected_metrics": [
+            "cpu_utilization",
+            "request_latency"
+          ],
+          "business_impact": "Improved application responsiveness and reduced infrastructure costs",
+          "effort_estimate": "medium"
+        },
+        {
+          "type": "prediction",
+          "severity": "medium",
+          "confidence": 0.75,
+          "title": "Scalability Risk Assessment",
+          "description": "Current performance metrics suggest potential scalability constraints",
+          "actionable_steps": [
+            "Design load testing scenarios",
+            "Implement auto-scaling configurations",
+            "Review application architecture for horizontal scaling",
+            "Evaluate microservices decomposition opportunities"
+          ],
+          "affected_metrics": [
+            "throughput",
+            "response_time"
+          ],
+          "business_impact": "Enhanced system reliability and performance predictability",
+          "effort_estimate": "high"
+        }
+      ]
+    },
+    "summary": {
+      "improved": 1,
+      "worse": 2,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755889633905",
+    "timestamp": "2025-08-22T19:07:13.905Z",
+    "baseline": {
+      "name": "Baseline Trimmed",
+      "timestamp": "2025-08-21T00:00:00Z",
+      "metrics": {
+        "throughput": 480,
+        "cpu": 80,
+        "memory": 1000
+      }
+    },
+    "current": {
+      "name": "Current Trimmed",
+      "timestamp": "2025-08-22T00:00:00Z",
+      "metrics": {
+        "throughput": 520,
+        "cpu": 122,
+        "memory": 1930
+      }
+    },
+    "insights": [
+      {
+        "type": "suggestion",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Performance Analysis Completed",
+        "description": "Based on the performance metrics and system context, here's a comprehensive performance optimization analysis:\n\n```json\n[\n  {\n    \"type\": \"root_cause\",\n    \"severity\": \"critical\", \n    \"confidence\": 0.85,\n    \"title\": \"Memory Leak and Resource Exhaustion\",\n    \"description\": \"Significant memory growth indicates potential memory management issues in Node.js application\",\n    \"actionable_steps\": [\n      \"Profile memory usage with V8 heap snapshots\",\n      \"Implement memory leak detection using Chr...",
+        "actionable_steps": [
+          "Review the full analysis results"
+        ],
+        "affected_metrics": [],
+        "business_impact": "Performance analysis insights provided"
+      }
+    ],
+    "summary": {
+      "improved": 1,
+      "worse": 2,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755889539979",
+    "timestamp": "2025-08-22T19:05:39.979Z",
+    "baseline": {
+      "name": "Benchmark",
+      "timestamp": "2025-08-01T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 120,
+        "responseTimeP95": 200,
+        "throughput": 500,
+        "errorRate": 0.5,
+        "cpu": 65,
+        "memory": 800
+      }
+    },
+    "current": {
+      "name": "Current",
+      "timestamp": "2025-08-15T10:00:00Z",
+      "metrics": {
+        "responseTimeAvg": 110,
+        "responseTimeP95": 140,
+        "throughput": 460,
+        "errorRate": 1.2,
+        "cpu": 25,
+        "memory": 950
+      }
+    },
+    "insights": {
+      "performance_insights": [
+        {
+          "type": "root_cause",
+          "severity": "high",
+          "confidence": 0.85,
+          "title": "Elevated Error Rate Indicates Underlying System Instability",
+          "description": "Error rate increased 140% from 0.5% to 1.2%, suggesting potential architectural or dependency issues",
+          "actionable_steps": [
+            "Perform comprehensive error log analysis",
+            "Trace and identify specific error sources",
+            "Implement enhanced error handling and retry mechanisms",
+            "Review recent dependency upgrades/changes"
+          ],
+          "affected_metrics": [
+            "error_rate",
+            "throughput"
+          ],
+          "business_impact": "Risk of customer experience degradation and potential revenue loss",
+          "effort_estimate": "medium"
+        },
+        {
+          "type": "anomaly",
+          "severity": "medium",
+          "confidence": 0.72,
+          "title": "Memory Consumption Trend Shows Potential Memory Leak",
+          "description": "Memory usage increased 18.8% without corresponding performance gains",
+          "actionable_steps": [
+            "Profile memory usage with Node.js memory profiler",
+            "Identify and optimize memory-intensive functions",
+            "Implement aggressive garbage collection strategies",
+            "Consider implementing memory circuit breakers"
+          ],
+          "affected_metrics": [
+            "memory",
+            "cpu_utilization"
+          ],
+          "business_impact": "Increased infrastructure costs and potential system instability",
+          "effort_estimate": "high"
+        },
+        {
+          "type": "suggestion",
+          "severity": "low",
+          "confidence": 0.65,
+          "title": "Optimize Request Throughput Performance",
+          "description": "Throughput decreased 8% which could impact system scalability",
+          "actionable_steps": [
+            "Review and optimize database query patterns",
+            "Implement request-level caching strategies",
+            "Evaluate horizontal scaling options",
+            "Analyze bottleneck components in request lifecycle"
+          ],
+          "affected_metrics": [
+            "throughput",
+            "response_time"
+          ],
+          "business_impact": "Improved system responsiveness and customer satisfaction",
+          "effort_estimate": "medium"
+        }
+      ]
+    },
+    "summary": {
+      "improved": 3,
+      "worse": 3,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1755885148592",
+    "timestamp": "2025-08-22T17:52:28.592Z",
+    "baseline": {
+      "name": "baseline",
+      "timestamp": "2025-08-22T17:52:17.744Z",
+      "metrics": {
+        "checks_rate": 1,
+        "http_req_failed_rate": 0.001,
+        "inp_avg_ms": 80,
+        "inp_p95_ms": 115,
+        "navigation_avg_ms": 1200,
+        "successful_requests_rate": 0.98,
+        "successful_requests_threshold_ok": 1,
+        "http_req_avg_ms": 250.5,
+        "http_req_p95_ms": 420.7,
+        "fid_avg_ms": 45,
+        "fid_p95_ms": 75,
+        "cls_avg": 0.025,
+        "page_load_avg_ms": 2800,
+        "page_load_p95_ms": 3300,
+        "error_rate": 0.02,
+        "errors_threshold_ok": 1,
+        "fcp_avg_ms": 1200,
+        "fcp_p95_ms": 1550,
+        "lcp_avg_ms": 1800,
+        "lcp_p95_ms": 2300,
+        "login_avg_ms": 1800,
+        "login_p95_ms": 2400,
+        "login_time_threshold_ok": 1,
+        "ttfb_avg_ms": 350,
+        "ttfb_p95_ms": 500,
+        "checks_total_passes": 40,
+        "checks_total_fails": 0,
+        "checks_success_rate": 1
+      }
+    },
+    "current": {
+      "name": "current",
+      "timestamp": "2025-08-22T17:51:54.112Z",
+      "metrics": {
+        "checks_rate": 0.8,
+        "http_req_failed_rate": 0.011627906976744186,
+        "inp_avg_ms": 32,
+        "inp_p95_ms": 32,
+        "total_iterations": 1,
+        "navigation_avg_ms": 4659,
+        "successful_requests_rate": 0.6,
+        "successful_requests_threshold_ok": 0,
+        "http_req_avg_ms": 1657.9489186046517,
+        "http_req_p95_ms": 4756.96365,
+        "total_requests": 2,
+        "fid_avg_ms": 2,
+        "fid_p95_ms": 2.720000010728836,
+        "cls_avg": 0.010938189160492686,
+        "page_load_avg_ms": 28102,
+        "page_load_p95_ms": 28102,
+        "error_rate": 1,
+        "errors_threshold_ok": 0,
+        "fcp_avg_ms": 4814.666666666667,
+        "fcp_p95_ms": 6539.2,
+        "lcp_avg_ms": 5598.666666666667,
+        "lcp_p95_ms": 7326,
+        "login_avg_ms": 8940,
+        "login_p95_ms": 8940,
+        "login_time_threshold_ok": 0,
+        "ttfb_avg_ms": 1130.1428571343422,
+        "ttfb_p95_ms": 2296.469999989867,
+        "checks_total_passes": 4,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.8
+      }
+    },
+    "insights": [
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in http req failed rate",
+        "description": "http req failed rate has degraded by 1062.8%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "http_req_failed_rate"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in navigation avg ms",
+        "description": "navigation avg ms has degraded by 288.3%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "navigation_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "medium",
+        "confidence": 0.8,
+        "title": "Significant degradation in successful requests rate",
+        "description": "successful requests rate has degraded by 38.8%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "successful_requests_rate"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in http req avg ms",
+        "description": "http req avg ms has degraded by 561.9%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "http_req_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in http req p95 ms",
+        "description": "http req p95 ms has degraded by 1030.7%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "http_req_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in page load avg ms",
+        "description": "page load avg ms has degraded by 903.6%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "page_load_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in page load p95 ms",
+        "description": "page load p95 ms has degraded by 751.6%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "page_load_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in error rate",
+        "description": "error rate has degraded by 4900.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "error_rate"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in fcp avg ms",
+        "description": "fcp avg ms has degraded by 301.2%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "fcp_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in fcp p95 ms",
+        "description": "fcp p95 ms has degraded by 321.9%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "fcp_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in lcp avg ms",
+        "description": "lcp avg ms has degraded by 211.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "lcp_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in lcp p95 ms",
+        "description": "lcp p95 ms has degraded by 218.5%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "lcp_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in login avg ms",
+        "description": "login avg ms has degraded by 396.7%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "login_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in login p95 ms",
+        "description": "login p95 ms has degraded by 272.5%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "login_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in ttfb avg ms",
+        "description": "ttfb avg ms has degraded by 222.9%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "ttfb_avg_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in ttfb p95 ms",
+        "description": "ttfb p95 ms has degraded by 359.3%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "ttfb_p95_ms"
+        ]
+      },
+      {
+        "type": "anomaly",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Significant degradation in checks total passes",
+        "description": "checks total passes has degraded by 90.0%, which exceeds normal variation.",
+        "actionable_steps": [
+          "Review recent deployments or configuration changes",
+          "Check system resource utilization",
+          "Analyze error logs for this time period"
+        ],
+        "affected_metrics": [
+          "checks_total_passes"
+        ]
+      }
+    ],
+    "summary": {
+      "improved": 6,
+      "worse": 18,
+      "same": 0,
+      "unknown": 6
+    }
+  },
+  {
     "id": "1755870393450",
     "timestamp": "2025-08-22T13:46:33.450Z",
     "baseline": {

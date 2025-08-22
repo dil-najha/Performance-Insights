@@ -19,6 +19,12 @@ import {
 } from '@aws-sdk/client-bedrock-runtime';
 import { fromEnv } from '@aws-sdk/credential-providers';
 
+// Performance analysis prompt template
+import { PERFORMANCE_ANALYSIS_PROMPT } from './prompts/performance-analysis-template.js';
+
+// Backend data validation
+import { BackendDataValidator } from './utils/dataValidation.js';
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -273,60 +279,26 @@ function calculateSummary(diffs) {
 
 // Build comprehensive AI analysis prompt
 function buildAnalysisPrompt(diffs, systemContext = {}) {
-  const degradedMetrics = diffs.filter(d => d.trend === 'worse');
-  const improvedMetrics = diffs.filter(d => d.trend === 'improved');
-  const criticalMetrics = degradedMetrics.filter(d => Math.abs(d.pct || 0) > 20);
-  
-  return `You are a senior performance optimization expert with 10+ years of experience in web applications, microservices, and cloud infrastructure.
+  // Check if advanced context is provided
+  const hasAdvancedContext = !!(
+    systemContext.recent_changes || 
+    systemContext.performance_goals || 
+    systemContext.known_issues || 
+    systemContext.custom_focus ||
+    systemContext.business_criticality ||
+    systemContext.team ||
+    systemContext.urgency
+  );
 
-          Focus on providing business-impact-driven insights that consider:
-          - User experience implications
-          - Cost optimization opportunities  
-          - Technical debt identification
-          - Scalability bottlenecks
-          - Security performance impacts
+  // Always use systematic prompt, but log different messages based on context
+  if (hasAdvancedContext) {
+    console.log('🎯🔧 Using systematic prompt with advanced user context');
+  } else {
+    console.log('🎯 Using systematic performance analysis prompt (basic context)');
+  }
 
-          Prioritize actionable recommendations with clear ROI and implementation effort estimates.
-          
-          Respond with a JSON array of insights, each having: 
-          - type: "anomaly" | "suggestion" | "prediction" | "root_cause"
-          - severity: "low" | "medium" | "high" | "critical"
-          - confidence: number between 0-1
-          - title: string
-          - description: string
-          - actionable_steps: array of strings
-          - affected_metrics: array of metric keys
-          - business_impact: string (optional)
-- effort_estimate: "low" | "medium" | "high" (optional)
-
-===== PERFORMANCE ANALYSIS REQUEST =====
-
-SYSTEM CONTEXT:
-- Environment: ${systemContext.environment || 'production'}
-- Technology Stack: ${systemContext.stack || 'not specified'}
-- Scale: ${systemContext.scale || 'medium'}
-- Business Criticality: ${systemContext.business_criticality || 'medium'} impact
-- Team Focus: ${systemContext.team || 'general'} team perspective
-- Urgency Level: ${systemContext.urgency || 'medium'} priority
-
-${systemContext.recent_changes ? `Recent Changes: ${systemContext.recent_changes}` : ''}
-${systemContext.performance_goals ? `Performance Goals: ${systemContext.performance_goals}` : ''}
-${systemContext.known_issues ? `Known Issues: ${systemContext.known_issues}` : ''}
-${systemContext.custom_focus ? `Custom Focus: ${systemContext.custom_focus}` : ''}
-
-METRICS CHANGES SUMMARY:
-📈 Improved: ${improvedMetrics.length} metrics
-📉 Degraded: ${degradedMetrics.length} metrics  
-🚨 Critical: ${criticalMetrics.length} metrics (>20% degradation)
-
-DETAILED METRICS ANALYSIS:
-${diffs.map(d => {
-  const emoji = d.trend === 'improved' ? '✅' : d.trend === 'worse' ? '❌' : '➡️';
-  const impact = Math.abs(d.pct || 0) > 20 ? '🚨 CRITICAL' : Math.abs(d.pct || 0) > 10 ? '⚠️ HIGH' : '📊 NORMAL';
-  return `${emoji} ${d.label}: ${d.baseline} → ${d.current} (${d.pct?.toFixed(1)}% change) [${impact}]`;
-}).join('\n')}
-
-Please provide 3-5 prioritized insights with clear action items.`;
+  // Always use the systematic prompt template
+  return PERFORMANCE_ANALYSIS_PROMPT.buildPrompt(diffs, systemContext);
 }
 
 // Generate AI insights using Bedrock
@@ -473,12 +445,27 @@ function generateCSV(data) {
 // 1. Performance Analysis with Bedrock AI
 app.post('/api/ai/analyze', authenticateAPI, async (req, res) => {
   try {
-    const { baseline, current, systemContext } = req.body;
+    // 🔧 ROBUST VALIDATION - Validate entire request structure
+    const validation = BackendDataValidator.validateAnalysisRequest(req.body);
     
-    // Validate input
-    if (!baseline || !current || !baseline.metrics || !current.metrics) {
-      return res.status(400).json({ error: 'Invalid input data' });
+    if (!validation.valid) {
+      console.error('❌ Data validation failed:', validation.errors);
+      return res.status(400).json({ 
+        error: 'Data validation failed', 
+        details: validation.errors,
+        warnings: validation.warnings
+      });
     }
+
+    // Log warnings if any
+    if (validation.warnings.length > 0) {
+      console.warn('⚠️ Data validation warnings:', validation.warnings);
+    }
+
+    // Use sanitized data
+    const { baseline, current, systemContext } = validation.sanitized;
+    
+    console.log(`✅ Data validated successfully. Baseline: ${Object.keys(baseline.metrics).length} metrics, Current: ${Object.keys(current.metrics).length} metrics`);
 
     // Calculate basic diffs
     const diffs = calculateMetricDiffs(baseline, current);
@@ -495,7 +482,14 @@ app.post('/api/ai/analyze', authenticateAPI, async (req, res) => {
       aiInsights: insights,
       provider: 'bedrock',
       model: systemContext?.selectedModel || 'anthropic.claude-3-5-haiku-20241022-v1:0',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      validation: {
+        warnings: validation.warnings,
+        metricsCount: {
+          baseline: Object.keys(baseline.metrics).length,
+          current: Object.keys(current.metrics).length
+        }
+      }
     });
     
   } catch (error) {
