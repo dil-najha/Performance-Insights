@@ -2,14 +2,15 @@ import React, { useMemo, useState, useCallback } from 'react';
 import UploadPanel from './components/UploadPanel';
 import DiffTable from './components/DiffTable';
 import MetricDiffChart from './components/MetricDiffChart';
-import Suggestions from './components/Suggestions';
+
 import AIInsights from './components/AIInsights';
 import SystemContextPanel from './components/SystemContextPanel';
 import HistoricalReports from './components/HistoricalReports';
 import ExportPanel from './components/ExportPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import EnhancedImpactSummary from './components/EnhancedImpactSummary';
 import type { PerformanceReport, SystemContext, EnhancedComparisonResult } from './types';
-import { compareReports, suggestionsFromDiffs, computeImpact } from './utils/compare';
+import { compareReports, computeImpact } from './utils/compare';
 import { aiService } from './services/secureAIService';
 import { AI_CONFIG, getPreferredProvider } from './config/ai';
 
@@ -79,7 +80,7 @@ export default function App() {
     setResult(null);
   }, [baseline, current]);
 
-  const tips = useMemo(() => result ? suggestionsFromDiffs(result.diffs) : [], [result]);
+
 
   const loadSample = async () => {
     setLoadingSample(true);
@@ -288,46 +289,10 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Impact Summary (numeric emphasis) */}
-              {(() => {
-                const impact = computeImpact(result);
-                return (
-                  <div className="card bg-base-100 shadow-lg border border-primary/20 animate-pop">
-                    <div className="card-body py-4 px-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="card-title text-sm">📈 Impact Summary</h3>
-                        <span className="badge badge-primary badge-sm">Numbers</span>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                        <div>
-                          <div className="text-xs opacity-70">Net Score</div>
-                          <div className={`text-lg font-bold ${impact.netImprovementScore >= 0 ? 'text-success' : 'text-error'}`}>{impact.netImprovementScore}</div>
-                        </div>
-                        <div>
-                          <div className="text-xs opacity-70">Avg % Gain</div>
-                          <div className="text-lg font-bold">{impact.avgPctImprovement !== null ? `${impact.avgPctImprovement}%` : '—'}</div>
-                        </div>
-                        <div>
-                          <div className="text-xs opacity-70">Latency Saved</div>
-                          <div className="text-lg font-bold">{impact.latencyImprovementMs !== null ? `${impact.latencyImprovementMs} ms` : '—'}</div>
-                          {impact.latencyImprovementPct !== null && (
-                            <div className="text-[10px] opacity-60">({impact.latencyImprovementPct}% faster)</div>
-                          )}
-                        </div>
-                        <div>
-                          <div className="text-xs opacity-70">Time / 1k Req</div>
-                          <div className="text-lg font-bold">{impact.estTimeSavedPer1kRequestsMs !== null ? `${impact.estTimeSavedPer1kRequestsMs} ms` : '—'}</div>
-                        </div>
-                        <div className="col-span-2 md:col-span-4">
-                          <div className="text-xs opacity-70">Suggestion Effectiveness</div>
-                          <div className="text-base font-semibold">{impact.suggestionEffectivenessPct !== null ? `${impact.suggestionEffectivenessPct}% of affected metrics improved` : '—'}</div>
-                        </div>
-                      </div>
-                      <p className="mt-3 text-[10px] leading-tight opacity-60">Estimates derived from metric deltas. Latency savings use primary response-time metric. Suggestion effectiveness is the share of changed metrics that improved. Treat as directional, validate in production.</p>
-                    </div>
-                  </div>
-                );
-              })()}
+              {/* Enhanced Impact Summary */}
+              <div className="animate-pop">
+                <EnhancedImpactSummary impact={computeImpact(result)} />
+              </div>
 
               {/* AI Insights (if enabled) */}
               {aiEnabled && (
@@ -351,10 +316,7 @@ export default function App() {
                 <div className="animate-pop"><ExportPanel data={result} /></div>
               </ErrorBoundary>
               
-              {/* Traditional Suggestions (fallback) */}
-              <ErrorBoundary fallback={<div className="alert alert-warning">Suggestions unavailable</div>}>
-                <div className="animate-pop"><Suggestions tips={tips} /></div>
-              </ErrorBoundary>
+
               
               {/* AI Predictions (if available) */}
               {aiEnabled && result.predictions && result.predictions.length > 0 && (
@@ -399,29 +361,121 @@ export default function App() {
               </div>
             </div>
           )}
-          {/* About */}
-          <section className="card bg-gradient-to-r from-cyan-200 via-blue-100 to-amber-100 shadow-lg rounded-xl animate-pop mt-8">
-            <div className="card-body py-2 px-4">
-              <h3 className="card-title text-sm font-bold text-blue-700">About</h3>
-              <p className="text-xs text-blue-900 font-medium">SpotLag.AI: Instantly spot lag, fix bugs faster. AI-powered insights, simple results.</p>
-              <ul className="mt-1 text-[11px] text-blue-900 leading-snug space-y-0.5 list-disc list-inside">
-                <li>Nandan Jha – Lead, Test Suite & Overall Flow</li>
-                <li>Satish Taji – Backend</li>
-                <li>Rahul Saini – Frontend</li>
-                <li>Shivendra Shukla – Frontend</li>
-                <li>Shiva Allu – Documentation and Backend</li>
-              </ul>
+          {/* Professional About & Disclaimer Section */}
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8 animate-pop">
+            
+            {/* About SpotLag.AI */}
+            <div className="card bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 shadow-xl">
+              <div className="card-body p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">S</span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-800">SpotLag.AI</h3>
+                    <p className="text-xs text-slate-600">Performance Intelligence Platform</p>
+                  </div>
+                </div>
+                
+                <p className="text-xs text-slate-700 leading-relaxed mb-3">
+                  Advanced performance analysis platform powered by AI technology. 
+                  Transform complex metrics into actionable insights for faster 
+                  issue resolution and optimized system performance.
+                </p>
+                
+                <div className="divider divider-neutral my-2"></div>
+                
+                <div>
+                  <h4 className="text-xs font-semibold text-slate-700 mb-2">Development Team</h4>
+                  <div className="grid grid-cols-1 gap-1">
+                    <div className="flex justify-between items-center py-0.5">
+                      <span className="text-xs font-medium text-slate-700">Nandan Jha</span>
+                      <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Lead </span>
+                    </div>
+                    <div className="flex justify-between items-center py-0.5">
+                      <span className="text-xs font-medium text-slate-700">Satish Taji</span>
+                      <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Architecture & Backend</span>
+                    </div>
+                    <div className="flex justify-between items-center py-0.5">
+                      <span className="text-xs font-medium text-slate-700">Rahul Saini</span>
+                      <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Frontend Development</span>
+                    </div>
+                    <div className="flex justify-between items-center py-0.5">
+                      <span className="text-xs font-medium text-slate-700">Shivendra Shukla</span>
+                      <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Frontend Development</span>
+                    </div>
+                    <div className="flex justify-between items-center py-0.5">
+                      <span className="text-xs font-medium text-slate-700">Shiva Allu</span>
+                      <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Documentation & Backend</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </section>
-          {/* Disclaimer */}
-          <section className="card bg-base-100 border border-warning/40 rounded-xl shadow-md animate-pop mt-4">
-            <div className="card-body py-2 px-4">
-              <h3 className="card-title text-sm font-bold text-warning">Disclaimer</h3>
-              <ul className="text-xs text-slate-700 leading-snug list-disc list-inside space-y-0.5">
-                <li>Insights are AI-generated and may be incomplete or inaccurate.</li>
-                <li>Do not upload sensitive data; prefer sanitized metrics/logs.</li>
-              </ul>
+
+            {/* Disclaimer & Legal */}
+            <div className="card bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-xl">
+              <div className="card-body p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-sm">⚖️</span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-800">Important Notice</h3>
+                    <p className="text-xs text-slate-600">Terms of Use & Disclaimer</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="alert alert-warning bg-amber-100 border-amber-300 py-2">
+                    <div className="flex items-start gap-2">
+                      <span className="text-amber-700">⚠️</span>
+                      <div>
+                        <h4 className="font-semibold text-amber-800 text-xs">AI-Generated Content</h4>
+                        <p className="text-[10px] text-amber-700 mt-0.5 leading-tight">
+                          All insights are generated by artificial intelligence. Results may be 
+                          incomplete, inaccurate, or require professional validation.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="alert alert-info bg-blue-100 border-blue-300 py-2">
+                    <div className="flex items-start gap-2">
+                      <span className="text-blue-700">🔒</span>
+                      <div>
+                        <h4 className="font-semibold text-blue-800 text-xs">Data Privacy</h4>
+                        <p className="text-[10px] text-blue-700 mt-0.5 leading-tight">
+                          Ensure sensitive data is sanitized before upload. Use anonymized 
+                          metrics and logs to protect confidential information.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="alert alert-success bg-green-100 border-green-300 py-2">
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-700">✅</span>
+                      <div>
+                        <h4 className="font-semibold text-green-800 text-xs">Best Practice</h4>
+                        <p className="text-[10px] text-green-700 mt-0.5 leading-tight">
+                          Cross-validate AI recommendations with domain expertise and 
+                          test thoroughly in non-production environments.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="divider divider-neutral my-2"></div>
+                
+                <div className="text-[10px] text-slate-600 text-center">
+                  <p className="mb-0.5">© 2024 SpotLag.AI Performance Intelligence Platform</p>
+                  <p>Built with advanced AI technology for enterprise performance optimization</p>
+                </div>
+              </div>
             </div>
+
           </section>
         </main>
       </div>

@@ -45,7 +45,7 @@ export interface AIInsight {
   immediate_actions?: string[];
   code_optimizations?: string[];
   long_term_solutions?: string[];
-  priority_score?: number; // 1-10
+  priority_score?: 'P1' | 'P2' | 'P3' | 'P4' | 'P5'; // P1=Critical, P2=High, P3=Medium, P4=Low, P5=Recommended
   expected_improvement?: string;
 }
 
@@ -72,15 +72,67 @@ export interface EnhancedComparisonResult extends ComparisonResult {
   predictions?: AIInsight[];
 }
 
-// 📈 Derived impact metrics for emphasizing numeric value
+// 📈 Enhanced impact metrics for comprehensive analysis
 export interface ImpactSummary {
   improvedMetrics: number;
   worseMetrics: number;
   sameMetrics: number;
-  avgPctImprovement: number | null; // average percent improvement across improved metrics
-  netImprovementScore: number; // improved - worse
-  latencyImprovementMs: number | null; // (baseline - current) for primary latency metric if improved
-  latencyImprovementPct: number | null; // percent change for primary latency metric
-  estTimeSavedPer1kRequestsMs: number | null; // latencyImprovementMs * 1000 when available
-  suggestionEffectivenessPct: number | null; // heuristic: improved / (improved + worse)
+  avgPctImprovement: number | null;
+  netImprovementScore: number;
+  latencyImprovementMs: number | null;
+  latencyImprovementPct: number | null;
+  estTimeSavedPer1kRequestsMs: number | null;
+  suggestionEffectivenessPct: number | null;
+  
+  // 🚨 Critical System Health
+  systemHealth: {
+    status: 'healthy' | 'degraded' | 'critical' | 'failed';
+    errorRate: MetricDiff | null;
+    successRate: MetricDiff | null;
+    availability: number | null;
+  };
+  
+  // 🎯 Core Web Vitals
+  coreWebVitals: {
+    fcp: MetricDiff | null;
+    lcp: MetricDiff | null;
+    cls: MetricDiff | null;
+    fid: MetricDiff | null;
+    ttfb: MetricDiff | null;
+    score: 'good' | 'needs-improvement' | 'poor';
+  };
+  
+  // 💼 Business Impact
+  businessImpact: {
+    revenueRisk: 'low' | 'medium' | 'high' | 'critical';
+    userExperience: 'excellent' | 'good' | 'degraded' | 'poor';
+    seoImpact: 'positive' | 'neutral' | 'negative' | 'severe';
+    estimatedLoss: string | null;
+  };
+  
+  // 🎯 Performance Categories
+  categories: {
+    systemReliability: {
+      score: number;
+      status: 'good' | 'warning' | 'critical';
+      metrics: MetricDiff[];
+    };
+    performance: {
+      score: number;
+      status: 'good' | 'warning' | 'critical';
+      metrics: MetricDiff[];
+    };
+    userExperience: {
+      score: number;
+      status: 'good' | 'warning' | 'critical';
+      metrics: MetricDiff[];
+    };
+  };
+  
+  // 🚨 Priority Issues
+  priorityIssues: {
+    critical: MetricDiff[];
+    high: MetricDiff[];
+    medium: MetricDiff[];
+  };
 }

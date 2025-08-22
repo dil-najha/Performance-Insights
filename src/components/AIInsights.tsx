@@ -43,7 +43,7 @@ function getTypeIcon(type: AIInsight['type']): string {
 
 function getTypeLabel(type: AIInsight['type']): string {
   switch (type) {
-    case 'critical_issue': return 'Critical Issue';
+    case 'critical_issue': return 'High Priority Issue';
     case 'root_cause': return 'Root Cause';
     case 'optimization': return 'Optimization';
     case 'monitoring': return 'Monitoring';
@@ -55,12 +55,26 @@ function getTypeLabel(type: AIInsight['type']): string {
   }
 }
 
-function getPriorityColor(score?: number): string {
-  if (!score) return 'bg-neutral/20';
-  if (score >= 8) return 'bg-error/20 text-error';
-  if (score >= 6) return 'bg-warning/20 text-warning';
-  if (score >= 4) return 'bg-info/20 text-info';
-  return 'bg-success/20 text-success';
+function getPriorityColor(priority?: string): string {
+  switch (priority) {
+    case 'P1': return 'bg-error/20 text-error border-error'; // Critical
+    case 'P2': return 'bg-warning/20 text-warning border-warning'; // High
+    case 'P3': return 'bg-info/20 text-info border-info'; // Medium
+    case 'P4': return 'bg-success/20 text-success border-success'; // Low
+    case 'P5': return 'bg-neutral/20 text-neutral border-neutral'; // Recommended
+    default: return 'bg-neutral/20 text-neutral border-neutral';
+  }
+}
+
+function getPriorityLabel(priority?: string): string {
+  switch (priority) {
+    case 'P1': return 'High Priority';
+    case 'P2': return 'High';
+    case 'P3': return 'Medium';
+    case 'P4': return 'Low';
+    case 'P5': return 'Recommended';
+    default: return 'Unknown';
+  }
 }
 
 function InsightCard({ insight }: { insight: AIInsight }) {
@@ -77,8 +91,11 @@ function InsightCard({ insight }: { insight: AIInsight }) {
               <div className="flex items-center gap-2 mb-2">
                 <h4 className="font-bold text-lg leading-tight">{insight.title}</h4>
                 {insight.priority_score && (
-                  <span className={`badge badge-sm font-semibold ${getPriorityColor(insight.priority_score)}`}>
-                    P{insight.priority_score}
+                  <span 
+                    className={`badge badge-sm font-semibold ${getPriorityColor(insight.priority_score)}`}
+                    title={`${insight.priority_score} - ${getPriorityLabel(insight.priority_score)}`}
+                  >
+                    {insight.priority_score}
                   </span>
                 )}
               </div>

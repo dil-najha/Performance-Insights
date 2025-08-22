@@ -55,18 +55,25 @@ MANDATORY OUTPUT FORMAT - Return ONLY valid JSON array with this exact structure
     "code_optimizations": ["Code-level fixes with examples"],
     "long_term_solutions": ["Architectural improvements"],
     "affected_metrics": ["metric_key1", "metric_key2"],
-    "priority_score": 1-10,
+    "priority_score": "P1" | "P2" | "P3" | "P4" | "P5",
     "effort_estimate": "low" | "medium" | "high",
     "expected_improvement": "Quantified performance gain"
   }
 ]
+
+PRIORITY SCORING SYSTEM:
+- P1 (Critical): System failures, security issues, revenue-blocking problems requiring immediate action
+- P2 (High): Significant performance degradation, user experience issues, near-term business impact
+- P3 (Medium): Moderate performance issues, optimization opportunities with clear ROI
+- P4 (Low): Minor improvements, technical debt, nice-to-have optimizations
+- P5 (Recommended): Best practices, preventive measures, future-proofing suggestions
 
 CRITICAL REQUIREMENTS:
 - Maximum 5 insights, prioritized by business impact
 - Focus on actionable, specific recommendations
 - Include code-level suggestions where applicable
 - Quantify improvements where possible
-- Prioritize by severity and business impact`,
+- Assign appropriate P1-P5 priority based on severity and business impact`,
 
   buildPrompt: function(diffs, systemContext = {}) {
     const degradedMetrics = diffs.filter(d => d.trend === 'worse');

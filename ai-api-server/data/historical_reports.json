@@ -1,5 +1,487 @@
 [
   {
+    "id": "1755901139402",
+    "timestamp": "2025-08-22T22:18:59.402Z",
+    "baseline": {
+      "name": "baseline",
+      "timestamp": "2025-08-22T22:18:20.767Z",
+      "metrics": {
+        "checks_rate": 1,
+        "http_req_failed_rate": 0.001,
+        "inp_avg_ms": 80,
+        "inp_p95_ms": 115,
+        "navigation_avg_ms": 1200,
+        "successful_requests_rate": 0.98,
+        "successful_requests_threshold_ok": 1,
+        "http_req_avg_ms": 250.5,
+        "http_req_p95_ms": 420.7,
+        "fid_avg_ms": 45,
+        "fid_p95_ms": 75,
+        "cls_avg": 0.025,
+        "page_load_avg_ms": 2800,
+        "page_load_p95_ms": 3300,
+        "error_rate": 0.02,
+        "errors_threshold_ok": 1,
+        "fcp_avg_ms": 1200,
+        "fcp_p95_ms": 1550,
+        "lcp_avg_ms": 1800,
+        "lcp_p95_ms": 2300,
+        "login_avg_ms": 1800,
+        "login_p95_ms": 2400,
+        "login_time_threshold_ok": 1,
+        "ttfb_avg_ms": 350,
+        "ttfb_p95_ms": 500,
+        "checks_total_passes": 40,
+        "checks_total_fails": 0,
+        "checks_success_rate": 1
+      }
+    },
+    "current": {
+      "name": "current",
+      "timestamp": "2025-08-22T22:17:57.738Z",
+      "metrics": {
+        "checks_rate": 0.8,
+        "http_req_failed_rate": 0.011627906976744186,
+        "inp_avg_ms": 32,
+        "inp_p95_ms": 32,
+        "total_iterations": 1,
+        "navigation_avg_ms": 4659,
+        "successful_requests_rate": 0.6,
+        "successful_requests_threshold_ok": 0,
+        "http_req_avg_ms": 1657.9489186046517,
+        "http_req_p95_ms": 4756.96365,
+        "total_requests": 2,
+        "fid_avg_ms": 2,
+        "fid_p95_ms": 2.720000010728836,
+        "cls_avg": 0.010938189160492686,
+        "page_load_avg_ms": 28102,
+        "page_load_p95_ms": 28102,
+        "error_rate": 1,
+        "errors_threshold_ok": 0,
+        "fcp_avg_ms": 4814.666666666667,
+        "fcp_p95_ms": 6539.2,
+        "lcp_avg_ms": 5598.666666666667,
+        "lcp_p95_ms": 7326,
+        "login_avg_ms": 8940,
+        "login_p95_ms": 8940,
+        "login_time_threshold_ok": 0,
+        "ttfb_avg_ms": 1130.1428571343422,
+        "ttfb_p95_ms": 2296.469999989867,
+        "checks_total_passes": 4,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.8
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic HTTP Request Failure and Error Rate Escalation",
+        "description": "HTTP request failure rate increased from 0.001 to 0.0116 (+1062.8%), with overall error rate skyrocketing from 0.02 to 1.0 (+4900%)",
+        "business_impact": "Potential revenue loss of 40-60%, complete user experience breakdown, potential customer churn",
+        "root_cause_analysis": "Likely caused by recent code deployment, backend service instability, or critical infrastructure configuration change",
+        "immediate_actions": [
+          "Immediate rollback to previous stable deployment",
+          "Restart critical backend services",
+          "Implement emergency circuit breakers"
+        ],
+        "code_optimizations": [
+          "Review error handling mechanisms",
+          "Implement robust request retry logic",
+          "Add comprehensive error logging and monitoring"
+        ],
+        "long_term_solutions": [
+          "Implement advanced error tracking system",
+          "Create comprehensive pre-deployment validation pipeline",
+          "Develop automatic rollback mechanisms"
+        ],
+        "affected_metrics": [
+          "http_req_failed_rate",
+          "error_rate",
+          "successful_requests_rate"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "80-90% error rate reduction"
+      },
+      {
+        "type": "root_cause",
+        "severity": "critical",
+        "confidence": 0.85,
+        "title": "Severe Page Load and Navigation Performance Degradation",
+        "description": "Page load time increased from 2800ms to 28102ms (+903.6%), navigation time from 1200ms to 4659ms (+288.3%)",
+        "business_impact": "Estimated 50-70% potential conversion rate drop, significant SEO ranking risk",
+        "root_cause_analysis": "Potential issues with database query optimization, inefficient JavaScript rendering, or server-side processing bottlenecks",
+        "immediate_actions": [
+          "Profile and identify slowest database queries",
+          "Enable aggressive server-side caching",
+          "Reduce initial JavaScript payload"
+        ],
+        "code_optimizations": [
+          "Implement database query optimization techniques",
+          "Use lazy loading for non-critical resources",
+          "Minimize blocking rendering operations"
+        ],
+        "long_term_solutions": [
+          "Implement server-side rendering optimization",
+          "Develop comprehensive performance budget",
+          "Adopt code-splitting strategies"
+        ],
+        "affected_metrics": [
+          "page_load_avg_ms",
+          "navigation_avg_ms",
+          "lcp_avg_ms"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "high",
+        "expected_improvement": "60-75% load time reduction"
+      },
+      {
+        "type": "optimization",
+        "severity": "high",
+        "confidence": 0.75,
+        "title": "Login and Authentication Performance Bottleneck",
+        "description": "Login process time increased from 1800ms to 8940ms (+396.7%)",
+        "business_impact": "Direct user onboarding friction, potential 30-40% registration abandonment",
+        "root_cause_analysis": "Inefficient authentication flow, potential database connection pooling issues",
+        "immediate_actions": [
+          "Optimize authentication middleware",
+          "Implement connection pooling",
+          "Add caching for user authentication"
+        ],
+        "code_optimizations": [
+          "Reduce authentication payload size",
+          "Implement token-based lightweight authentication",
+          "Optimize database queries in login flow"
+        ],
+        "long_term_solutions": [
+          "Microservice-based authentication architecture",
+          "Implement multi-layer caching strategy",
+          "Develop adaptive authentication mechanisms"
+        ],
+        "affected_metrics": [
+          "login_avg_ms",
+          "login_p95_ms"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "50-65% login time reduction"
+      },
+      {
+        "type": "monitoring",
+        "severity": "medium",
+        "confidence": 0.65,
+        "title": "Time to First Byte (TTFB) Performance Degradation",
+        "description": "TTFB increased from 350ms to 1130ms (+222.9%)",
+        "business_impact": "Increased initial page load perception, potential SEO ranking impact",
+        "root_cause_analysis": "Server-side processing delays, potential network configuration issues",
+        "immediate_actions": [
+          "Review server configuration",
+          "Optimize server-side rendering",
+          "Implement edge caching"
+        ],
+        "code_optimizations": [
+          "Minimize server-side processing complexity",
+          "Use efficient middleware chains",
+          "Implement streaming responses"
+        ],
+        "long_term_solutions": [
+          "Adopt edge computing strategies",
+          "Implement intelligent caching mechanisms",
+          "Develop performance monitoring dashboards"
+        ],
+        "affected_metrics": [
+          "ttfb_avg_ms",
+          "ttfb_p95_ms"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "medium",
+        "expected_improvement": "40-50% TTFB reduction"
+      },
+      {
+        "type": "critical_issue",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Core Web Vitals Performance Deterioration",
+        "description": "First Contentful Paint (FCP) increased from 1200ms to 4814ms (+301%), Largest Contentful Paint (LCP) from 1800ms to 5598ms (+211%)",
+        "business_impact": "Significant user experience degradation, potential 25-35% user retention loss",
+        "root_cause_analysis": "Complex rendering pipeline, unoptimized asset loading, potential memory management issues",
+        "immediate_actions": [
+          "Optimize critical rendering path",
+          "Implement resource hint strategies",
+          "Enable aggressive asset preloading"
+        ],
+        "code_optimizations": [
+          "Use React.lazy for component loading",
+          "Implement server-side rendering",
+          "Minimize render-blocking resources"
+        ],
+        "long_term_solutions": [
+          "Develop comprehensive performance testing framework",
+          "Adopt progressive loading techniques",
+          "Implement advanced performance monitoring"
+        ],
+        "affected_metrics": [
+          "fcp_avg_ms",
+          "lcp_avg_ms",
+          "cls_avg"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "high",
+        "expected_improvement": "50-70% Core Web Vitals enhancement"
+      }
+    ],
+    "summary": {
+      "improved": 6,
+      "worse": 18,
+      "same": 0,
+      "unknown": 6
+    }
+  },
+  {
+    "id": "1755899581078",
+    "timestamp": "2025-08-22T21:53:01.078Z",
+    "baseline": {
+      "name": "baseline",
+      "timestamp": "2025-08-22T21:52:23.982Z",
+      "metrics": {
+        "checks_rate": 1,
+        "http_req_failed_rate": 0.001,
+        "inp_avg_ms": 80,
+        "inp_p95_ms": 115,
+        "navigation_avg_ms": 1200,
+        "successful_requests_rate": 0.98,
+        "successful_requests_threshold_ok": 1,
+        "http_req_avg_ms": 250.5,
+        "http_req_p95_ms": 420.7,
+        "fid_avg_ms": 45,
+        "fid_p95_ms": 75,
+        "cls_avg": 0.025,
+        "page_load_avg_ms": 2800,
+        "page_load_p95_ms": 3300,
+        "error_rate": 0.02,
+        "errors_threshold_ok": 1,
+        "fcp_avg_ms": 1200,
+        "fcp_p95_ms": 1550,
+        "lcp_avg_ms": 1800,
+        "lcp_p95_ms": 2300,
+        "login_avg_ms": 1800,
+        "login_p95_ms": 2400,
+        "login_time_threshold_ok": 1,
+        "ttfb_avg_ms": 350,
+        "ttfb_p95_ms": 500,
+        "checks_total_passes": 40,
+        "checks_total_fails": 0,
+        "checks_success_rate": 1
+      }
+    },
+    "current": {
+      "name": "current",
+      "timestamp": "2025-08-22T21:52:00.160Z",
+      "metrics": {
+        "checks_rate": 0.8,
+        "http_req_failed_rate": 0.011627906976744186,
+        "inp_avg_ms": 32,
+        "inp_p95_ms": 32,
+        "total_iterations": 1,
+        "navigation_avg_ms": 4659,
+        "successful_requests_rate": 0.6,
+        "successful_requests_threshold_ok": 0,
+        "http_req_avg_ms": 1657.9489186046517,
+        "http_req_p95_ms": 4756.96365,
+        "total_requests": 2,
+        "fid_avg_ms": 2,
+        "fid_p95_ms": 2.720000010728836,
+        "cls_avg": 0.010938189160492686,
+        "page_load_avg_ms": 28102,
+        "page_load_p95_ms": 28102,
+        "error_rate": 1,
+        "errors_threshold_ok": 0,
+        "fcp_avg_ms": 4814.666666666667,
+        "fcp_p95_ms": 6539.2,
+        "lcp_avg_ms": 5598.666666666667,
+        "lcp_p95_ms": 7326,
+        "login_avg_ms": 8940,
+        "login_p95_ms": 8940,
+        "login_time_threshold_ok": 0,
+        "ttfb_avg_ms": 1130.1428571343422,
+        "ttfb_p95_ms": 2296.469999989867,
+        "checks_total_passes": 4,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.8
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic HTTP Request Failure Rate Spike",
+        "description": "HTTP request failure rate increased from 0.001 to 0.0116 (1062.8% increase), indicating systemic API connectivity and reliability issues",
+        "business_impact": "Potential revenue loss of 40-60% due to transaction failures and poor user experience",
+        "root_cause_analysis": "Likely caused by infrastructure misconfiguration, network instability, or recent deployment changes in API endpoint handling",
+        "immediate_actions": [
+          "Rollback recent deployment",
+          "Implement circuit breaker pattern",
+          "Verify network connectivity"
+        ],
+        "code_optimizations": [
+          "Add comprehensive error handling",
+          "Implement robust retry mechanisms",
+          "Use exponential backoff for failed requests"
+        ],
+        "long_term_solutions": [
+          "Implement comprehensive monitoring",
+          "Design fault-tolerant API communication layer",
+          "Create detailed error reporting system"
+        ],
+        "affected_metrics": [
+          "http_req_failed_rate",
+          "successful_requests_rate",
+          "error_rate"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Restore request success rate to >95%"
+      },
+      {
+        "type": "root_cause",
+        "severity": "critical",
+        "confidence": 0.85,
+        "title": "Massive Page Load Performance Degradation",
+        "description": "Page load times increased from 2800ms to 28102ms (903.6% increase), severely impacting user experience",
+        "business_impact": "Potential conversion rate drop of 60-80%, significant SEO ranking penalties",
+        "root_cause_analysis": "Potential issues with frontend rendering, backend query optimization, or server-side rendering bottlenecks",
+        "immediate_actions": [
+          "Profile server-side rendering performance",
+          "Investigate database query optimization",
+          "Review recent frontend code changes"
+        ],
+        "code_optimizations": [
+          "Implement lazy loading for heavy components",
+          "Optimize database query execution plans",
+          "Use server-side caching strategies"
+        ],
+        "long_term_solutions": [
+          "Migrate to more performant rendering strategy",
+          "Implement comprehensive performance monitoring",
+          "Design modular, performance-conscious architecture"
+        ],
+        "affected_metrics": [
+          "page_load_avg_ms",
+          "page_load_p95_ms",
+          "fcp_avg_ms",
+          "lcp_avg_ms"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Reduce page load time to <3000ms"
+      },
+      {
+        "type": "optimization",
+        "severity": "high",
+        "confidence": 0.75,
+        "title": "Login Process Performance Bottleneck",
+        "description": "Login process time increased from 1800ms to 8940ms (396.7% increase)",
+        "business_impact": "User authentication friction, potential 30-50% user drop-off during login",
+        "root_cause_analysis": "Potential authentication service overload, inefficient token generation, database connection issues",
+        "immediate_actions": [
+          "Optimize authentication middleware",
+          "Review database connection pooling",
+          "Implement lightweight authentication strategy"
+        ],
+        "code_optimizations": [
+          "Use lightweight JWT tokens",
+          "Implement connection pooling",
+          "Add aggressive caching for user sessions"
+        ],
+        "long_term_solutions": [
+          "Design microservice-based authentication",
+          "Implement distributed caching",
+          "Create multi-tier authentication strategy"
+        ],
+        "affected_metrics": [
+          "login_avg_ms",
+          "login_p95_ms",
+          "ttfb_avg_ms"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce login time to <2000ms"
+      },
+      {
+        "type": "monitoring",
+        "severity": "medium",
+        "confidence": 0.65,
+        "title": "Comprehensive Performance Monitoring Strategy",
+        "description": "Current monitoring insufficient to detect performance regressions early",
+        "business_impact": "Delayed incident response, potential undetected performance degradations",
+        "root_cause_analysis": "Lack of real-time performance tracking and alerting mechanisms",
+        "immediate_actions": [
+          "Implement detailed performance logging",
+          "Set up real-time alerting thresholds",
+          "Create dashboard for key performance indicators"
+        ],
+        "code_optimizations": [
+          "Add detailed performance tracing",
+          "Implement granular error tracking",
+          "Create custom performance metrics"
+        ],
+        "long_term_solutions": [
+          "Adopt observability platform",
+          "Create automated performance regression testing",
+          "Develop continuous performance monitoring pipeline"
+        ],
+        "affected_metrics": [
+          "checks_rate",
+          "checks_success_rate"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "medium",
+        "expected_improvement": "Proactive performance management"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.7,
+        "title": "Network Latency and TTFB Optimization",
+        "description": "Time to First Byte (TTFB) increased from 350ms to 1130ms (222.9% increase)",
+        "business_impact": "Slower initial page load, potential user frustration and increased bounce rates",
+        "root_cause_analysis": "Potential server-side processing delays, inefficient resource loading, suboptimal CDN configuration",
+        "immediate_actions": [
+          "Analyze server response generation",
+          "Review CDN configuration",
+          "Optimize initial resource loading"
+        ],
+        "code_optimizations": [
+          "Implement server-side caching",
+          "Use HTTP/2 push for critical resources",
+          "Minimize initial render blocking resources"
+        ],
+        "long_term_solutions": [
+          "Implement edge computing strategies",
+          "Design progressive loading architecture",
+          "Create intelligent resource preloading"
+        ],
+        "affected_metrics": [
+          "ttfb_avg_ms",
+          "ttfb_p95_ms",
+          "network_latency"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce TTFB to <400ms"
+      }
+    ],
+    "summary": {
+      "improved": 6,
+      "worse": 18,
+      "same": 0,
+      "unknown": 6
+    }
+  },
+  {
     "id": "1755896347123",
     "timestamp": "2025-08-22T20:59:07.123Z",
     "baseline": {
