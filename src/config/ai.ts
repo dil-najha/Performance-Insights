@@ -1,8 +1,8 @@
 // AI Configuration and Environment Variables
 export const AI_CONFIG = {
-  // OpenRouter Configuration (Primary) - API Key handled by backend only
+  // OpenRouter Configuration (Primary)
   openrouter: {
-    apiKey: '', // Always empty - backend handles API keys for security
+    apiKey: import.meta.env.VITE_OPENROUTER_API_KEY || '',
     baseUrl: 'https://openrouter.ai/api/v1',
     siteUrl: import.meta.env.VITE_SITE_URL || 'http://localhost:5173',
     siteName: import.meta.env.VITE_SITE_NAME || 'Performance Insights Dashboard',
@@ -142,11 +142,19 @@ export function validateAIConfig(): {
   };
 }
 
-// Provider selection logic - Always use backend for security
-export function getPreferredProvider(): 'backend' | 'local' {
-  // Always prefer backend (which handles API keys securely)
-  console.log('🔒 Using secure backend for all AI processing');
-  return 'backend';
+// Provider selection logic - Force OpenRouter for free models
+export function getPreferredProvider(): 'openrouter' | 'openai' | 'local' {
+  const validation = validateAIConfig();
+  
+  // Always prefer OpenRouter if API key is available (for free models)
+  if (validation.providers.openrouter) {
+    console.log('🌟 Using OpenRouter (free models available)');
+    return 'openrouter';
+  }
+  
+  // Fallback to local analysis (no paid models)
+  console.log('🏠 No OpenRouter key - using local analysis');
+  return 'local';
 }
 
 // Development setup instructions

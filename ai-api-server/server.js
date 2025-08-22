@@ -154,142 +154,6 @@ async function ensureDataDir() {
   }
 }
 
-// Input Validation Functions
-
-function validatePerformanceReport(report, reportType = 'report') {
-  const errors = [];
-  
-  // Check basic structure
-  if (!report || typeof report !== 'object') {
-    errors.push(`${reportType} must be an object`);
-    return errors;
-  }
-  
-  // Check for required metrics field
-  if (!report.metrics || typeof report.metrics !== 'object') {
-    errors.push(`${reportType}.metrics is required and must be an object`);
-    return errors;
-  }
-  
-  // Validate metrics values
-  const metricsCount = Object.keys(report.metrics).length;
-  if (metricsCount === 0) {
-    errors.push(`${reportType}.metrics cannot be empty`);
-  } else if (metricsCount > 100) {
-    errors.push(`${reportType}.metrics cannot have more than 100 metrics`);
-  }
-  
-  // Validate each metric value
-  for (const [key, value] of Object.entries(report.metrics)) {
-    // Sanitize key name
-    if (typeof key !== 'string' || key.length > 100) {
-      errors.push(`${reportType}.metrics key "${key}" must be a string with max 100 characters`);
-      continue;
-    }
-    
-    // Validate numeric values
-    if (typeof value !== 'number' || !Number.isFinite(value)) {
-      errors.push(`${reportType}.metrics["${key}"] must be a finite number, got: ${typeof value}`);
-      continue;
-    }
-    
-    // Check for reasonable ranges
-    if (Math.abs(value) > 1e15) {
-      errors.push(`${reportType}.metrics["${key}"] value is too large: ${value}`);
-    }
-  }
-  
-  // Validate optional fields
-  if (report.name && (typeof report.name !== 'string' || report.name.length > 200)) {
-    errors.push(`${reportType}.name must be a string with max 200 characters`);
-  }
-  
-  if (report.timestamp && !isValidTimestamp(report.timestamp)) {
-    errors.push(`${reportType}.timestamp must be a valid ISO string or Unix timestamp`);
-  }
-  
-  return errors;
-}
-
-function validateSystemContext(context) {
-  const errors = [];
-  
-  if (!context) return errors; // Context is optional
-  
-  if (typeof context !== 'object') {
-    errors.push('systemContext must be an object');
-    return errors;
-  }
-  
-  // Validate string fields with length limits
-  const stringFields = {
-    stack: 50,
-    deployment_id: 100,
-    recent_changes: 500,
-    performance_goals: 500,
-    known_issues: 500,
-    custom_focus: 1000,
-    advanced_context: 2000
-  };
-  
-  for (const [field, maxLength] of Object.entries(stringFields)) {
-    if (context[field] !== undefined) {
-      if (typeof context[field] !== 'string') {
-        errors.push(`systemContext.${field} must be a string`);
-      } else if (context[field].length > maxLength) {
-        errors.push(`systemContext.${field} exceeds maximum length of ${maxLength} characters`);
-      }
-    }
-  }
-  
-  // Validate enum fields
-  const enumFields = {
-    environment: ['dev', 'staging', 'prod'],
-    scale: ['small', 'medium', 'large'],
-    business_criticality: ['low', 'medium', 'high', 'critical'],
-    team: ['frontend', 'backend', 'devops', 'fullstack'],
-    urgency: ['low', 'medium', 'high', 'emergency']
-  };
-  
-  for (const [field, validValues] of Object.entries(enumFields)) {
-    if (context[field] !== undefined && !validValues.includes(context[field])) {
-      errors.push(`systemContext.${field} must be one of: ${validValues.join(', ')}`);
-    }
-  }
-  
-  // Validate selectedModel
-  if (context.selectedModel && typeof context.selectedModel !== 'string') {
-    errors.push('systemContext.selectedModel must be a string');
-  }
-  
-  return errors;
-}
-
-function isValidTimestamp(timestamp) {
-  if (typeof timestamp === 'string') {
-    const date = new Date(timestamp);
-    return !isNaN(date.getTime());
-  }
-  if (typeof timestamp === 'number') {
-    const date = new Date(timestamp);
-    return !isNaN(date.getTime()) && timestamp > 0;
-  }
-  return false;
-}
-
-function sanitizeInput(input) {
-  if (typeof input === 'string') {
-    // Remove potential script injections and limit length
-    return input
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/javascript:/gi, '')
-      .replace(/on\w+\s*=/gi, '')
-      .trim()
-      .substring(0, 10000); // Global max length for any string input
-  }
-  return input;
-}
-
 // Helper Functions
 
 function calculateMetricDiffs(baseline, current) {
@@ -371,15 +235,12 @@ function calculateSummary(diffs) {
 async function generateAIInsights(diffs, systemContext) {
   try {
     if (!aiClient) {
-      console.log('🔄 No AI client available - using fallback insights generation');
-      console.log('💡 Check OPENROUTER_API_KEY in ai-api-server/.env');
+      console.log('🔄 Using fallback insights generation');
       return generateFallbackInsights(diffs);
     }
 
-    console.log('🌐 Making OpenRouter API call...');
     const prompt = buildInsightsPrompt(diffs, systemContext);
     const selectedModel = systemContext?.selectedModel;
-    console.log('🎯 Selected model:', selectedModel || 'default');
     
     const completion = await aiClient.chat.completions.create({
       model: getModelName(selectedModel),
@@ -418,25 +279,7 @@ async function generateAIInsights(diffs, systemContext) {
     });
 
     const content = completion.choices[0].message.content;
-    console.log('✅ OpenRouter API call successful');
-    console.log('📄 Response length:', content.length, 'characters');
-    
-    try {
-      const parsed = JSON.parse(content);
-      console.log('✅ JSON parsing successful:', Array.isArray(parsed) ? `${parsed.length} insights` : 'object');
-      return parsed;
-    } catch (parseError) {
-      console.log('⚠️ JSON parsing failed, using raw content');
-      return [{
-        type: 'suggestion',
-        severity: 'medium',
-        confidence: 0.8,
-        title: 'AI Analysis Generated',
-        description: content.slice(0, 200) + '...',
-        actionable_steps: [content],
-        affected_metrics: diffs.filter(d => d.trend === 'worse').map(d => d.key)
-      }];
-    }
+    return JSON.parse(content);
   } catch (error) {
     console.error('AI Insights generation error:', error);
     return generateFallbackInsights(diffs);
@@ -466,7 +309,6 @@ ${systemContext.recent_changes ? `🔄 Recent Changes: ${systemContext.recent_ch
 ${systemContext.performance_goals ? `🎯 Performance Goals: ${systemContext.performance_goals}` : ''}
 ${systemContext.known_issues ? `⚠️ Known Issues: ${systemContext.known_issues}` : ''}
 ${systemContext.custom_focus ? `🔍 Custom Focus: ${systemContext.custom_focus}` : ''}
-${systemContext.advanced_context ? `💡 Advanced Context For AI: ${systemContext.advanced_context}` : ''}
 
 METRICS CHANGES SUMMARY:
 📈 Improved: ${improvedMetrics.length} metrics
@@ -742,63 +584,25 @@ function generateCSV(data) {
 
 // 1. Complete AI Analysis (main endpoint)
 app.post('/api/ai/analyze', authenticateAPI, async (req, res) => {
-  console.log('\n🚀 AI Analysis Request Received');
-  console.log('🕐 Timestamp:', new Date().toISOString());
-  console.log('🤖 AI Client Status:', aiClient ? `✅ Available (${aiProvider})` : '❌ Not Available');
-  
   try {
-    let { baseline, current, systemContext } = req.body;
+    const { baseline, current, systemContext } = req.body;
     
-    // Comprehensive input validation
-    const baselineErrors = validatePerformanceReport(baseline, 'baseline');
-    const currentErrors = validatePerformanceReport(current, 'current');
-    const contextErrors = validateSystemContext(systemContext);
-    
-    const allErrors = [...baselineErrors, ...currentErrors, ...contextErrors];
-    
-    if (allErrors.length > 0) {
-      console.warn('🚨 Input validation failed:', allErrors);
-      return res.status(400).json({ 
-        error: 'Input validation failed', 
-        details: allErrors,
-        help: 'Please check your performance report format and system context values'
-      });
-    }
-    
-    // Sanitize string inputs in systemContext
-    if (systemContext) {
-      for (const key in systemContext) {
-        if (typeof systemContext[key] === 'string') {
-          systemContext[key] = sanitizeInput(systemContext[key]);
-        }
-      }
-    }
-    
-    console.log('✅ Input validation passed');
-    console.log('📊 Metrics count - Baseline:', Object.keys(baseline.metrics).length, 'Current:', Object.keys(current.metrics).length);
-    if (systemContext?.selectedModel) {
-      console.log('🤖 User selected model:', systemContext.selectedModel);
+    // Validate input
+    if (!baseline || !current || !baseline.metrics || !current.metrics) {
+      return res.status(400).json({ error: 'Invalid input data' });
     }
 
     // Calculate basic diffs
     const diffs = calculateMetricDiffs(baseline, current);
     
     // Generate AI insights
-    console.log('🧠 Generating AI insights...');
     const insights = await generateAIInsights(diffs, systemContext);
-    console.log(`📊 AI insights generated: ${insights.length} insights`);
     
     // Generate predictions
-    console.log('🔮 Generating predictions...');
     const predictions = await generatePredictions(current, systemContext);
-    console.log(`🎯 Predictions generated: ${predictions.length} predictions`);
     
     // Generate explanation
-    console.log('📝 Generating explanation...');
     const explanation = await generateExplanation(diffs, insights, systemContext);
-    console.log(`✨ Explanation generated: ${explanation ? 'Yes' : 'No'}`);
-    
-    console.log('🎉 AI Analysis Complete');
     
     // Store for historical analysis
     await storeHistoricalData(baseline, current, insights);

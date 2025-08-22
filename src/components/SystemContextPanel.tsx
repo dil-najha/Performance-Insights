@@ -203,19 +203,6 @@ export default function SystemContextPanel({ context, onContextChange, aiEnabled
                   </div>
 
                   <div className="form-control md:col-span-2">
-                    <label className="label label-text text-xs">
-                      <span>Advanced Context For AI (Optional)</span>
-                      <span className="badge badge-outline badge-xs ml-2">Free-form</span>
-                    </label>
-                    <textarea 
-                      className="textarea textarea-bordered textarea-xs h-20" 
-                      placeholder="Provide any additional context, specific concerns, or areas you want the AI to focus on during analysis..."
-                      value={context.advanced_context || ''}
-                      onChange={(e) => updateContext('advanced_context', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="form-control md:col-span-2">
                     <label className="label label-text text-xs">Custom Analysis Focus</label>
                     <textarea 
                       className="textarea textarea-bordered textarea-xs h-16" 
