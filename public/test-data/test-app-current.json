@@ -1,0 +1,350 @@
+{
+  "root_group": {
+    "name": "Test App Performance Current (Degraded)",
+    "path": "",
+    "id": "test-app-current",
+    "groups": [],
+    "checks": [
+      {
+        "path": "::Login successful",
+        "id": "login-check",
+        "passes": 65,
+        "fails": 35,
+        "name": "Login successful"
+      },
+      {
+        "name": "Dashboard load successful",
+        "path": "::Dashboard load successful",
+        "id": "dashboard-check",
+        "passes": 45,
+        "fails": 55
+      },
+      {
+        "name": "API response valid",
+        "path": "::API response valid",
+        "id": "api-check",
+        "passes": 58,
+        "fails": 42
+      },
+      {
+        "fails": 62,
+        "name": "User data retrieved",
+        "path": "::User data retrieved",
+        "id": "user-data-check",
+        "passes": 38
+      },
+      {
+        "name": "Calendar events loaded",
+        "path": "::Calendar events loaded", 
+        "id": "calendar-check",
+        "passes": 42,
+        "fails": 58
+      }
+    ]
+  },
+  "options": {
+    "summaryTrendStats": [
+      "avg",
+      "min", 
+      "med",
+      "max",
+      "p(90)",
+      "p(95)"
+    ],
+    "summaryTimeUnit": "",
+    "noColor": false
+  },
+  "state": {
+    "isStdOutTTY": true,
+    "isStdErrTTY": true,
+    "testRunDurationMs": 45234.891
+  },
+  "metrics": {
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.496,
+        "passes": 248,
+        "fails": 252
+      }
+    },
+    "test_app_http_req_failed": {
+      "contains": "default",
+      "values": {
+        "rate": 0.085,
+        "passes": 915,
+        "fails": 85
+      },
+      "type": "rate"
+    },
+    "test_app_web_vital_inp": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 58,
+        "min": 38,
+        "med": 55,
+        "max": 85,
+        "p(90)": 75,
+        "p(95)": 80
+      }
+    },
+    "login_response_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 4200,
+        "min": 2800,
+        "med": 4100,
+        "max": 6500,
+        "p(90)": 5800,
+        "p(95)": 6200
+      }
+    },
+    "dashboard_load_time": {
+      "type": "trend",
+      "contains": "time", 
+      "values": {
+        "avg": 8500,
+        "min": 6200,
+        "med": 8200,
+        "max": 12800,
+        "p(90)": 11500,
+        "p(95)": 12200
+      }
+    },
+    "api_response_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 145,
+        "min": 95,
+        "med": 140,
+        "max": 220,
+        "p(90)": 190,
+        "p(95)": 210
+      }
+    },
+    "users_api_response_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 9200,
+        "min": 6500,
+        "med": 8900,
+        "max": 15000,
+        "p(90)": 13500,
+        "p(95)": 14200
+      }
+    },
+    "database_query_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 125,
+        "min": 65,
+        "med": 118,
+        "max": 280,
+        "p(90)": 220,
+        "p(95)": 250
+      }
+    },
+    "memory_usage_mb": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "avg": 285,
+        "min": 220,
+        "med": 275,
+        "max": 380,
+        "p(90)": 340,
+        "p(95)": 365
+      }
+    },
+    "cpu_utilization_percent": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "avg": 85,
+        "min": 65,
+        "med": 82,
+        "max": 98,
+        "p(90)": 95,
+        "p(95)": 97
+      }
+    },
+    "successful_requests": {
+      "contains": "default",
+      "values": {
+        "rate": 0.82,
+        "passes": 820,
+        "fails": 180
+      },
+      "thresholds": {
+        "rate>0.9": {
+          "ok": false
+        }
+      },
+      "type": "rate"
+    },
+    "test_app_web_vital_fcp": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 5200,
+        "min": 3800,
+        "med": 5100,
+        "max": 7500,
+        "p(90)": 6800,
+        "p(95)": 7200
+      }
+    },
+    "test_app_web_vital_lcp": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 8900,
+        "min": 6200,
+        "med": 8600,
+        "max": 13500,
+        "p(90)": 12000,
+        "p(95)": 12800
+      }
+    },
+    "test_app_web_vital_cls": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "max": 0.09,
+        "p(90)": 0.065,
+        "p(95)": 0.075,
+        "avg": 0.038,
+        "min": 0.006,
+        "med": 0.035
+      }
+    },
+    "test_app_web_vital_ttfb": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 2800,
+        "avg": 1850,
+        "min": 950,
+        "med": 1750,
+        "max": 3200,
+        "p(90)": 2500
+      }
+    },
+    "websocket_connection_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 95,
+        "min": 65,
+        "med": 92,
+        "max": 140,
+        "p(90)": 125,
+        "p(95)": 135
+      }
+    },
+    "meeting_creation_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 6800,
+        "min": 4200,
+        "med": 6500,
+        "max": 11000,
+        "p(90)": 9500,
+        "p(95)": 10200
+      }
+    },
+    "calendar_navigation_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 4500,
+        "min": 2800,
+        "med": 4200,
+        "max": 7200,
+        "p(90)": 6500,
+        "p(95)": 6900
+      }
+    },
+    "notification_processing_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 72,
+        "min": 45,
+        "med": 68,
+        "max": 110,
+        "p(90)": 95,
+        "p(95)": 105
+      }
+    },
+    "resource_load_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 5200,
+        "min": 3500,
+        "med": 4900,
+        "max": 8500,
+        "p(90)": 7500,
+        "p(95)": 8000
+      }
+    },
+    "profile_load_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 495,
+        "min": 335,
+        "med": 475,
+        "max": 750,
+        "p(90)": 665,
+        "p(95)": 705
+      }
+    },
+    "errors": {
+      "thresholds": {
+        "rate<0.1": {
+          "ok": false
+        }
+      },
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.16,
+        "passes": 840,
+        "fails": 160
+      }
+    },
+    "javascript_heap_size_mb": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "avg": 245,
+        "min": 180,
+        "med": 235,
+        "max": 350,
+        "p(90)": 320,
+        "p(95)": 340
+      }
+    },
+    "render_blocking_time": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 1200,
+        "min": 800,
+        "med": 1150,
+        "max": 1800,
+        "p(90)": 1650,
+        "p(95)": 1750
+      }
+    }
+  }
+}

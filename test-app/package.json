@@ -1,0 +1,86 @@
+{
+  "name": "spotlag-ai-test-application",
+  "version": "1.0.0",
+  "description": "Test application with intentional performance issues for SpotLag.AI analysis",
+  "private": true,
+  "scripts": {
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "dev": "npm run start",
+    "build:frontend": "cd frontend && npm run build",
+    "test:performance": "echo 'Run your performance testing tools against http://localhost:3000'",
+    "clean": "npm run clean:backend && npm run clean:frontend",
+    "clean:backend": "cd backend && rmdir /s /q node_modules 2>nul || true",
+    "clean:frontend": "cd frontend && rmdir /s /q node_modules 2>nul || true"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "keywords": [
+    "performance-testing",
+    "spotlag-ai",
+    "test-application",
+    "performance-issues",
+    "react",
+    "nodejs",
+    "express"
+  ],
+  "author": "SpotLag.AI Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "part of SpotLag.AI Performance Insights platform"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "performance_issues": {
+    "backend": [
+      "N+1 database queries",
+      "Memory leaks in global variables",
+      "Synchronous blocking operations",
+      "Heavy computations in request handlers",
+      "WebSocket connection leaks",
+      "No caching strategy",
+      "Inefficient database operations"
+    ],
+    "frontend": [
+      "Unnecessary re-renders",
+      "Heavy computations in render",
+      "Memory leaks in global state",
+      "Inefficient event handlers",
+      "No virtualization for large lists",
+      "Heavy CSS animations",
+      "Large bundle size",
+      "WebSocket cleanup issues"
+    ]
+  },
+  "test_scenarios": {
+    "login_flow": "Test user authentication with heavy password processing",
+    "dashboard_load": "Test dashboard with massive data processing",
+    "calendar_navigation": "Test calendar with heavy event processing",
+    "real_time_updates": "Test WebSocket connections with memory leaks",
+    "user_interactions": "Test form validation with heavy computations"
+  },
+  "expected_metrics": {
+    "response_time": {
+      "login": "2-5 seconds",
+      "dashboard": "3-8 seconds",
+      "users_api": "5-10 seconds"
+    },
+    "frontend_performance": {
+      "fcp": "3-6 seconds",
+      "lcp": "5-10 seconds",
+      "tti": "8-15 seconds"
+    },
+    "resource_usage": {
+      "cpu": "60-90% during operations",
+      "memory": "500MB+ backend, 200MB+ frontend"
+    }
+  }
+}

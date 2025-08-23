@@ -202,14 +202,14 @@ export class DataValidator {
     }
   }
 
-  // Define critical K6 metrics to extract
+  // Define critical K6 metrics to extract (Updated for Test-App compatibility)
   private static getCriticalK6Metrics(): Record<string, {
     extract: string[];
     transform?: (metricName: string, valueKey: string) => string;
     includeThresholds?: boolean;
   }> {
     return {
-      // 🎯 Core Web Vitals (Most Critical for UX)
+      // 🎯 Core Web Vitals (Original Browser Format)
       'browser_web_vital_fcp': {
         extract: ['avg', 'p(95)'],
         transform: (name, key) => key === 'p(95)' ? 'fcp_p95_ms' : 'fcp_avg_ms'
@@ -235,7 +235,99 @@ export class DataValidator {
         transform: (name, key) => key === 'p(95)' ? 'ttfb_p95_ms' : 'ttfb_avg_ms'
       },
 
-      // 🚀 Load Performance 
+      // 🧪 Test-App Core Web Vitals (New Test-App Format)
+      'test_app_web_vital_fcp': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `test_app_fcp_${key.replace('(', '').replace(')', '')}`
+      },
+      'test_app_web_vital_lcp': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `test_app_lcp_${key.replace('(', '').replace(')', '')}`
+      },
+      'test_app_web_vital_cls': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `test_app_cls_${key.replace('(', '').replace(')', '')}`
+      },
+      'test_app_web_vital_inp': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `test_app_inp_${key.replace('(', '').replace(')', '')}`
+      },
+      'test_app_web_vital_ttfb': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `test_app_ttfb_${key.replace('(', '').replace(')', '')}`
+      },
+
+      // 🚀 Test-App Response Times
+      'login_response_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `login_response_${key.replace('(', '').replace(')', '')}_ms`,
+        includeThresholds: true
+      },
+      'dashboard_load_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `dashboard_load_${key.replace('(', '').replace(')', '')}_ms`
+      },
+      'api_response_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `api_response_${key.replace('(', '').replace(')', '')}_ms`
+      },
+      'users_api_response_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `users_api_response_${key.replace('(', '').replace(')', '')}_ms`
+      },
+      'database_query_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `database_query_${key.replace('(', '').replace(')', '')}_ms`
+      },
+
+      // 💾 Test-App System Resources
+      'memory_usage_mb': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `memory_usage_${key.replace('(', '').replace(')', '')}_mb`
+      },
+      'cpu_utilization_percent': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `cpu_utilization_${key.replace('(', '').replace(')', '')}_pct`
+      },
+      'javascript_heap_size_mb': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `js_heap_size_${key.replace('(', '').replace(')', '')}_mb`
+      },
+
+      // 🌐 Test-App UI Performance
+      'websocket_connection_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `websocket_connection_${key.replace('(', '').replace(')', '')}_ms`
+      },
+      'meeting_creation_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `meeting_creation_${key.replace('(', '').replace(')', '')}_ms`
+      },
+      'calendar_navigation_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `calendar_navigation_${key.replace('(', '').replace(')', '')}_ms`
+      },
+      'notification_processing_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `notification_processing_${key.replace('(', '').replace(')', '')}_ms`
+      },
+      'resource_load_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `resource_load_${key.replace('(', '').replace(')', '')}_ms`
+      },
+      'profile_load_time': {
+        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
+        transform: (name, key) => `profile_load_${key.replace('(', '').replace(')', '')}_ms`
+      },
+
+
+      // 🌐 Test-App HTTP Performance  
+      'test_app_http_req_failed': {
+        extract: ['rate'],
+        transform: () => 'test_app_http_req_failed_rate'
+      },
+
+      // 🚀 Original Load Performance (backward compatibility)
       'page_load_time': {
         extract: ['avg', 'p(95)'],
         transform: (name, key) => key === 'p(95)' ? 'page_load_p95_ms' : 'page_load_avg_ms'
@@ -250,7 +342,7 @@ export class DataValidator {
         includeThresholds: true
       },
 
-      // 🌐 HTTP Performance
+      // 🌐 Original HTTP Performance (backward compatibility)
       'browser_http_req_duration': {
         extract: ['avg', 'p(95)'],
         transform: (name, key) => key === 'p(95)' ? 'http_req_p95_ms' : 'http_req_avg_ms'
@@ -260,7 +352,7 @@ export class DataValidator {
         transform: () => 'http_req_failed_rate'
       },
 
-      // ✅ Success Rates
+      // ✅ Success Rates (compatible with both formats)
       'successful_requests': {
         extract: ['rate'],
         transform: () => 'successful_requests_rate',

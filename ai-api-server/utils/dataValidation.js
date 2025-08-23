@@ -194,6 +194,120 @@ export class BackendDataValidator {
   }
 
   /**
+   * Validate source code structure for code review mode
+   */
+  static validateSourceCode(sourceCode) {
+    const errors = [];
+    const warnings = [];
+
+    if (!sourceCode || typeof sourceCode !== 'object') {
+      return {
+        valid: false,
+        errors: ['Source code must be a valid object'],
+        warnings: []
+      };
+    }
+
+    // Validate files array
+    if (!sourceCode.files || !Array.isArray(sourceCode.files)) {
+      return {
+        valid: false,
+        errors: ['Source code must contain a valid "files" array'],
+        warnings: []
+      };
+    }
+
+    if (sourceCode.files.length === 0) {
+      return {
+        valid: false,
+        errors: ['Source code files array cannot be empty'],
+        warnings: []
+      };
+    }
+
+    // Validate each file
+    const validatedFiles = [];
+    for (let i = 0; i < sourceCode.files.length; i++) {
+      const file = sourceCode.files[i];
+      
+      if (!file || typeof file !== 'object') {
+        warnings.push(`File ${i + 1}: Invalid file object, skipping`);
+        continue;
+      }
+
+      if (!file.path || typeof file.path !== 'string' || file.path.trim().length === 0) {
+        warnings.push(`File ${i + 1}: Missing or invalid file path, skipping`);
+        continue;
+      }
+
+      if (!file.content || typeof file.content !== 'string') {
+        warnings.push(`File ${i + 1}: Missing or invalid file content, skipping`);
+        continue;
+      }
+
+      if (!file.language || typeof file.language !== 'string') {
+        warnings.push(`File ${i + 1}: Missing language, defaulting to 'text'`);
+        file.language = 'text';
+      }
+
+      // Validate file size (limit to reasonable size for AI analysis)
+      const fileSize = file.content.length;
+      if (fileSize > 100000) { // 100KB limit per file
+        warnings.push(`File ${i + 1}: Large file (${Math.round(fileSize/1024)}KB), may impact AI analysis performance`);
+      }
+
+      if (fileSize > 500000) { // 500KB hard limit
+        warnings.push(`File ${i + 1}: File too large (${Math.round(fileSize/1024)}KB), skipping`);
+        continue;
+      }
+
+      validatedFiles.push({
+        path: file.path.trim(),
+        content: file.content,
+        language: file.language.toLowerCase().trim()
+      });
+    }
+
+    if (validatedFiles.length === 0) {
+      return {
+        valid: false,
+        errors: ['No valid source code files found after validation'],
+        warnings
+      };
+    }
+
+    // Validate entryPoints (optional)
+    let entryPoints = [];
+    if (sourceCode.entryPoints) {
+      if (Array.isArray(sourceCode.entryPoints)) {
+        entryPoints = sourceCode.entryPoints
+          .filter(ep => typeof ep === 'string' && ep.trim().length > 0)
+          .map(ep => ep.trim());
+      } else {
+        warnings.push('Invalid entryPoints format, ignoring');
+      }
+    }
+
+    // Calculate total source code size
+    const totalSize = validatedFiles.reduce((sum, file) => sum + file.content.length, 0);
+    if (totalSize > 1000000) { // 1MB total limit
+      warnings.push(`Large codebase (${Math.round(totalSize/1024)}KB), AI analysis may take longer`);
+    }
+
+    return {
+      valid: true,
+      errors: [],
+      warnings,
+      sanitized: {
+        files: validatedFiles,
+        entryPoints: entryPoints.length > 0 ? entryPoints : undefined,
+        totalFiles: validatedFiles.length,
+        totalSize: totalSize
+      }
+    };
+  }
+
+  /**
    * Validate request body for AI analysis endpoint
    */
   static validateAnalysisRequest(body) {
@@ -238,6 +352,18 @@ export class BackendDataValidator {
     if (body.systemContext && typeof body.systemContext !== 'object') {
       warnings.push('Invalid systemContext format, ignoring');
       body.systemContext = {};
+    }
+
+    // Validate sourceCode (optional, for code review mode)
+    if (body.sourceCode) {
+      const sourceCodeValidation = this.validateSourceCode(body.sourceCode);
+      if (!sourceCodeValidation.valid) {
+        warnings.push(`Source code validation: ${sourceCodeValidation.errors.join(', ')}`);
+        body.sourceCode = null; // Remove invalid source code
+      } else {
+        warnings.push(...sourceCodeValidation.warnings.map(w => `Source code: ${w}`));
+        body.sourceCode = sourceCodeValidation.sanitized;
+      }
     }
 
     return {

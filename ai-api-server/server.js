@@ -25,6 +25,11 @@ import { PERFORMANCE_ANALYSIS_PROMPT } from './prompts/performance-analysis-temp
 // Backend data validation
 import { BackendDataValidator } from './utils/dataValidation.js';
 
+// ===============================================
+// 🧪 TEST-APP CODE LOADER (ISOLATED FEATURE)
+// ===============================================
+import { TestAppCodeLoader } from './services/testAppCodeLoader.js';
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -277,8 +282,15 @@ function calculateSummary(diffs) {
   return summary;
 }
 
-// Build comprehensive AI analysis prompt
-function buildAnalysisPrompt(diffs, systemContext = {}) {
+// ===============================================
+// 🧪 AUTO-LOAD TEST-APP CODE (ISOLATED FEATURE)
+// ===============================================
+
+// Build comprehensive AI analysis prompt with auto-loaded test-app code
+function buildAnalysisPrompt(diffs, systemContext = {}, sourceCode = null) {
+  // Check if code review mode is enabled
+  const isCodeReviewMode = !!(systemContext.enableCodeReview && sourceCode && sourceCode.files && sourceCode.files.length > 0);
+  
   // Check if advanced context is provided
   const hasAdvancedContext = !!(
     systemContext.recent_changes || 
@@ -290,44 +302,291 @@ function buildAnalysisPrompt(diffs, systemContext = {}) {
     systemContext.urgency
   );
 
-  // Always use systematic prompt, but log different messages based on context
-  if (hasAdvancedContext) {
+  // Log appropriate message based on mode and context
+  if (isCodeReviewMode && hasAdvancedContext) {
+    console.log('🎯💻🔧 Using CODE REVIEW mode with systematic prompt + advanced user context + source code analysis');
+  } else if (isCodeReviewMode) {
+    console.log('🎯💻 Using CODE REVIEW mode with systematic prompt + source code analysis (basic context)');
+  } else if (hasAdvancedContext) {
     console.log('🎯🔧 Using systematic prompt with advanced user context');
   } else {
     console.log('🎯 Using systematic performance analysis prompt (basic context)');
   }
 
-  // Always use the systematic prompt template
-  return PERFORMANCE_ANALYSIS_PROMPT.buildPrompt(diffs, systemContext);
+  // 🧪 Log test-app code loading status
+  if (sourceCode && sourceCode.source === 'test-app-auto-loaded') {
+    console.log(`🧪 TEST-APP: Auto-loaded ${sourceCode.files.length} files (${Math.round(sourceCode.totalSize/1024)}KB) for AI analysis`);
+  }
+
+  // Use appropriate prompt template based on code review mode
+  if (isCodeReviewMode) {
+    return PERFORMANCE_ANALYSIS_PROMPT.buildCodeReviewPrompt(diffs, systemContext, sourceCode);
+  } else {
+    return PERFORMANCE_ANALYSIS_PROMPT.buildPrompt(diffs, systemContext);
+  }
 }
 
-// Generate AI insights using Bedrock
-async function generateAIInsights(diffs, systemContext) {
+// Simple JSON cleaning (AI now generates proper format)
+function cleanJsonString(jsonStr) {
+  return jsonStr
+    // Remove trailing commas before closing brackets/braces
+    .replace(/,(\s*[}\]])/g, '$1')
+    // Clean up excessive whitespace but preserve structure
+    .trim();
+}
+
+function extractMetricsFromText(text) {
+  const metrics = [];
+  const metricPatterns = [
+    /(\w+_response_time|\w+_load_time|\w+_usage|\w+_rate)/gi,
+    /"affected_metrics":\s*\[(.*?)\]/gi,
+    /"metric_key\d*":\s*"([^"]+)"/gi
+  ];
+  
+  for (const pattern of metricPatterns) {
+    const matches = text.matchAll(pattern);
+    for (const match of matches) {
+      if (match[1]) {
+        metrics.push(match[1]);
+      }
+    }
+  }
+  
+  return [...new Set(metrics)].slice(0, 10); // Unique metrics, max 10
+}
+
+function extractJsonByTypePattern(text) {
+  console.log('🎯 Looking for JSON with "type" objects...');
+  
   try {
-    const prompt = buildAnalysisPrompt(diffs, systemContext);
+    // Find the largest JSON array in the text
+    const arrayStart = text.indexOf('[');
+    const arrayEnd = text.lastIndexOf(']');
+    
+    if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
+      const jsonArray = text.substring(arrayStart, arrayEnd + 1);
+      console.log(`🎯 Extracted array: ${jsonArray.length} chars`);
+      
+      try {
+        const parsed = JSON.parse(jsonArray);
+        console.log(`✅ Type pattern extraction successful! Objects: ${parsed.length}`);
+        return parsed;
+      } catch (parseError) {
+        console.log('🔄 Type pattern parsing failed:', parseError.message);
+      }
+    }
+    
+  } catch (error) {
+    console.log('🔄 Type pattern extraction failed:', error.message);
+  }
+  
+  return null;
+}
+
+function parseFromText(text) {
+  try {
+    // Extract key information from text using patterns
+    const titleMatch = text.match(/title[":]\s*"([^"]+)"/i);
+    const severityMatch = text.match(/severity[":]\s*"([^"]+)"/i);
+    const typeMatch = text.match(/type[":]\s*"([^"]+)"/i);
+    const descriptionMatch = text.match(/description[":]\s*"([^"]+)"/i);
+    
+    if (titleMatch) {
+      return [{
+        type: typeMatch ? typeMatch[1] : 'analysis',
+        severity: severityMatch ? severityMatch[1] : 'medium',
+        confidence: 0.7,
+        title: titleMatch[1],
+        description: descriptionMatch ? descriptionMatch[1] : 'Performance analysis completed - check logs for details',
+        actionable_steps: ['Review detailed analysis in backend logs'],
+        affected_metrics: extractMetricsFromText(text),
+        business_impact: 'Performance analysis insights available',
+        priority_score: 'P3',
+        effort_estimate: 'medium'
+      }];
+    }
+  } catch (parseError) {
+    console.log('🔄 Text parsing failed:', parseError.message);
+  }
+  
+  return null;
+}
+
+// Generate AI insights using Bedrock with auto-loaded test-app code
+async function generateAIInsights(diffs, systemContext, sourceCode = null) {
+  try {
+    let finalSourceCode = sourceCode;
+
+    // 🧪 AUTO-LOAD TEST-APP CODE: If code review is enabled but no source code provided,
+    // automatically load test-app code for analysis
+    console.log('\n🧪 ==================== CODE REVIEW MODE DEBUG ====================');
+    console.log(`🎯 Code Review Enabled: ${systemContext.enableCodeReview}`);
+    console.log(`📁 Source Code Provided: ${sourceCode ? 'Yes' : 'No'}`);
+    if (sourceCode) {
+      console.log(`📁 Source Code Files: ${sourceCode.files?.length || 0}`);
+      console.log(`📁 Source Code Source: ${sourceCode.source || 'unknown'}`);
+    }
+    console.log(`🧪 TestAppCodeLoader Available: ${TestAppCodeLoader?.isEnabled() ? 'Yes' : 'No'}`);
+    
+    if (systemContext.enableCodeReview && (!sourceCode || !sourceCode.files || sourceCode.files.length === 0)) {
+      if (TestAppCodeLoader?.isEnabled()) {
+        console.log('🧪 Code Review enabled but no source code provided - attempting to auto-load test-app code...');
+        
+        try {
+          const autoLoadedCode = await TestAppCodeLoader.loadTestAppCode();
+          if (autoLoadedCode) {
+            finalSourceCode = autoLoadedCode;
+            console.log(`✅ Successfully auto-loaded test-app code: ${autoLoadedCode.files.length} files, ${Math.round(autoLoadedCode.totalSize/1024)}KB`);
+            console.log('📁 Auto-loaded files:');
+            autoLoadedCode.files.forEach(file => {
+              console.log(`   - ${file.path} (${file.category || 'unknown'}, ${Math.round(file.size/1024)}KB)`);
+            });
+          } else {
+            console.log('❌ Test-app code could not be auto-loaded (directory not found or empty)');
+          }
+        } catch (error) {
+          console.error('❌ Test-app auto-loading failed:', error.message);
+          console.error('   Stack:', error.stack);
+        }
+      } else {
+        console.log('❌ Test-app code loader is disabled');
+      }
+    } else if (systemContext.enableCodeReview) {
+      console.log('ℹ️ Code review enabled and source code already provided - using existing source code');
+    } else {
+      console.log('ℹ️ Code review mode disabled - standard analysis mode');
+    }
+    
+    console.log(`🎯 Final Source Code: ${finalSourceCode ? `${finalSourceCode.files?.length || 0} files` : 'None'}`);
+    console.log('🧪 ==================== END CODE REVIEW DEBUG ====================\n');
+
+    const prompt = buildAnalysisPrompt(diffs, systemContext, finalSourceCode);
+    console.log('🎯 ==================== FINAL DEBUG SUMMARY ====================');
+    console.log('📊 Analysis Summary Before AI Call:');
+    console.log(`   - Total Metrics: ${diffs.length}`);
+    console.log(`   - Degraded Metrics: ${diffs.filter(d => d.trend === 'worse').length}`);
+    console.log(`   - Improved Metrics: ${diffs.filter(d => d.trend === 'improved').length}`);
+    console.log(`   - Unchanged Metrics: ${diffs.filter(d => d.trend === 'same').length}`);
+    console.log(`   - Code Review Mode: ${finalSourceCode ? 'ENABLED' : 'DISABLED'}`);
+    console.log(`   - Source Files: ${finalSourceCode ? finalSourceCode.files.length : 0}`);
+    console.log(`   - Prompt Mode: ${finalSourceCode ? 'CODE REVIEW' : 'STANDARD ANALYSIS'}`);
+    console.log('🎯 ==================== END FINAL SUMMARY ====================\n');
     const modelId = systemContext?.selectedModel || 'anthropic.claude-3-5-haiku-20241022-v1:0';
     
+    // 🔍 DEBUG: Log prompt details
     console.log(`🧠 Analyzing performance with Bedrock model: ${modelId}`);
+    console.log(`🔍 Generated prompt length: ${prompt.length} characters`);
+    console.log(`📊 Metrics in diffs: ${diffs.length} metrics`);
+    console.log(`🎯 Sample metrics: ${diffs.slice(0, 5).map(d => `${d.key}:${d.baseline}→${d.current}`).join(', ')}`);
+    
+    // 🔍 DEBUG: Log full prompt and analysis details
+    console.log('\n🔍 ==================== AI ANALYSIS DEBUG ====================');
+    console.log('🤖 AI CALL INITIATED');
+    console.log(`📝 Prompt length: ${prompt.length} characters`);
+    console.log(`🎯 Model: ${modelId}`);
+    console.log(`⚙️ Context: ${JSON.stringify(systemContext, null, 2)}`);
+    
+    if (process.env.DEBUG_PROMPTS === 'true' || true) { // Always show full prompt for debugging
+      console.log('\n📋 ==== FULL GENERATED PROMPT ====');
+      console.log(prompt);
+      console.log('📋 ==== END FULL PROMPT ====\n');
+    }
+    
+    console.log('🚀 Sending request to AWS Bedrock...');
     
     // Use the exact invokeModel pattern from AmazonBedrockAI.md
     const result = await invokeModel(prompt, modelId);
     
-    // Try to parse as JSON
+    // 🔍 DEBUG: Log AI response
+    console.log('\n📤 ==== AI RESPONSE RECEIVED ====');
+    console.log(`📏 Response length: ${result.length} characters`);
+    console.log('🤖 Raw AI Response:');
+    console.log(result);
+    console.log('📤 ==== END AI RESPONSE ====\n');
+    
+    // 🎯 SIMPLIFIED JSON PARSER (AI now generates clean JSON per updated prompt)
+    let parsedResult = null;
+    
+    console.log('🔄 Starting simplified JSON parsing...');
+    console.log(`🔍 Response starts with: ${result.substring(0, 100)}`);
+    console.log(`🔍 Response length: ${result.length} characters`);
+    
+    // Strategy 1: Direct JSON parsing (should work with new prompt format)
     try {
-      return JSON.parse(result);
-    } catch {
-      // If not valid JSON, create structured response
-      return [{
-        type: 'suggestion',
-        severity: 'medium',
-        confidence: 0.8,
-        title: 'Performance Analysis Completed',
-        description: result.substring(0, 500) + '...',
-        actionable_steps: ['Review the full analysis results'],
-        affected_metrics: [],
-        business_impact: 'Performance analysis insights provided'
-      }];
+      parsedResult = JSON.parse(result);
+      console.log('✅ Direct JSON parsing successful');
+    } catch (directError) {
+      console.log('🔄 Direct parsing failed:', directError.message);
+      
+      // Strategy 2: Extract JSON array from text (most common case)
+      console.log('🔄 Attempting array extraction...');
+      const arrayStart = result.indexOf('[');
+      const arrayEnd = result.lastIndexOf(']');
+      
+      if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
+        const jsonArray = result.substring(arrayStart, arrayEnd + 1);
+        console.log(`🎯 Extracted array: ${jsonArray.length} chars`);
+        
+        try {
+          parsedResult = JSON.parse(jsonArray);
+          console.log('✅ Array extraction successful!');
+        } catch (arrayError) {
+          console.log('🔄 Array extraction failed:', arrayError.message);
+          
+          // Strategy 3: Type-to-improvement pattern (your custom strategy)
+          console.log('🔄 Attempting type-to-improvement pattern extraction...');
+          parsedResult = extractJsonByTypePattern(result);
+          if (parsedResult) {
+            console.log('✅ JSON extracted using type-to-improvement pattern!');
+          }
+        }
+      }
+      
+      // Final fallback with enhanced error info
+      if (!parsedResult) {
+        console.error('❌ All parsing strategies failed');
+        console.log('🔄 Creating enhanced fallback...');
+        
+        parsedResult = [{
+          type: 'parsing_issue',
+          severity: 'medium', 
+          confidence: 0.6,
+          title: 'AI Analysis Generated (Format Issue)', 
+          description: 'AI provided detailed performance analysis but output format needs adjustment. Check backend logs for complete analysis.',
+          immediate_actions: [
+            'Review backend console for complete AI analysis',
+            'Check JSON formatting in AI response',
+            'Verify prompt format compliance'
+          ],
+          affected_metrics: extractMetricsFromText(result),
+          business_impact: 'Performance insights available - see logs for detailed recommendations',
+          priority_score: 'P3',
+          effort_estimate: 'low',
+          expected_improvement: 'Display formatting fix needed'
+        }];
+        
+        console.log('⚠️ Using enhanced fallback with extracted insights');
+      }
     }
+    
+    // Validate and display results
+    if (parsedResult && Array.isArray(parsedResult)) {
+      console.log(`📊 Insights generated: ${parsedResult.length}`);
+      console.log('\n🎯 INSIGHTS SUMMARY:');
+      parsedResult.forEach((insight, index) => {
+        console.log(`   ${index + 1}. [${insight.priority_score || insight.severity}] ${insight.title}`);
+        console.log(`      Type: ${insight.type}`);
+        if (insight.affected_metrics) {
+          console.log(`      Metrics: ${insight.affected_metrics.slice(0, 3).join(', ')}${insight.affected_metrics.length > 3 ? '...' : ''}`);
+        }
+      });
+    } else if (parsedResult) {
+      console.log('📊 AI Response parsed but not an array format');
+      console.log('🔄 Converting to array format...');
+      parsedResult = [parsedResult];
+    }
+    
+    return parsedResult;
     
   } catch (error) {
     console.error('❌ Bedrock analysis failed:', error);
@@ -463,15 +722,54 @@ app.post('/api/ai/analyze', authenticateAPI, async (req, res) => {
     }
 
     // Use sanitized data
-    const { baseline, current, systemContext } = validation.sanitized;
+    const { baseline, current, systemContext, sourceCode } = validation.sanitized;
     
     console.log(`✅ Data validated successfully. Baseline: ${Object.keys(baseline.metrics).length} metrics, Current: ${Object.keys(current.metrics).length} metrics`);
+    
+    // 🔍 DEBUG: Log sample extracted metrics  
+    const baselineKeys = Object.keys(baseline.metrics);
+    const currentKeys = Object.keys(current.metrics);
+    console.log(`🔍 Sample baseline metrics: ${baselineKeys.slice(0, 10).join(', ')}`);
+    console.log(`🔍 Sample current metrics: ${currentKeys.slice(0, 10).join(', ')}`);
+    
+    // 🔍 Check if test-app metrics are present
+    const testAppMetrics = baselineKeys.filter(key => key.includes('test_app') || key.includes('login_response') || key.includes('dashboard_load'));
+    console.log(`🧪 Test-app specific metrics found: ${testAppMetrics.length} (${testAppMetrics.slice(0, 5).join(', ')})`);
+    
+    // 🧪 Enhanced logging for test-app code loading
+    if (systemContext.enableCodeReview) {
+      if (sourceCode && sourceCode.files && sourceCode.files.length > 0) {
+        if (sourceCode.source === 'test-app-auto-loaded') {
+          console.log(`🎯🧪 Code Review Mode: Enabled with auto-loaded test-app code (${sourceCode.files.length} files)`);
+        } else {
+          console.log(`🎯💻 Code Review Mode: Enabled with manually uploaded code (${sourceCode.files.length} files)`);
+        }
+      } else {
+        console.log(`🎯💻 Code Review Mode: Enabled - will attempt test-app auto-loading`);
+      }
+    } else {
+      console.log(`🎯 Code Review Mode: Disabled - using standard analysis`);
+    }
 
     // Calculate basic diffs
     const diffs = calculateMetricDiffs(baseline, current);
     
-    // Generate AI insights using Bedrock
-    const insights = await generateAIInsights(diffs, systemContext);
+    // 🔍 DEBUG: Log diff calculation results
+    console.log(`📊 Calculated ${diffs.length} metric diffs`);
+    const worseDiffs = diffs.filter(d => d.trend === 'worse');
+    const improvedDiffs = diffs.filter(d => d.trend === 'improved'); 
+    const sameDiffs = diffs.filter(d => d.trend === 'same');
+    console.log(`📈 Performance changes: ${improvedDiffs.length} improved, ${worseDiffs.length} worse, ${sameDiffs.length} same`);
+    
+    if (worseDiffs.length > 0) {
+      console.log(`🔻 Top degraded metrics: ${worseDiffs.slice(0, 5).map(d => `${d.key}(${d.pct?.toFixed(1)}%)`).join(', ')}`);
+    }
+    if (improvedDiffs.length > 0) {
+      console.log(`🔺 Top improved metrics: ${improvedDiffs.slice(0, 5).map(d => `${d.key}(${d.pct?.toFixed(1)}%)`).join(', ')}`);
+    }
+    
+    // Generate AI insights using Bedrock (with auto-loaded test-app code if needed)
+    const insights = await generateAIInsights(diffs, systemContext, sourceCode);
     
     // Store for historical analysis
     await storeHistoricalData(baseline, current, insights);
@@ -565,6 +863,44 @@ app.post('/api/reports/export', authenticateAPI, async (req, res) => {
   }
 });
 
+// ===============================================
+// 🧪 TEST-APP STATUS ENDPOINT (ISOLATED FEATURE)
+// ===============================================
+
+// 7. Test-App Code Loader Status (Isolated Feature)
+app.get('/api/testapp/status', authenticateAPI, async (req, res) => {
+  try {
+    if (!TestAppCodeLoader) {
+      return res.json({
+        enabled: false,
+        available: false,
+        message: 'Test-app code loader is disabled',
+        feature: 'test-app-code-loader'
+      });
+    }
+
+    const stats = await TestAppCodeLoader.getStats();
+    
+  res.json({ 
+      ...stats,
+      message: stats.enabled && stats.available 
+        ? 'Test-app code loader is ready for automatic code loading'
+        : stats.enabled 
+          ? 'Test-app code loader is enabled but test-app directory not found'
+          : 'Test-app code loader is disabled',
+      feature: 'test-app-code-loader',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Test-app status error:', error);
+    res.status(500).json({ 
+      error: 'Failed to check test-app status',
+      feature: 'test-app-code-loader'
+    });
+  }
+});
+
 // 5. Health check endpoint
 app.get('/health', async (req, res) => {
   const health = {
@@ -574,6 +910,9 @@ app.get('/health', async (req, res) => {
     bedrock: {
       region: process.env.AWS_REGION || 'us-west-2',
       models: Object.keys(BEDROCK_MODELS)
+    },
+    features: {
+      test_app_code_loader: TestAppCodeLoader?.isEnabled() || false
     }
   };
 
@@ -627,6 +966,32 @@ async function startServer() {
     console.log('🤖 AI PROVIDER: Amazon Bedrock (Following AmazonBedrockAI.md pattern)');
     console.log(`   Region: ${process.env.AWS_REGION || 'us-west-2'}`);
     console.log(`   Models: ${Object.keys(BEDROCK_MODELS).length} Claude models available`);
+    
+    // 🧪 Test-App Code Loader Status
+    if (TestAppCodeLoader?.isEnabled()) {
+      console.log('');
+      console.log('🧪 TEST-APP CODE LOADER:');
+      console.log('   Status: ✅ Enabled (Automatic code loading for AI analysis)');
+      console.log('   Feature: Auto-loads test-app source code when "Code Level Suggestions" is enabled');
+      console.log('   Isolation: Can be easily disabled by setting FEATURE_ENABLED = false');
+      
+      try {
+        const stats = await TestAppCodeLoader.getStats();
+        if (stats.available) {
+          console.log(`   Directory: ${stats.baseDirectory}`);
+          console.log(`   Files: ${stats.configuredFiles} configured files ready for analysis`);
+        } else {
+          console.log('   Warning: Test-app directory not found - manual file upload still available');
+        }
+      } catch (error) {
+        console.log('   Warning: Could not check test-app availability');
+      }
+    } else {
+      console.log('');
+      console.log('🧪 TEST-APP CODE LOADER: ❌ Disabled');
+      console.log('   Note: Only manual file upload available for code review');
+    }
+    
     console.log('');
     
     // Test connection on startup (optional)

@@ -11,7 +11,8 @@ interface Props {
 
 export default function SystemContextPanel({ context, onContextChange, aiEnabled, onAIToggle }: Props) {
   const [advancedExpanded, setAdvancedExpanded] = useState(false);
-  const updateContext = (key: keyof SystemContext, value: string) => {
+
+  const updateContext = (key: keyof SystemContext, value: string | boolean) => {
     onContextChange({
       ...context,
       [key]: value
@@ -103,6 +104,21 @@ export default function SystemContextPanel({ context, onContextChange, aiEnabled
                     </option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            {/* Code Level Suggestions Toggle */}
+            <div className="flex justify-end items-center mt-4 mb-2">
+              <div className="form-control">
+                <label className="label cursor-pointer gap-2">
+                  <span className="label-text text-xs opacity-60">💻 Code level suggestions</span>
+                  <input 
+                    type="checkbox" 
+                    className="toggle toggle-secondary toggle-xs" 
+                    checked={context.enableCodeReview || false}
+                    onChange={(e) => updateContext('enableCodeReview', e.target.checked)}
+                  />
+                </label>
               </div>
             </div>
 

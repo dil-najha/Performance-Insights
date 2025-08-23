@@ -4,6 +4,7 @@ import DiffTable from './components/DiffTable';
 import MetricDiffChart from './components/MetricDiffChart';
 
 import AIInsights from './components/AIInsights';
+import CodeLevelSuggestions from './components/CodeLevelSuggestions';
 import SystemContextPanel from './components/SystemContextPanel';
 import HistoricalReports from './components/HistoricalReports';
 import ExportPanel from './components/ExportPanel';
@@ -30,7 +31,7 @@ export default function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [lastAnalysisTime, setLastAnalysisTime] = useState<string>('');
 
-  // Debounced AI analysis to prevent excessive API calls
+  // Debounced AI analysis to prevent excessive API calls (updated - removed sourceCode parameter)
   const runAIAnalysis = useCallback(
     debounce(async (baseline: PerformanceReport, current: PerformanceReport, context: SystemContext) => {
       if (!aiEnabled) return;
@@ -41,8 +42,12 @@ export default function App() {
         console.log('📊 Analysis Context:', {
           selectedModel: context.selectedModel,
           aiEnabled,
-          provider: getPreferredProvider()
+          provider: getPreferredProvider(),
+          codeReviewMode: context.enableCodeReview,
+          testAppAutoLoad: context.enableCodeReview // Code will be auto-loaded by backend if enabled
         });
+        
+        // Note: sourceCode parameter removed - backend will auto-load test-app code when needed
         const aiResult = await aiService.analyzePerformance(baseline, current, context);
         console.log('✅ AI Analysis completed:', aiResult);
         setResult(aiResult);
@@ -203,6 +208,11 @@ export default function App() {
                     <p className="text-sm">
                       Both files are loaded. Click "Start Analysis" to begin 
                       {aiEnabled ? ' AI-powered performance analysis.' : ' basic performance comparison.'}
+                      {systemContext.enableCodeReview && aiEnabled && (
+                        <span className="block mt-1 text-xs opacity-75">
+                          🧪 Code Level Suggestions enabled - test-app code will be auto-loaded for AI analysis.
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -213,9 +223,10 @@ export default function App() {
                 <button 
                   className={`btn btn-primary btn-lg gap-2 ${aiLoading ? 'loading' : ''}`}
                   onClick={() => {
-                    console.log('🚀 Start Analysis clicked!', { baseline: !!baseline, current: !!current, aiEnabled });
+                    console.log('🚀 Start Analysis clicked!', { baseline: !!baseline, current: !!current, aiEnabled, codeReview: systemContext.enableCodeReview });
                     if (baseline && current) {
                       if (aiEnabled) {
+                        // Note: sourceCode parameter removed - backend will auto-load test-app code when needed
                         runAIAnalysis(baseline, current, systemContext);
                       } else {
                         setResult(compareReports(baseline, current));
@@ -247,6 +258,7 @@ export default function App() {
                     <p>Current: {current ? '✅ Loaded' : '❌ Not loaded'}</p>
                     <p>Result: {result ? '✅ Available' : '❌ No results'}</p>
                     <p>AI Enabled: {aiEnabled ? '✅ Yes' : '❌ No'}</p>
+                    <p>Code Review: {systemContext.enableCodeReview ? '🧪 Auto-Loading' : '❌ Disabled'}</p>
                     <p>Loading: {aiLoading ? '⏳ Yes' : '✅ No'}</p>
                     <p>Show Button: {(baseline && current) ? '✅ Yes' : '❌ No'}</p>
                   </div>
@@ -283,7 +295,7 @@ export default function App() {
                     {aiLoading ? (
                       <span className="loading loading-spinner loading-sm"></span>
                     ) : (
-                      aiEnabled ? '🤖 AI' : '📊 Basic'
+                      aiEnabled ? (systemContext.enableCodeReview ? '🧪 AI+Code' : '🤖 AI') : '📊 Basic'
                     )}
                   </div>
                 </div>
@@ -298,6 +310,17 @@ export default function App() {
               {aiEnabled && (
                 <ErrorBoundary fallback={<div className="alert alert-warning">AI insights unavailable</div>}>
                   <div className="animate-pop"><AIInsights insights={result.aiInsights || []} explanation={result.explanation} loading={aiLoading} /></div>
+                </ErrorBoundary>
+              )}
+
+              {/* Code-Level Suggestions (only if code review enabled AND code data available) */}
+              {aiEnabled && systemContext.enableCodeReview && result.aiInsights && 
+               result.aiInsights.some(insight => 
+                 (insight.code_recommendations && insight.code_recommendations.length > 0) ||
+                 (insight.affected_files && insight.affected_files.length > 0)
+               ) && (
+                <ErrorBoundary fallback={<div className="alert alert-warning">Code suggestions unavailable</div>}>
+                  <div className="animate-pop"><CodeLevelSuggestions insights={result.aiInsights || []} /></div>
                 </ErrorBoundary>
               )}
 
@@ -356,6 +379,7 @@ export default function App() {
                   <p>📁 Upload both reports or click "Load Sample" to try it out</p>
                   <p>🚀 After uploading both files, click "Start Analysis" to begin</p>
                   <p>🤖 Toggle AI Analysis in System Context for enhanced insights</p>
+                  <p>🧪 Enable "Code level suggestions" for test-app code analysis</p>
                   <p>📊 View historical reports to compare past analyses</p>
                 </div>
               </div>

@@ -27,9 +27,25 @@ export interface ComparisonResult {
   };
 }
 
+// Code-level recommendation types
+export interface CodeRecommendation {
+  file: string;
+  current_code: string;
+  optimized_code: string;
+  explanation: string;
+  expected_improvement?: string;
+}
+
+export interface AffectedFile {
+  path: string;
+  functions: string[];
+  lines: number[];
+  issue: string;
+}
+
 // AI-related types
 export interface AIInsight {
-  type: 'critical_issue' | 'root_cause' | 'optimization' | 'monitoring' | 'anomaly' | 'suggestion' | 'prediction' | 'explanation';
+  type: 'critical_issue' | 'root_cause' | 'optimization' | 'monitoring' | 'anomaly' | 'suggestion' | 'prediction' | 'explanation' | 'code_optimization';
   severity: 'low' | 'medium' | 'high' | 'critical';
   confidence: number;
   title: string;
@@ -47,6 +63,10 @@ export interface AIInsight {
   long_term_solutions?: string[];
   priority_score?: 'P1' | 'P2' | 'P3' | 'P4' | 'P5'; // P1=Critical, P2=High, P3=Medium, P4=Low, P5=Recommended
   expected_improvement?: string;
+  
+  // 💻 NEW: Code-level analysis fields
+  affected_files?: AffectedFile[];
+  code_recommendations?: CodeRecommendation[];
 }
 
 export interface SystemContext {
@@ -64,6 +84,9 @@ export interface SystemContext {
   custom_focus?: string;
   team?: 'frontend' | 'backend' | 'devops' | 'fullstack';
   urgency?: 'low' | 'medium' | 'high' | 'emergency';
+  
+  // Code Review Mode
+  enableCodeReview?: boolean; // New toggle for code review mode
 }
 
 export interface EnhancedComparisonResult extends ComparisonResult {
@@ -135,4 +158,32 @@ export interface ImpactSummary {
     high: MetricDiff[];
     medium: MetricDiff[];
   };
+}
+
+// ===============================================
+// 🧪 ENHANCED SOURCE CODE TYPES FOR TEST-APP AUTO-LOADING
+// ===============================================
+// This section can be easily removed if needed
+
+// Enhanced Source Code File interface
+export interface SourceCodeFile {
+  path: string;
+  content: string;
+  language: string;
+  
+  // 🧪 NEW: Additional fields for test-app auto-loading
+  category?: string;    // "Backend API Server", "Dashboard Component", etc.
+  size?: number;        // File size in bytes
+}
+
+// Enhanced Source Code interface  
+export interface SourceCode {
+  files: SourceCodeFile[];
+  entryPoints?: string[];
+  totalFiles?: number;
+  totalSize?: number;
+  
+  // 🧪 NEW: Auto-loading identification
+  source?: 'manual-upload' | 'test-app-auto-loaded';  // How the code was provided
+  timestamp?: string;   // When the code was loaded
 }

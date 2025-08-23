@@ -75,7 +75,10 @@ export class SecureAIService {
     }
   }
 
-  // Main AI Analysis using Amazon Bedrock
+  // ===============================================
+  // 🧪 UPDATED: REMOVED SOURCE CODE PARAMETER
+  // ===============================================
+  // Main AI Analysis using Amazon Bedrock (test-app code auto-loaded by backend when needed)
   async analyzePerformance(
     baseline: PerformanceReport, 
     current: PerformanceReport, 
@@ -84,11 +87,17 @@ export class SecureAIService {
     const provider = getPreferredProvider();
     
     console.log(`🎯 Using AI provider: ${provider}`);
+    
+    // Log code review status
+    if (systemContext?.enableCodeReview) {
+      console.log('🧪 Code Review Mode enabled - backend will auto-load test-app code if available');
+    }
 
     if (provider === 'bedrock') {
       try {
         console.log('🏆 Using Amazon Bedrock Claude models...');
         
+        // Note: sourceCode parameter removed - backend will auto-load test-app code when needed
         const result = await this.makeRequest('/ai/analyze', {
           baseline,
           current,

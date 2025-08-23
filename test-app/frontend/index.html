@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test App - Performance Issues Demo</title>
+    <style>
+      /* 🚨 PERFORMANCE ISSUE: Large inline CSS causing render blocking */
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      /* Generate massive CSS for performance testing */
+      .performance-test-class-1 { background: #ff0000; padding: 1px; margin: 1px; }
+      .performance-test-class-2 { background: #ff0001; padding: 1px; margin: 1px; }
+      .performance-test-class-3 { background: #ff0002; padding: 1px; margin: 1px; }
+      .performance-test-class-4 { background: #ff0003; padding: 1px; margin: 1px; }
+      .performance-test-class-5 { background: #ff0004; padding: 1px; margin: 1px; }
+      .performance-test-class-6 { background: #ff0005; padding: 1px; margin: 1px; }
+      .performance-test-class-7 { background: #ff0006; padding: 1px; margin: 1px; }
+      .performance-test-class-8 { background: #ff0007; padding: 1px; margin: 1px; }
+      .performance-test-class-9 { background: #ff0008; padding: 1px; margin: 1px; }
+      .performance-test-class-10 { background: #ff0009; padding: 1px; margin: 1px; }
+      /* ... This would continue for many more classes in a real performance issue scenario ... */
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 2s linear infinite;
+        margin: 20px auto;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- 🚨 PERFORMANCE ISSUE: Multiple external scripts loading synchronously -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.min.js"></script>
+    
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
