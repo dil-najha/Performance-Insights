@@ -30,7 +30,15 @@ export default function UploadPanel({ label, onLoaded }: Props) {
     setValidationResults(null);
 
     try {
-      const validation = await validateFile(file);
+      // 🎯 Realistic processing delay (5-7 seconds for better UX feel)
+      const processingDelay = Math.floor(Math.random() * 2000) + 5000; // 5-7 seconds
+      
+      // Run validation and delay in parallel
+      const [validation] = await Promise.all([
+        validateFile(file),
+        new Promise(resolve => setTimeout(resolve, processingDelay))
+      ]);
+
       setValidationResults(validation);
 
       if (validation.valid && validation.sanitized) {
@@ -93,9 +101,15 @@ export default function UploadPanel({ label, onLoaded }: Props) {
           onDrop={handleDrop}
         >
           {isValidating ? (
-            <div className="space-y-2">
-              <span className="loading loading-spinner loading-md"></span>
-              <div className="text-sm">Validating file...</div>
+            <div className="space-y-3">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+              <div className="text-sm font-medium">Processing performance data...</div>
+              <div className="text-xs opacity-75">
+                Analyzing metrics, validating format, extracting insights...
+              </div>
+              <div className="w-full bg-base-300 rounded-full h-1.5">
+                <div className="bg-primary h-1.5 rounded-full animate-pulse w-3/4"></div>
+              </div>
             </div>
           ) : (
             <>

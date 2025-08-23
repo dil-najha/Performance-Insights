@@ -443,13 +443,57 @@ function findMetric(diffs: MetricDiff[], keys: string[]): MetricDiff | null {
 
 // Helper function to categorize metrics into performance domains
 function categorizeMetrics(diffs: MetricDiff[]) {
-  const systemReliabilityKeys = ['error_rate', 'successful_requests_rate', 'checks_rate', 'http_req_failed_rate'];
-  const performanceKeys = ['responseTimeAvg', 'http_req_avg_ms', 'page_load_avg_ms', 'navigation_avg_ms', 'login_avg_ms'];
-  const userExperienceKeys = ['fcp_avg_ms', 'lcp_avg_ms', 'cls_avg', 'fid_avg_ms', 'ttfb_avg_ms'];
+  // 🚨 System Reliability & Error Metrics
+  const systemReliabilityKeys = [
+    'error_rate', 
+    'successful_requests_rate', 
+    'checks_rate', 
+    'http_req_failed_rate',
+    'checks_success_rate'
+  ];
 
-  const systemReliability = diffs.filter(d => systemReliabilityKeys.some(key => d.key.includes(key)));
-  const performance = diffs.filter(d => performanceKeys.some(key => d.key.includes(key)));
-  const userExperience = diffs.filter(d => userExperienceKeys.some(key => d.key.includes(key)));
+  // 🚀 Performance & Response Time Metrics (Test-App Compatible)
+  const performanceKeys = [
+    'responseTimeAvg', 
+    'http_req_avg_ms', 
+    'page_load_avg_ms', 
+    'navigation_avg_ms', 
+    'login_avg_ms',
+    // Test-App specific performance metrics
+    'dashboard_load_avg_ms',
+    'api_response_avg_ms', 
+    'users_api_avg_ms',
+    'database_query_avg_ms',
+    'meeting_creation_avg_ms',
+    'calendar_navigation_avg_ms',
+    'resource_load_avg_ms'
+  ];
+
+  // 🌟 User Experience & Core Web Vitals (Test-App Compatible)
+  const userExperienceKeys = [
+    'fcp_avg_ms', 
+    'lcp_avg_ms', 
+    'cls_avg', 
+    'fid_avg_ms', 
+    'ttfb_avg_ms',
+    'inp_avg_ms',
+    // System resource impact on UX
+    'memory_usage_avg_mb',
+    'cpu_utilization_avg_pct',
+    'js_heap_size_avg_mb'
+  ];
+
+  const systemReliability = diffs.filter(d => 
+    systemReliabilityKeys.some(key => d.key.includes(key))
+  );
+  
+  const performance = diffs.filter(d => 
+    performanceKeys.some(key => d.key.includes(key))
+  );
+  
+  const userExperience = diffs.filter(d => 
+    userExperienceKeys.some(key => d.key.includes(key))
+  );
 
   return {
     systemReliability: {

@@ -209,150 +209,80 @@ export class DataValidator {
     includeThresholds?: boolean;
   }> {
     return {
-      // 🎯 Core Web Vitals (Original Browser Format)
-      'browser_web_vital_fcp': {
+      // 🎯 Core Web Vitals (Test-App Format) - FIXED naming for Impact Summary
+      'test_app_web_vital_fcp': {
         extract: ['avg', 'p(95)'],
         transform: (name, key) => key === 'p(95)' ? 'fcp_p95_ms' : 'fcp_avg_ms'
       },
-      'browser_web_vital_lcp': {
+      'test_app_web_vital_lcp': {
         extract: ['avg', 'p(95)'],
         transform: (name, key) => key === 'p(95)' ? 'lcp_p95_ms' : 'lcp_avg_ms'
       },
-      'browser_web_vital_cls': {
+      'test_app_web_vital_cls': {
         extract: ['avg'],
         transform: () => 'cls_avg'
       },
-      'browser_web_vital_fid': {
-        extract: ['avg', 'p(95)'],
-        transform: (name, key) => key === 'p(95)' ? 'fid_p95_ms' : 'fid_avg_ms'
-      },
-      'browser_web_vital_inp': {
+      'test_app_web_vital_inp': {
         extract: ['avg', 'p(95)'],
         transform: (name, key) => key === 'p(95)' ? 'inp_p95_ms' : 'inp_avg_ms'
       },
-      'browser_web_vital_ttfb': {
+      'test_app_web_vital_ttfb': {
         extract: ['avg', 'p(95)'],
         transform: (name, key) => key === 'p(95)' ? 'ttfb_p95_ms' : 'ttfb_avg_ms'
       },
 
-      // 🧪 Test-App Core Web Vitals (New Test-App Format)
-      'test_app_web_vital_fcp': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `test_app_fcp_${key.replace('(', '').replace(')', '')}`
-      },
-      'test_app_web_vital_lcp': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `test_app_lcp_${key.replace('(', '').replace(')', '')}`
-      },
-      'test_app_web_vital_cls': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `test_app_cls_${key.replace('(', '').replace(')', '')}`
-      },
-      'test_app_web_vital_inp': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `test_app_inp_${key.replace('(', '').replace(')', '')}`
-      },
-      'test_app_web_vital_ttfb': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `test_app_ttfb_${key.replace('(', '').replace(')', '')}`
-      },
-
-      // 🚀 Test-App Response Times
+      // 🚀 Business-Critical Response Times (reduced to avg + p95 only)
       'login_response_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `login_response_${key.replace('(', '').replace(')', '')}_ms`,
-        includeThresholds: true
-      },
-      'dashboard_load_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `dashboard_load_${key.replace('(', '').replace(')', '')}_ms`
-      },
-      'api_response_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `api_response_${key.replace('(', '').replace(')', '')}_ms`
-      },
-      'users_api_response_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `users_api_response_${key.replace('(', '').replace(')', '')}_ms`
-      },
-      'database_query_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `database_query_${key.replace('(', '').replace(')', '')}_ms`
-      },
-
-      // 💾 Test-App System Resources
-      'memory_usage_mb': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `memory_usage_${key.replace('(', '').replace(')', '')}_mb`
-      },
-      'cpu_utilization_percent': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `cpu_utilization_${key.replace('(', '').replace(')', '')}_pct`
-      },
-      'javascript_heap_size_mb': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `js_heap_size_${key.replace('(', '').replace(')', '')}_mb`
-      },
-
-      // 🌐 Test-App UI Performance
-      'websocket_connection_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `websocket_connection_${key.replace('(', '').replace(')', '')}_ms`
-      },
-      'meeting_creation_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `meeting_creation_${key.replace('(', '').replace(')', '')}_ms`
-      },
-      'calendar_navigation_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `calendar_navigation_${key.replace('(', '').replace(')', '')}_ms`
-      },
-      'notification_processing_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `notification_processing_${key.replace('(', '').replace(')', '')}_ms`
-      },
-      'resource_load_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `resource_load_${key.replace('(', '').replace(')', '')}_ms`
-      },
-      'profile_load_time': {
-        extract: ['avg', 'p(95)', 'min', 'max', 'p(90)', 'med'],
-        transform: (name, key) => `profile_load_${key.replace('(', '').replace(')', '')}_ms`
-      },
-
-
-      // 🌐 Test-App HTTP Performance  
-      'test_app_http_req_failed': {
-        extract: ['rate'],
-        transform: () => 'test_app_http_req_failed_rate'
-      },
-
-      // 🚀 Original Load Performance (backward compatibility)
-      'page_load_time': {
-        extract: ['avg', 'p(95)'],
-        transform: (name, key) => key === 'p(95)' ? 'page_load_p95_ms' : 'page_load_avg_ms'
-      },
-      'navigation_time': {
-        extract: ['avg'],
-        transform: () => 'navigation_avg_ms'
-      },
-      'login_time': {
         extract: ['avg', 'p(95)'],
         transform: (name, key) => key === 'p(95)' ? 'login_p95_ms' : 'login_avg_ms',
         includeThresholds: true
       },
-
-      // 🌐 Original HTTP Performance (backward compatibility)
-      'browser_http_req_duration': {
+      'dashboard_load_time': {
         extract: ['avg', 'p(95)'],
-        transform: (name, key) => key === 'p(95)' ? 'http_req_p95_ms' : 'http_req_avg_ms'
+        transform: (name, key) => key === 'p(95)' ? 'dashboard_load_p95_ms' : 'dashboard_load_avg_ms'
       },
-      'browser_http_req_failed': {
-        extract: ['rate'],
-        transform: () => 'http_req_failed_rate'
+      'api_response_time': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'api_response_p95_ms' : 'api_response_avg_ms'
+      },
+      'users_api_response_time': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'users_api_p95_ms' : 'users_api_avg_ms'
+      },
+      'database_query_time': {
+        extract: ['avg', 'p(95)'],
+        transform: (name, key) => key === 'p(95)' ? 'database_query_p95_ms' : 'database_query_avg_ms'
       },
 
-      // ✅ Success Rates (compatible with both formats)
+      // 💾 System Resources (avg only for business focus)
+      'memory_usage_mb': {
+        extract: ['avg'],
+        transform: () => 'memory_usage_avg_mb'
+      },
+      'cpu_utilization_percent': {
+        extract: ['avg'],
+        transform: () => 'cpu_utilization_avg_pct'
+      },
+      'javascript_heap_size_mb': {
+        extract: ['avg'],
+        transform: () => 'js_heap_size_avg_mb'
+      },
+
+      // 🌐 Key UI Performance Metrics (avg only)
+      'meeting_creation_time': {
+        extract: ['avg'],
+        transform: () => 'meeting_creation_avg_ms'
+      },
+      'calendar_navigation_time': {
+        extract: ['avg'],
+        transform: () => 'calendar_navigation_avg_ms'
+      },
+      'resource_load_time': {
+        extract: ['avg'],
+        transform: () => 'resource_load_avg_ms'
+      },
+
+      // ✅ Business-Critical Success/Error Rates
       'successful_requests': {
         extract: ['rate'],
         transform: () => 'successful_requests_rate',
@@ -363,19 +293,13 @@ export class DataValidator {
         transform: () => 'error_rate',
         includeThresholds: true
       },
+      'test_app_http_req_failed': {
+        extract: ['rate'],
+        transform: () => 'http_req_failed_rate'
+      },
       'checks': {
         extract: ['rate'],
         transform: () => 'checks_rate'
-      },
-
-      // 📊 Context Metrics (for volume understanding)
-      'iterations': {
-        extract: ['count'],
-        transform: () => 'total_iterations'
-      },
-      'requests': {
-        extract: ['count'],
-        transform: () => 'total_requests'
       }
     };
   }
