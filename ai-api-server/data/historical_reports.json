@@ -1,5 +1,497 @@
 [
   {
+    "id": "1756895414868",
+    "timestamp": "2025-09-03T10:30:14.868Z",
+    "baseline": {
+      "name": "real-baseline",
+      "timestamp": "2025-09-03T10:29:37.440Z",
+      "metrics": {
+        "checks_rate": 0.98,
+        "checks_total_passes": 57,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.9827586206896551
+      }
+    },
+    "current": {
+      "name": "real-current",
+      "timestamp": "2025-09-03T10:29:46.303Z",
+      "metrics": {
+        "checks_rate": 0.89,
+        "checks_total_passes": 52,
+        "checks_total_fails": 6,
+        "checks_success_rate": 0.896551724137931
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Dramatic Increase in Error Rate Indicating System Instability",
+        "description": "Error rate escalated from 1 to 6 failures, representing a 500% increase in system failures",
+        "business_impact": "Potential revenue loss of 15-25%, significant user trust erosion, potential SLA violations",
+        "root_cause_analysis": "Likely caused by recent deployment, configuration drift, or unhandled exception scenarios in critical code paths",
+        "immediate_actions": [
+          "Rollback recent deployment",
+          "Perform immediate error log analysis",
+          "Temporarily scale infrastructure resources"
+        ],
+        "code_optimizations": [
+          "Implement comprehensive error handling",
+          "Add circuit breaker patterns",
+          "Enhanced logging and monitoring for failure scenarios"
+        ],
+        "long_term_solutions": [
+          "Develop robust error tracking mechanism",
+          "Implement canary deployment strategies",
+          "Create automated rollback procedures"
+        ],
+        "affected_metrics": [
+          "checks_total_fails",
+          "checks_success_rate"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Restore system stability by 80-90%"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "Potential Memory Leak or Resource Exhaustion",
+        "description": "Success rate dropped from 0.98 to 0.89, indicating potential resource management issues",
+        "business_impact": "10-15% reduction in application performance, increased infrastructure costs",
+        "root_cause_analysis": "Possible memory management issues in Node.js runtime, inefficient resource allocation",
+        "immediate_actions": [
+          "Perform heap memory profiling",
+          "Analyze garbage collection metrics",
+          "Review recent dependency upgrades"
+        ],
+        "code_optimizations": [
+          "Implement memory-efficient data structures",
+          "Use stream processing for large datasets",
+          "Optimize closure and event listener management"
+        ],
+        "long_term_solutions": [
+          "Implement advanced memory profiling",
+          "Create periodic memory health checks",
+          "Develop memory leak detection scripts"
+        ],
+        "affected_metrics": [
+          "checks_rate",
+          "checks_success_rate"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Recover 15-20% system performance"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.75,
+        "title": "Performance Monitoring and Alerting Enhancement",
+        "description": "Current monitoring insufficient to detect early performance degradation signals",
+        "business_impact": "Limited visibility into system health, delayed incident response",
+        "root_cause_analysis": "Inadequate observability and real-time performance tracking",
+        "immediate_actions": [
+          "Implement comprehensive APM solution",
+          "Create granular performance dashboards",
+          "Set up proactive alerting mechanisms"
+        ],
+        "code_optimizations": [
+          "Add distributed tracing",
+          "Enhance logging granularity",
+          "Implement performance metrics instrumentation"
+        ],
+        "long_term_solutions": [
+          "Develop custom performance monitoring framework",
+          "Create predictive performance modeling",
+          "Implement automated performance regression testing"
+        ],
+        "affected_metrics": [
+          "all_system_metrics"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "medium",
+        "expected_improvement": "Enhance system observability by 60-70%"
+      }
+    ],
+    "summary": {
+      "improved": 1,
+      "worse": 3,
+      "same": 0,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1756885082990",
+    "timestamp": "2025-09-03T07:38:02.990Z",
+    "baseline": {
+      "name": "Load Test Results",
+      "timestamp": "2025-08-21T10:00:00.000Z",
+      "metrics": {
+        "Avg Throughput (req/sec)": 8.87,
+        "Avg Response Time (ms)": 150,
+        "P95 Latency (ms)": 200,
+        "Error Rate (%)": 10
+      }
+    },
+    "current": {
+      "name": "Load Test Results",
+      "timestamp": "2025-08-21T10:00:00.000Z",
+      "metrics": {
+        "Avg Throughput (req/sec)": 8.87,
+        "Avg Response Time (ms)": 291.89,
+        "P95 Latency (ms)": 417.78,
+        "Error Rate (%)": 100
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Massive Error Rate and Response Time Degradation",
+        "description": "System experiencing 900% increase in error rates with response times nearly doubling from 150ms to 291.89ms, indicating severe system instability",
+        "business_impact": "Potential revenue loss of 50-75%, risk of customer churn, complete service disruption",
+        "root_cause_analysis": "Likely caused by recent deployment, memory leak, or critical database connection issue in Node.js application",
+        "immediate_actions": [
+          "Rollback recent code deployment",
+          "Restart application servers",
+          "Investigate recent infrastructure changes"
+        ],
+        "code_optimizations": [
+          "Profile memory usage with node --inspect",
+          "Review database connection pooling",
+          "Check for unhandled promise rejections"
+        ],
+        "long_term_solutions": [
+          "Implement comprehensive error tracking",
+          "Develop robust circuit breaker patterns",
+          "Enhanced monitoring and alerting"
+        ],
+        "affected_metrics": [
+          "response_time",
+          "error_rate",
+          "p95_latency"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "90-95% error rate reduction, response time back to baseline 150ms"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "Potential Database Query Performance Degradation",
+        "description": "Response time increase suggests potential database query optimization issues or connection pool exhaustion",
+        "business_impact": "Estimated 30-40% performance degradation, increased infrastructure costs",
+        "root_cause_analysis": "Unoptimized database queries, missing indexes, inefficient ORM mappings",
+        "immediate_actions": [
+          "Run database query explain plans",
+          "Check database connection pool configuration",
+          "Analyze slow query logs"
+        ],
+        "code_optimizations": [
+          "Add missing database indexes",
+          "Implement query result caching",
+          "Optimize complex JOIN operations"
+        ],
+        "long_term_solutions": [
+          "Implement database performance monitoring",
+          "Regular query optimization reviews",
+          "Consider read replicas or sharding strategy"
+        ],
+        "affected_metrics": [
+          "response_time",
+          "throughput",
+          "database_query_time"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "40-50% response time reduction"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.75,
+        "title": "Node.js Runtime and Memory Management Optimization",
+        "description": "Potential memory leaks or inefficient resource management in application runtime",
+        "business_impact": "Increased infrastructure costs, reduced application scalability",
+        "root_cause_analysis": "Inefficient memory management, potential garbage collection issues",
+        "immediate_actions": [
+          "Enable Node.js heap memory profiling",
+          "Review event loop blocking operations",
+          "Check for memory-intensive operations"
+        ],
+        "code_optimizations": [
+          "Implement stream processing for large datasets",
+          "Use memory-efficient data structures",
+          "Optimize garbage collection settings"
+        ],
+        "long_term_solutions": [
+          "Implement comprehensive memory profiling",
+          "Develop memory management guidelines",
+          "Regular performance audit processes"
+        ],
+        "affected_metrics": [
+          "memory_usage",
+          "response_time",
+          "server_resources"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "medium",
+        "expected_improvement": "20-30% memory efficiency"
+      }
+    ],
+    "summary": {
+      "improved": 0,
+      "worse": 3,
+      "same": 1,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1756118725770",
+    "timestamp": "2025-08-25T10:45:25.770Z",
+    "baseline": {
+      "name": "test-report-baseline",
+      "timestamp": "2025-08-25T10:44:26.712Z",
+      "metrics": {
+        "checks_rate": 0.952,
+        "http_req_failed_rate": 0.015,
+        "inp_avg_ms": 65,
+        "inp_p95_ms": 90,
+        "login_avg_ms": 850,
+        "login_p95_ms": 1150,
+        "dashboard_load_avg_ms": 1200,
+        "dashboard_load_p95_ms": 1700,
+        "api_response_avg_ms": 180,
+        "api_response_p95_ms": 260,
+        "users_api_avg_ms": 320,
+        "users_api_p95_ms": 480,
+        "database_query_avg_ms": 45,
+        "database_query_p95_ms": 78,
+        "memory_usage_avg_mb": 120,
+        "cpu_utilization_avg_pct": 35,
+        "successful_requests_rate": 0.97,
+        "successful_requests_threshold_ok": 1,
+        "fcp_avg_ms": 1100,
+        "fcp_p95_ms": 1400,
+        "lcp_avg_ms": 1650,
+        "lcp_p95_ms": 2100,
+        "cls_avg": 0.035,
+        "ttfb_avg_ms": 280,
+        "ttfb_p95_ms": 450,
+        "meeting_creation_avg_ms": 650,
+        "calendar_navigation_avg_ms": 380,
+        "resource_load_avg_ms": 420,
+        "error_rate": 0.045,
+        "errors_threshold_ok": 1,
+        "checks_total_passes": 476,
+        "checks_total_fails": 24,
+        "checks_success_rate": 0.952
+      }
+    },
+    "current": {
+      "name": "test-report-current",
+      "timestamp": "2025-08-25T10:43:51.522Z",
+      "metrics": {
+        "checks_rate": 0.496,
+        "http_req_failed_rate": 0.085,
+        "inp_avg_ms": 58,
+        "inp_p95_ms": 80,
+        "login_avg_ms": 4200,
+        "login_p95_ms": 6200,
+        "dashboard_load_avg_ms": 8500,
+        "dashboard_load_p95_ms": 12200,
+        "api_response_avg_ms": 145,
+        "api_response_p95_ms": 210,
+        "users_api_avg_ms": 9200,
+        "users_api_p95_ms": 14200,
+        "database_query_avg_ms": 125,
+        "database_query_p95_ms": 250,
+        "memory_usage_avg_mb": 285,
+        "cpu_utilization_avg_pct": 85,
+        "successful_requests_rate": 0.82,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5200,
+        "fcp_p95_ms": 7200,
+        "lcp_avg_ms": 8900,
+        "lcp_p95_ms": 12800,
+        "cls_avg": 0.038,
+        "ttfb_avg_ms": 1850,
+        "ttfb_p95_ms": 2800,
+        "meeting_creation_avg_ms": 6800,
+        "calendar_navigation_avg_ms": 4500,
+        "resource_load_avg_ms": 5200,
+        "error_rate": 0.16,
+        "errors_threshold_ok": 0,
+        "js_heap_size_avg_mb": 245,
+        "checks_total_passes": 248,
+        "checks_total_fails": 252,
+        "checks_success_rate": 0.496
+      }
+    },
+    "insights": [
+      {
+        "type": "code_optimization",
+        "severity": "critical",
+        "confidence": 0.98,
+        "title": "Eliminate N+1 Query Problem in User Retrieval",
+        "description": "The /api/users endpoint performs sequential database queries for each user, causing exponential query complexity and severe performance degradation",
+        "business_impact": "608% increase in dashboard load time, 2775% increase in users API response time, potential revenue loss due to poor user experience",
+        "root_cause_analysis": "Sequential database queries for user-related data instead of using efficient JOIN and batch processing",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "app.get('/api/users')"
+            ],
+            "lines": [
+              300,
+              310,
+              320
+            ],
+            "issue": "N+1 query problem with separate queries for meetings, events, notifications"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "db.all(`SELECT id, username, email, profile_data FROM users LIMIT 100`, (err, users) => {\n  users.forEach((user) => {\n    db.all(`SELECT * FROM meetings WHERE created_by = ?`, [user.id], (err, meetings) => {\n      // Nested queries for each user\n    });\n  });\n});",
+            "optimized_code": "db.all(`\n  SELECT u.*, \n         m.meetings, \n         c.calendar_events, \n         n.notifications \n  FROM users u\n  LEFT JOIN (\n    SELECT created_by, JSON_GROUP_ARRAY(meetings) as meetings\n    FROM meetings\n    GROUP BY created_by\n  ) m ON u.id = m.created_by\n  LEFT JOIN (\n    SELECT user_id, JSON_GROUP_ARRAY(calendar_events) as calendar_events\n    FROM calendar_events\n    GROUP BY user_id\n  ) c ON u.id = c.user_id\n  LEFT JOIN (\n    SELECT user_id, JSON_GROUP_ARRAY(notifications) as notifications\n    FROM notifications\n    GROUP BY user_id\n  ) n ON u.id = n.user_id\n  LIMIT 100\n`)",
+            "explanation": "Uses single query with LEFT JOINs to retrieve all related data, eliminating sequential queries",
+            "expected_improvement": "90-95% reduction in query time, linear instead of exponential complexity"
+          }
+        ],
+        "immediate_actions": [
+          "Implement single-query data retrieval",
+          "Add database indexes on foreign key columns",
+          "Use JSON aggregation for related data"
+        ],
+        "long_term_solutions": [
+          "Implement GraphQL for efficient data fetching",
+          "Create dedicated data access layer",
+          "Use database views for complex joins"
+        ],
+        "affected_metrics": [
+          "users_api_avg_ms",
+          "users_api_p95_ms",
+          "dashboard_load_avg_ms"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "85-90% reduction in API response times"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Eliminate Heavy Synchronous Computations During Authentication",
+        "description": "Login process contains unnecessary synchronous blocking operations causing significant performance degradation",
+        "business_impact": "394% increase in login time, potential user abandonment, reduced conversion rates",
+        "root_cause_analysis": "Synchronous password hashing, heavy computation during login, blocking main event loop",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "app.post('/api/auth/login')"
+            ],
+            "lines": [
+              380,
+              390,
+              400
+            ],
+            "issue": "Synchronous password comparison and unnecessary heavy computations"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "const isValidPassword = bcrypt.compareSync(password, user.password);\n\n// Heavy computation during login\nfor (let i = 0; i < 100000; i++) {\n  heavyComputationResults.push(Math.random() * i);\n}\n\nconst token = jwt.sign({ userId: user.id }, 'secret');",
+            "optimized_code": "const isValidPassword = await bcrypt.compare(password, user.password);\n\n// Use worker thread or queue for heavy computation\nconst token = jwt.sign({ userId: user.id }, 'secret', { expiresIn: '1h' });\n\n// Optional: Offload heavy computation\nsetImmediate(() => {\n  performAsyncHeavyComputation(user);\n});",
+            "explanation": "Uses asynchronous password comparison, defers heavy computation, prevents blocking",
+            "expected_improvement": "60-70% reduction in login time"
+          }
+        ],
+        "immediate_actions": [
+          "Replace synchronous bcrypt with asynchronous version",
+          "Move heavy computations to background process",
+          "Implement request timeout"
+        ],
+        "long_term_solutions": [
+          "Create dedicated worker threads for computational tasks",
+          "Implement job queues for background processing",
+          "Use caching mechanisms for repeated computations"
+        ],
+        "affected_metrics": [
+          "login_avg_ms",
+          "login_p95_ms",
+          "error_rate"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "medium",
+        "expected_improvement": "65-75% login performance improvement"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "critical",
+        "confidence": 0.92,
+        "title": "Prevent Memory Leaks in WebSocket Connections",
+        "description": "WebSocket implementation lacks proper connection management, causing progressive memory consumption",
+        "business_impact": "Increasing memory usage, potential server instability, degraded system performance",
+        "root_cause_analysis": "Unbounded connection storage, no proper cleanup mechanism, growing global state",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "wss.on('connection')"
+            ],
+            "lines": [
+              1500,
+              1510,
+              1520
+            ],
+            "issue": "WebSocket connections stored without proper lifecycle management"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "const activeConnections = new Map();\n\nwss.on('connection', (ws) => {\n  const connectionId = Date.now() + Math.random();\n  activeConnections.set(connectionId, {\n    ws,\n    messageHistory: [], // Grows indefinitely\n    largeData: new Array(10000).fill(0)\n  });\n\n  ws.on('close', () => {\n    console.log('Connection closed');\n    // No cleanup\n  });",
+            "optimized_code": "const activeConnections = new Map();\nconst MAX_CONNECTION_AGE = 24 * 60 * 60 * 1000; // 24 hours\nconst MAX_MESSAGE_HISTORY = 100;\n\nfunction cleanupConnections() {\n  const now = Date.now();\n  for (let [id, connection] of activeConnections.entries()) {\n    if (now - connection.createdAt > MAX_CONNECTION_AGE) {\n      connection.ws.close();\n      activeConnections.delete(id);\n    }\n  }\n}\n\nwss.on('connection', (ws) => {\n  const connectionId = crypto.randomUUID();\n  const connection = {\n    ws,\n    createdAt: Date.now(),\n    messageHistory: [],\n    cleanup: () => {\n      ws.removeAllListeners();\n      activeConnections.delete(connectionId);\n    }\n  };\n\n  activeConnections.set(connectionId, connection);\n\n  ws.on('close', () => {\n    connection.cleanup();\n  });\n});\n\n// Periodic cleanup\nsetInterval(cleanupConnections, 60 * 60 * 1000);",
+            "explanation": "Implements connection lifecycle management, limits message history, provides periodic cleanup",
+            "expected_improvement": "70-80% reduction in memory consumption, improved connection management"
+          }
+        ],
+        "immediate_actions": [
+          "Implement connection age tracking",
+          "Add maximum connection and message history limits",
+          "Create periodic connection cleanup mechanism"
+        ],
+        "long_term_solutions": [
+          "Use connection pool libraries",
+          "Implement more sophisticated connection management",
+          "Add comprehensive logging and monitoring"
+        ],
+        "affected_metrics": [
+          "memory_usage_avg_mb",
+          "cpu_utilization_avg_pct"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "medium",
+        "expected_improvement": "75-85% memory stability improvement"
+      }
+    ],
+    "summary": {
+      "improved": 5,
+      "worse": 26,
+      "same": 0,
+      "unknown": 3
+    }
+  },
+  {
     "id": "1755934709042",
     "timestamp": "2025-08-23T07:38:29.042Z",
     "baseline": {
