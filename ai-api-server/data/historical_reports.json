@@ -1,5 +1,3904 @@
 [
   {
+    "id": "1756907138558",
+    "timestamp": "2025-09-03T13:45:38.558Z",
+    "baseline": {
+      "name": "test-app-baseline",
+      "timestamp": "2025-09-03T13:44:24.129Z",
+      "metrics": {
+        "checks_rate": 0.952,
+        "http_req_failed_rate": 0.015,
+        "inp_avg_ms": 60,
+        "inp_p95_ms": 82,
+        "login_avg_ms": 5500,
+        "login_p95_ms": 7800,
+        "dashboard_load_avg_ms": 11200,
+        "dashboard_load_p95_ms": 15600,
+        "api_response_avg_ms": 148,
+        "api_response_p95_ms": 215,
+        "users_api_avg_ms": 12000,
+        "users_api_p95_ms": 17400,
+        "database_query_avg_ms": 165,
+        "database_query_p95_ms": 315,
+        "memory_usage_avg_mb": 375,
+        "cpu_utilization_avg_pct": 112,
+        "successful_requests_rate": 0.75,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5400,
+        "fcp_p95_ms": 7450,
+        "lcp_avg_ms": 9200,
+        "lcp_p95_ms": 13300,
+        "cls_avg": 0.048,
+        "ttfb_avg_ms": 1920,
+        "ttfb_p95_ms": 2900,
+        "meeting_creation_avg_ms": 7800,
+        "calendar_navigation_avg_ms": 5200,
+        "resource_load_avg_ms": 6200,
+        "error_rate": 0.22,
+        "errors_threshold_ok": 0,
+        "checks_total_passes": 476,
+        "checks_total_fails": 24,
+        "checks_success_rate": 0.952
+      }
+    },
+    "current": {
+      "name": "test-app-current",
+      "timestamp": "2025-09-03T13:43:55.499Z",
+      "metrics": {
+        "checks_rate": 0.496,
+        "http_req_failed_rate": 0.085,
+        "inp_avg_ms": 58,
+        "inp_p95_ms": 80,
+        "login_avg_ms": 4200,
+        "login_p95_ms": 6200,
+        "dashboard_load_avg_ms": 8500,
+        "dashboard_load_p95_ms": 12200,
+        "api_response_avg_ms": 145,
+        "api_response_p95_ms": 210,
+        "users_api_avg_ms": 9200,
+        "users_api_p95_ms": 14200,
+        "database_query_avg_ms": 125,
+        "database_query_p95_ms": 250,
+        "memory_usage_avg_mb": 285,
+        "cpu_utilization_avg_pct": 85,
+        "successful_requests_rate": 0.82,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5200,
+        "fcp_p95_ms": 7200,
+        "lcp_avg_ms": 8900,
+        "lcp_p95_ms": 12800,
+        "cls_avg": 0.038,
+        "ttfb_avg_ms": 1850,
+        "ttfb_p95_ms": 2800,
+        "meeting_creation_avg_ms": 6800,
+        "calendar_navigation_avg_ms": 4500,
+        "resource_load_avg_ms": 5200,
+        "error_rate": 0.16,
+        "errors_threshold_ok": 0,
+        "js_heap_size_avg_mb": 245,
+        "checks_total_passes": 248,
+        "checks_total_fails": 252,
+        "checks_success_rate": 0.496
+      }
+    },
+    "insights": [
+      {
+        "type": "code_optimization",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Global Memory Leaks and Unbounded Data Structures",
+        "description": "Massive memory consumption through global variables and unconstrained data storage causing significant performance degradation",
+        "business_impact": "Potential system crashes, increased infrastructure costs, degraded user experience",
+        "root_cause_analysis": "Uncontrolled global variable growth and memory-intensive operations",
+        "affected_files": [
+          {
+            "path": "frontend/src/App.jsx",
+            "functions": [
+              "login",
+              "loadAllUserData",
+              "generateSocialGraphData"
+            ],
+            "lines": [
+              220,
+              350,
+              400
+            ],
+            "issue": "Global variables storing massive computational results"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "frontend/src/App.jsx",
+            "current_code": "let globalCache = {};\nlet userSessions = [];\nlet performanceData = [];\nlet heavyComputationResults = [];",
+            "optimized_code": "const MAX_CACHE_SIZE = 100;\nconst globalCache = new Map();\nconst userSessions = [];\n// Use size-limited data structures",
+            "explanation": "Replace unbounded global variables with size-limited collections",
+            "expected_improvement": "Memory usage reduction by 70-80%"
+          }
+        ],
+        "affected_metrics": [
+          "memory_usage_avg_mb",
+          "js_heap_size_avg_mb",
+          "checks_total_passes",
+          "checks_success_rate"
+        ],
+        "immediate_actions": [
+          "Implement maximum size constraints on global variables",
+          "Use Map/Set with size limits",
+          "Periodically clear large data structures"
+        ],
+        "long_term_solutions": [
+          "Refactor to use reactive state management",
+          "Implement proper memory management strategies"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "50-60% memory usage reduction"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "critical",
+        "confidence": 0.9,
+        "title": "Inefficient Database Query Patterns",
+        "description": "N+1 query problem causing massive unnecessary database load",
+        "business_impact": "Increased database response times, higher infrastructure costs",
+        "root_cause_analysis": "Separate queries for each user instead of efficient joins",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "app.get('/api/users')"
+            ],
+            "lines": [
+              350,
+              400,
+              450
+            ],
+            "issue": "Sequential database queries for each user's related data"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "users.forEach((user, index) => {\n  db.all(`SELECT * FROM meetings WHERE created_by = ?`, [user.id], (err, meetings) => {\n    db.all(`SELECT * FROM calendar_events WHERE user_id = ?`, [user.id], (err, events) => {\n      // Nested queries\n    });\n  });\n});",
+            "optimized_code": "const query = `\nSELECT \n  u.*, \n  m.id as meeting_id, \n  m.title as meeting_title,\n  c.id as event_id, \n  c.title as event_title\nFROM users u\nLEFT JOIN meetings m ON u.id = m.created_by\nLEFT JOIN calendar_events c ON u.id = c.user_id\n`;",
+            "explanation": "Use a single JOIN query to fetch related data in one database round trip",
+            "expected_improvement": "Database query time reduction by 80-90%"
+          }
+        ],
+        "affected_metrics": [
+          "database_query_avg_ms",
+          "users_api_avg_ms",
+          "http_req_failed_rate"
+        ],
+        "immediate_actions": [
+          "Implement efficient JOIN queries",
+          "Use database-side data aggregation",
+          "Add proper indexing"
+        ],
+        "long_term_solutions": [
+          "Implement data loader patterns",
+          "Use GraphQL for efficient data fetching"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "70-85% query performance improvement"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "Excessive Computation in Render Cycles",
+        "description": "Heavy computational logic executed during component rendering",
+        "business_impact": "Increased CPU load, slower page interactions, poor user experience",
+        "root_cause_analysis": "Complex calculations performed in render methods without memoization",
+        "affected_files": [
+          {
+            "path": "frontend/src/components/Dashboard.jsx",
+            "functions": [
+              "computeDashboardMetrics",
+              "generateChartData"
+            ],
+            "lines": [
+              50,
+              250,
+              300
+            ],
+            "issue": "Expensive computations in render and effects"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "frontend/src/components/Dashboard.jsx",
+            "current_code": "const computeDashboardMetrics = () => {\n  const metrics = {};\n  for (let i = 0; i < 50000; i++) {\n    for (let j = 0; j < 50; j++) {\n      metrics[`metric_${i}_${j}`] = { ... };\n    }\n  }\n  return metrics;\n};",
+            "optimized_code": "const computeDashboardMetrics = useMemo(() => {\n  const metrics = {};\n  // Use more efficient computation\n  // Limit iterations, use sampling\n  return metrics;\n}, [/* minimal dependencies */]);",
+            "explanation": "Use useMemo to memoize expensive computations and prevent redundant recalculations",
+            "expected_improvement": "Render performance improvement by 60-70%"
+          }
+        ],
+        "affected_metrics": [
+          "cpu_utilization_avg_pct",
+          "cls_avg",
+          "inp_avg_ms"
+        ],
+        "immediate_actions": [
+          "Implement useMemo for complex calculations",
+          "Move heavy computations outside render",
+          "Use web workers for background processing"
+        ],
+        "long_term_solutions": [
+          "Implement lazy loading strategies",
+          "Use code splitting",
+          "Optimize rendering logic"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "50-65% render performance improvement"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "WebSocket Memory and Performance Leaks",
+        "description": "Unmanaged WebSocket connections causing memory accumulation",
+        "business_impact": "Potential memory exhaustion, increased server resource consumption",
+        "root_cause_analysis": "No proper WebSocket connection management and cleanup",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "wss.on('connection')",
+              "startPeriodicTasks"
+            ],
+            "lines": [
+              1500,
+              1600,
+              1700
+            ],
+            "issue": "Accumulating WebSocket connections without proper lifecycle management"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "wss.on('connection', (ws, req) => {\n  const connectionId = Date.now() + Math.random();\n  activeConnections.set(connectionId, { ws, ... });\n  ws.on('close', () => {\n    console.log('WebSocket connection closed');\n    // Missing: activeConnections.delete(connectionId)\n  });\n});",
+            "optimized_code": "const MAX_CONNECTIONS = 1000;\nwss.on('connection', (ws, req) => {\n  if (activeConnections.size >= MAX_CONNECTIONS) {\n    ws.close();\n    return;\n  }\n  const connectionId = Date.now() + Math.random();\n  activeConnections.set(connectionId, { ws, ... });\n  ws.on('close', () => {\n    activeConnections.delete(connectionId);\n    cleanupConnectionResources(connectionId);\n  });\n});",
+            "explanation": "Implement connection limit, proper cleanup, and resource management",
+            "expected_improvement": "Memory usage reduction by 60-75%"
+          }
+        ],
+        "affected_metrics": [
+          "checks_total_fails",
+          "http_req_failed_rate",
+          "js_heap_size_avg_mb"
+        ],
+        "immediate_actions": [
+          "Implement WebSocket connection limit",
+          "Add proper connection cleanup",
+          "Monitor and terminate idle connections"
+        ],
+        "long_term_solutions": [
+          "Implement robust connection management strategy",
+          "Use connection pooling techniques"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "40-55% connection stability improvement"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "medium",
+        "confidence": 0.75,
+        "title": "Inefficient Periodic Background Tasks",
+        "description": "Heavy computational tasks running at fixed intervals",
+        "business_impact": "Unnecessary CPU load, potential performance bottlenecks",
+        "root_cause_analysis": "Unoptimized periodic tasks with complex data generation",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "startPeriodicTasks",
+              "generateHeavyNotifications"
+            ],
+            "lines": [
+              1800,
+              1900,
+              2000
+            ],
+            "issue": "Generating massive notification data every 5 seconds"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "function startPeriodicTasks() {\n  notificationInterval = setInterval(() => {\n    db.all(`SELECT id FROM users`, (err, users) => {\n      users.forEach(user => {\n        const notifications = generateHeavyNotifications(user.id);\n        // Send to all connected clients\n      });\n    });\n  }, 5000);\n}",
+            "optimized_code": "function startPeriodicTasks() {\n  notificationInterval = setInterval(() => {\n    const batchSize = 100;\n    db.all(`SELECT id FROM users LIMIT ${batchSize}`, (err, users) => {\n      const notifications = users.map(user => \n        generateLightweightNotification(user.id)\n      );\n      broadcastNotificationBatch(notifications);\n    });\n  }, 30000); // Reduced frequency\n}",
+            "explanation": "Reduce task frequency, limit batch size, generate lightweight notifications",
+            "expected_improvement": "CPU usage reduction by 40-50%"
+          }
+        ],
+        "affected_metrics": [
+          "cpu_utilization_avg_pct",
+          "checks_rate",
+          "error_rate"
+        ],
+        "immediate_actions": [
+          "Implement task throttling",
+          "Reduce notification generation complexity",
+          "Use more efficient batch processing"
+        ],
+        "long_term_solutions": [
+          "Implement event-driven notification system",
+          "Use message queues for background processing"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "low",
+        "expected_improvement": "30-45% background task efficiency"
+      }
+    ],
+    "summary": {
+      "improved": 17,
+      "worse": 4,
+      "same": 10,
+      "unknown": 3
+    }
+  },
+  {
+    "id": "1756906873883",
+    "timestamp": "2025-09-03T13:41:13.883Z",
+    "baseline": {
+      "name": "api-baseline",
+      "timestamp": "2025-09-03T13:40:33.040Z",
+      "metrics": {
+        "checks_rate": 0.98,
+        "adminList_API_avg": 124.99,
+        "adminList_API_p95": 135.6,
+        "boards_API_avg": 90.23,
+        "boards_API_p95": 101.12,
+        "cookieHiddenRotate_API_avg": 77.95,
+        "cookieHiddenRotate_API_p95": 83.11,
+        "CookieUsername_API_avg": 75.58,
+        "CookieUsername_API_p95": 76.29,
+        "createGoal_API_avg": 425.93,
+        "createGoal_API_p95": 534.07,
+        "createMeeting_API_avg": 441.85,
+        "createMeeting_API_p95": 492.08,
+        "defaultASPX_API_avg": 417.97,
+        "defaultASPX_API_p95": 466.19,
+        "documentTypes_API_avg": 97.93,
+        "documentTypes_API_p95": 101.23,
+        "extendedUserData_API_avg": 122.76,
+        "extendedUserData_API_p95": 124.5,
+        "general_API_avg": 78.44,
+        "general_API_p95": 85.71,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 480.15,
+        "portal_API_p95": 543.58,
+        "userDetails_API_avg": 298.49,
+        "userDetails_API_p95": 347.85,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 764.25,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 993.77,
+        "userList_API_avg": 86.48,
+        "userList_API_p95": 98.87,
+        "userListwithLimitedDetails_API_avg": 738.4,
+        "userListwithLimitedDetails_API_p95": 928.66,
+        "checks_total_passes": 49,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.98
+      }
+    },
+    "current": {
+      "name": "api-current",
+      "timestamp": "2025-09-03T13:40:42.519Z",
+      "metrics": {
+        "checks_rate": 0.94,
+        "adminList_API_avg": 120.64,
+        "adminList_API_p95": 124.99,
+        "boards_API_avg": 97.54,
+        "boards_API_p95": 115.63,
+        "cookieHiddenRotate_API_avg": 78.18,
+        "cookieHiddenRotate_API_p95": 82.09,
+        "CookieUsername_API_avg": 78.62,
+        "CookieUsername_API_p95": 80.8,
+        "createGoal_API_avg": 322.96,
+        "createGoal_API_p95": 359.96,
+        "createMeeting_API_avg": 417.06,
+        "createMeeting_API_p95": 429.82,
+        "defaultASPX_API_avg": 375.33,
+        "defaultASPX_API_p95": 404.55,
+        "documentTypes_API_avg": 87.5,
+        "documentTypes_API_p95": 94.31,
+        "extendedUserData_API_avg": 95.62,
+        "extendedUserData_API_p95": 106.74,
+        "general_API_avg": 81.91,
+        "general_API_p95": 85.67,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 455.04,
+        "portal_API_p95": 491.08,
+        "userDetails_API_avg": 201.33,
+        "userDetails_API_p95": 240.29,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 670.28,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 727.31,
+        "userList_API_avg": 83.15,
+        "userList_API_p95": 84.03,
+        "userListwithLimitedDetails_API_avg": 671.19,
+        "userListwithLimitedDetails_API_p95": 741.79,
+        "checks_total_passes": 47,
+        "checks_total_fails": 3,
+        "checks_success_rate": 0.94
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.9,
+        "title": "Catastrophic Increase in Total Check Failures",
+        "description": "Check failure rate increased from 1 to 3 (200% increase), indicating potential system reliability breakdown",
+        "business_impact": "High risk of system instability, potential service disruption, and loss of user trust",
+        "root_cause_analysis": "Likely caused by recent deployment, dependency conflicts, or infrastructure configuration changes",
+        "immediate_actions": [
+          "Rollback recent code changes",
+          "Perform emergency system health check",
+          "Activate emergency monitoring"
+        ],
+        "code_optimizations": [
+          "Review recent commit logs",
+          "Validate error handling mechanisms",
+          "Implement robust error recovery strategies"
+        ],
+        "long_term_solutions": [
+          "Implement comprehensive error tracking",
+          "Develop more resilient error handling patterns",
+          "Create automated rollback mechanisms"
+        ],
+        "affected_metrics": [
+          "checks_total_fails",
+          "checks_success_rate"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Restore system reliability to 99%+ success rate"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Performance Variability in Boards and User APIs",
+        "description": "Boards API and User-related APIs showing performance degradation and increased latency",
+        "business_impact": "Potential user experience deterioration, increased bounce rates, possible revenue loss",
+        "root_cause_analysis": "Probable database query inefficiencies, suboptimal caching strategies, or increased load complexity",
+        "immediate_actions": [
+          "Profile database queries in Boards and User APIs",
+          "Analyze database indexing strategies",
+          "Review recent data model changes"
+        ],
+        "code_optimizations": [
+          "Implement query-level caching",
+          "Optimize database access patterns",
+          "Use database query explain plans to identify bottlenecks"
+        ],
+        "long_term_solutions": [
+          "Redesign API query architecture",
+          "Implement horizontal scaling for user-related services",
+          "Develop more efficient data retrieval mechanisms"
+        ],
+        "affected_metrics": [
+          "boards_API_avg",
+          "boards_API_p95",
+          "Cookie_Username_API_p95"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce API response times by 30-50%"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.7,
+        "title": "Create Goal and Extended User Data API Performance Optimization",
+        "description": "Significant performance improvements observed in Create Goal and Extended User Data APIs",
+        "business_impact": "Potential positive impact on system responsiveness and user interaction speed",
+        "root_cause_analysis": "Successful recent optimizations in data retrieval and processing logic",
+        "immediate_actions": [
+          "Analyze optimization techniques applied",
+          "Document successful performance improvement strategies",
+          "Apply similar optimization patterns across other APIs"
+        ],
+        "code_optimizations": [
+          "Review and document successful code refactoring",
+          "Implement performance monitoring for these APIs",
+          "Create performance improvement playbook"
+        ],
+        "long_term_solutions": [
+          "Develop systematic API performance improvement framework",
+          "Implement continuous performance testing",
+          "Create performance optimization guidelines"
+        ],
+        "affected_metrics": [
+          "create_Goal_API_avg",
+          "create_Goal_API_p95",
+          "extended_User_Data_API_avg"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "low",
+        "expected_improvement": "Maintain and extend current performance gains by 10-15%"
+      }
+    ],
+    "summary": {
+      "improved": 20,
+      "worse": 4,
+      "same": 26,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1756904846730",
+    "timestamp": "2025-09-03T13:07:26.730Z",
+    "baseline": {
+      "name": "test-app-baseline",
+      "timestamp": "2025-09-03T13:06:32.949Z",
+      "metrics": {
+        "checks_rate": 0.952,
+        "http_req_failed_rate": 0.015,
+        "inp_avg_ms": 60,
+        "inp_p95_ms": 82,
+        "login_avg_ms": 5500,
+        "login_p95_ms": 7800,
+        "dashboard_load_avg_ms": 11200,
+        "dashboard_load_p95_ms": 15600,
+        "api_response_avg_ms": 148,
+        "api_response_p95_ms": 215,
+        "users_api_avg_ms": 12000,
+        "users_api_p95_ms": 17400,
+        "database_query_avg_ms": 165,
+        "database_query_p95_ms": 315,
+        "memory_usage_avg_mb": 375,
+        "cpu_utilization_avg_pct": 112,
+        "successful_requests_rate": 0.75,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5400,
+        "fcp_p95_ms": 7450,
+        "lcp_avg_ms": 9200,
+        "lcp_p95_ms": 13300,
+        "cls_avg": 0.048,
+        "ttfb_avg_ms": 1920,
+        "ttfb_p95_ms": 2900,
+        "meeting_creation_avg_ms": 7800,
+        "calendar_navigation_avg_ms": 5200,
+        "resource_load_avg_ms": 6200,
+        "error_rate": 0.22,
+        "errors_threshold_ok": 0,
+        "checks_total_passes": 476,
+        "checks_total_fails": 24,
+        "checks_success_rate": 0.952
+      }
+    },
+    "current": {
+      "name": "test-app-current",
+      "timestamp": "2025-09-03T13:05:54.858Z",
+      "metrics": {
+        "checks_rate": 0.496,
+        "http_req_failed_rate": 0.085,
+        "inp_avg_ms": 58,
+        "inp_p95_ms": 80,
+        "login_avg_ms": 4200,
+        "login_p95_ms": 6200,
+        "dashboard_load_avg_ms": 8500,
+        "dashboard_load_p95_ms": 12200,
+        "api_response_avg_ms": 145,
+        "api_response_p95_ms": 210,
+        "users_api_avg_ms": 9200,
+        "users_api_p95_ms": 14200,
+        "database_query_avg_ms": 125,
+        "database_query_p95_ms": 250,
+        "memory_usage_avg_mb": 285,
+        "cpu_utilization_avg_pct": 85,
+        "successful_requests_rate": 0.82,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5200,
+        "fcp_p95_ms": 7200,
+        "lcp_avg_ms": 8900,
+        "lcp_p95_ms": 12800,
+        "cls_avg": 0.038,
+        "ttfb_avg_ms": 1850,
+        "ttfb_p95_ms": 2800,
+        "meeting_creation_avg_ms": 6800,
+        "calendar_navigation_avg_ms": 4500,
+        "resource_load_avg_ms": 5200,
+        "error_rate": 0.16,
+        "errors_threshold_ok": 0,
+        "js_heap_size_avg_mb": 245,
+        "checks_total_passes": 248,
+        "checks_total_fails": 252,
+        "checks_success_rate": 0.496
+      }
+    },
+    "insights": [
+      {
+        "type": "code_optimization",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Eliminate N+1 Query Problems in User Data Fetching",
+        "description": "Massive performance degradation caused by sequential database queries with O(n²) complexity",
+        "business_impact": "Potential 50-70% response time increase, significant infrastructure and database load",
+        "root_cause_analysis": "Sequential database queries for users, meetings, events, and notifications",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "app.get('/api/users')"
+            ],
+            "lines": [
+              220,
+              230,
+              240
+            ],
+            "issue": "N+1 query problem with separate queries for each user's related data"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "users.forEach((user) => {\n  db.all(`SELECT * FROM meetings WHERE created_by = ?`, [user.id], (err, meetings) => {\n    db.all(`SELECT * FROM calendar_events WHERE user_id = ?`, [user.id], (err, events) => {\n      // Nested queries for each user\n    });\n  });\n});",
+            "optimized_code": "const usersQuery = `\nSELECT \n  u.*,\n  json_group_array(json_object(\n    'id', m.id,\n    'title', m.title\n  )) as meetings,\n  json_group_array(json_object(\n    'id', ce.id,\n    'title', ce.title\n  )) as events\nFROM users u\nLEFT JOIN meetings m ON u.id = m.created_by\nLEFT JOIN calendar_events ce ON u.id = ce.user_id\nGROUP BY u.id\n`,\ndb.all(usersQuery, (err, processedUsers) => { /* Single query */ });",
+            "explanation": "Consolidate related data retrieval into a single query with JSON aggregation",
+            "expected_improvement": "70-90% reduction in query execution time"
+          }
+        ],
+        "immediate_actions": [
+          "Implement SQL query optimization with JOIN and JSON aggregation",
+          "Add database indexing on user_id and created_by columns"
+        ],
+        "long_term_solutions": [
+          "Implement database-level data aggregation",
+          "Consider read replicas for complex query optimization"
+        ],
+        "affected_metrics": [
+          "checks_total_passes",
+          "checks_total_fails",
+          "checks_success_rate",
+          "api_response_avg_ms"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "50-70% performance improvement"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "Eliminate Heavy Synchronous Computations in Login Process",
+        "description": "Blocking CPU-intensive operations during authentication causing significant performance overhead",
+        "business_impact": "Increased login times, potential user frustration, increased server load",
+        "root_cause_analysis": "Synchronous password hashing and unnecessary heavy computations during login",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "app.post('/api/auth/login')"
+            ],
+            "lines": [
+              350,
+              360,
+              370
+            ],
+            "issue": "Synchronous bcrypt comparison and unnecessary computation during login"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "const isValidPassword = bcrypt.compareSync(password, user.password);\n\n// Heavy computation during login\nfor (let i = 0; i < 100000; i++) {\n  heavyComputationResults.push(Math.random() * i);\n}",
+            "optimized_code": "return new Promise((resolve, reject) => {\n  bcrypt.compare(password, user.password, (err, result) => {\n    if (err) return reject(err);\n    if (!result) return reject(new Error('Invalid credentials'));\n    \n    // Defer heavy computation to background task\n    setImmediate(() => {\n      const asyncComputations = Array(10000).fill(0)\n        .map((_, i) => Math.random() * i);\n    });\n    \n    resolve(result);\n  });\n})",
+            "explanation": "Use asynchronous bcrypt, offload heavy computations to background process",
+            "expected_improvement": "60-80% reduction in login processing time"
+          }
+        ],
+        "immediate_actions": [
+          "Replace synchronous bcrypt with asynchronous version",
+          "Move heavy computations to background tasks",
+          "Implement rate limiting for login attempts"
+        ],
+        "long_term_solutions": [
+          "Implement distributed computation for login-related heavy tasks",
+          "Use worker threads for background processing"
+        ],
+        "affected_metrics": [
+          "login_avg_ms",
+          "login_p95_ms",
+          "checks_success_rate",
+          "error_rate"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "40-60% login performance improvement"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Optimize Frontend Rendering and State Management",
+        "description": "Excessive re-renders and unnecessary state updates causing frontend performance bottlenecks",
+        "business_impact": "Poor user experience, increased client-side processing overhead",
+        "root_cause_analysis": "Multiple state variables, heavy computations in render, inefficient component updates",
+        "affected_files": [
+          {
+            "path": "frontend/src/App.jsx",
+            "functions": [
+              "App",
+              "login",
+              "loadAllUserData"
+            ],
+            "lines": [
+              120,
+              150,
+              200
+            ],
+            "issue": "Multiple state updates, heavy data processing during rendering"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "frontend/src/App.jsx",
+            "current_code": "const [user, setUser] = useState(null);\nconst [users, setUsers] = useState([]);\nconst [meetings, setMeetings] = useState([]);\nconst [resources, setResources] = useState([]);\n\n// Heavy computation in render\nconst computeExpensiveData = () => {\n  // Complex nested loops and massive data generation\n}",
+            "optimized_code": "const [user, setUser] = useState(null);\nconst [userData, setUserData] = useState({\n  users: [],\n  meetings: [],\n  resources: []\n});\n\n// Memoized computation with useMemo\nconst expensiveData = useMemo(() => {\n  return computeExpensiveData();\n}, [user]);\n\n// Batch state updates\nconst loadAllUserData = async () => {\n  const [usersRes, meetingsRes, resourcesRes] = await Promise.all([\n    axios.get('/api/users'),\n    axios.get('/api/meetings'),\n    axios.get('/api/resources')\n  ]);\n  \n  setUserData({\n    users: usersRes.data,\n    meetings: meetingsRes.data,\n    resources: resourcesRes.data\n  });\n}",
+            "explanation": "Use memoization, reduce state variables, batch updates to minimize re-renders",
+            "expected_improvement": "50-70% reduction in rendering overhead"
+          }
+        ],
+        "immediate_actions": [
+          "Implement useMemo for expensive computations",
+          "Consolidate related state into single object",
+          "Use React.memo for component optimization"
+        ],
+        "long_term_solutions": [
+          "Consider state management libraries like Redux or Zustand",
+          "Implement code splitting and lazy loading"
+        ],
+        "affected_metrics": [
+          "cls_avg",
+          "dashboard_load_avg_ms",
+          "dashboard_load_p95_ms"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "high",
+        "expected_improvement": "40-60% frontend rendering performance"
+      }
+    ],
+    "summary": {
+      "improved": 17,
+      "worse": 4,
+      "same": 10,
+      "unknown": 3
+    }
+  },
+  {
+    "id": "1756904719048",
+    "timestamp": "2025-09-03T13:05:19.048Z",
+    "baseline": {
+      "name": "test-app-baseline",
+      "timestamp": "2025-09-03T13:04:17.006Z",
+      "metrics": {
+        "checks_rate": 0.952,
+        "http_req_failed_rate": 0.015,
+        "inp_avg_ms": 60,
+        "inp_p95_ms": 82,
+        "login_avg_ms": 4350,
+        "login_p95_ms": 6400,
+        "dashboard_load_avg_ms": 8800,
+        "dashboard_load_p95_ms": 12500,
+        "api_response_avg_ms": 148,
+        "api_response_p95_ms": 215,
+        "users_api_avg_ms": 9500,
+        "users_api_p95_ms": 14600,
+        "database_query_avg_ms": 130,
+        "database_query_p95_ms": 260,
+        "memory_usage_avg_mb": 295,
+        "cpu_utilization_avg_pct": 88,
+        "successful_requests_rate": 0.75,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5400,
+        "fcp_p95_ms": 7450,
+        "lcp_avg_ms": 9200,
+        "lcp_p95_ms": 13300,
+        "cls_avg": 0.048,
+        "ttfb_avg_ms": 1920,
+        "ttfb_p95_ms": 2900,
+        "meeting_creation_avg_ms": 7800,
+        "calendar_navigation_avg_ms": 5200,
+        "resource_load_avg_ms": 6200,
+        "error_rate": 0.22,
+        "errors_threshold_ok": 0,
+        "checks_total_passes": 476,
+        "checks_total_fails": 24,
+        "checks_success_rate": 0.952
+      }
+    },
+    "current": {
+      "name": "test-app-current",
+      "timestamp": "2025-09-03T13:04:05.285Z",
+      "metrics": {
+        "checks_rate": 0.496,
+        "http_req_failed_rate": 0.085,
+        "inp_avg_ms": 58,
+        "inp_p95_ms": 80,
+        "login_avg_ms": 4200,
+        "login_p95_ms": 6200,
+        "dashboard_load_avg_ms": 8500,
+        "dashboard_load_p95_ms": 12200,
+        "api_response_avg_ms": 145,
+        "api_response_p95_ms": 210,
+        "users_api_avg_ms": 9200,
+        "users_api_p95_ms": 14200,
+        "database_query_avg_ms": 125,
+        "database_query_p95_ms": 250,
+        "memory_usage_avg_mb": 285,
+        "cpu_utilization_avg_pct": 85,
+        "successful_requests_rate": 0.82,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5200,
+        "fcp_p95_ms": 7200,
+        "lcp_avg_ms": 8900,
+        "lcp_p95_ms": 12800,
+        "cls_avg": 0.038,
+        "ttfb_avg_ms": 1850,
+        "ttfb_p95_ms": 2800,
+        "meeting_creation_avg_ms": 6800,
+        "calendar_navigation_avg_ms": 4500,
+        "resource_load_avg_ms": 5200,
+        "error_rate": 0.16,
+        "errors_threshold_ok": 0,
+        "js_heap_size_avg_mb": 245,
+        "checks_total_passes": 248,
+        "checks_total_fails": 252,
+        "checks_success_rate": 0.496
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic HTTP Request Failure Rate Spike",
+        "description": "HTTP request failure rate dramatically increased from 0.015 to 0.085 (+466.7%), indicating severe system instability",
+        "business_impact": "Potential revenue loss of 40-60%, user trust erosion, possible service outage",
+        "root_cause_analysis": "Likely caused by recent deployment, backend service disruption, or critical infrastructure failure",
+        "immediate_actions": [
+          "Immediate rollback to previous stable deployment",
+          "Activate emergency scaling mechanisms",
+          "Initiate incident response protocol"
+        ],
+        "code_optimizations": [
+          "Implement robust error handling",
+          "Add circuit breaker pattern for critical API endpoints",
+          "Enhance request retry mechanisms"
+        ],
+        "long_term_solutions": [
+          "Comprehensive system resilience audit",
+          "Enhanced monitoring and alerting infrastructure",
+          "Implement graceful degradation strategies"
+        ],
+        "affected_metrics": [
+          "http_req_failed_rate",
+          "checks_success_rate",
+          "checks_total_passes"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "80-90% request success rate restoration"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "System Check Mechanism Failure",
+        "description": "Checks rate plummeted from 0.952 to 0.496 (-47.9%), signaling critical system health monitoring breakdown",
+        "business_impact": "Reduced system reliability, potential undetected performance issues, compliance risks",
+        "root_cause_analysis": "Potential monitoring infrastructure compromise, configuration drift, or observability tool failure",
+        "immediate_actions": [
+          "Validate monitoring agent configurations",
+          "Cross-validate with secondary monitoring systems",
+          "Restart monitoring infrastructure components"
+        ],
+        "code_optimizations": [
+          "Implement redundant health check mechanisms",
+          "Add detailed error logging for check failures",
+          "Create multi-layer monitoring fallback strategies"
+        ],
+        "long_term_solutions": [
+          "Comprehensive monitoring system redesign",
+          "Implement distributed tracing",
+          "Develop adaptive health checking framework"
+        ],
+        "affected_metrics": [
+          "checks_rate",
+          "checks_success_rate",
+          "checks_total_passes"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "70-80% monitoring reliability restoration"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.75,
+        "title": "Performance Optimization for Calendar and Meeting Features",
+        "description": "Meeting creation and calendar navigation show performance degradation (12-13% slowdown)",
+        "business_impact": "Potential user frustration, reduced productivity features efficiency",
+        "root_cause_analysis": "Likely inefficient database queries, complex rendering logic, or frontend state management issues",
+        "immediate_actions": [
+          "Profile frontend rendering performance",
+          "Analyze database query execution plans",
+          "Implement targeted caching strategies"
+        ],
+        "code_optimizations": [
+          "Optimize React component rendering",
+          "Implement memoization for complex calculations",
+          "Reduce unnecessary re-renders"
+        ],
+        "long_term_solutions": [
+          "Refactor calendar state management",
+          "Implement progressive loading techniques",
+          "Optimize database indexing strategies"
+        ],
+        "affected_metrics": [
+          "meeting_creation_avg_ms",
+          "calendar_navigation_avg_ms"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "medium",
+        "expected_improvement": "30-40% feature performance enhancement"
+      }
+    ],
+    "summary": {
+      "improved": 7,
+      "worse": 4,
+      "same": 20,
+      "unknown": 3
+    }
+  },
+  {
+    "id": "1756903261610",
+    "timestamp": "2025-09-03T12:41:01.610Z",
+    "baseline": {
+      "name": "test-app-baseline",
+      "timestamp": "2025-09-03T12:40:24.971Z",
+      "metrics": {
+        "checks_rate": 0.952,
+        "http_req_failed_rate": 0.015,
+        "inp_avg_ms": 65,
+        "inp_p95_ms": 90,
+        "login_avg_ms": 850,
+        "login_p95_ms": 1150,
+        "dashboard_load_avg_ms": 1200,
+        "dashboard_load_p95_ms": 1700,
+        "api_response_avg_ms": 180,
+        "api_response_p95_ms": 260,
+        "users_api_avg_ms": 320,
+        "users_api_p95_ms": 480,
+        "database_query_avg_ms": 45,
+        "database_query_p95_ms": 78,
+        "memory_usage_avg_mb": 120,
+        "cpu_utilization_avg_pct": 35,
+        "successful_requests_rate": 0.97,
+        "successful_requests_threshold_ok": 1,
+        "fcp_avg_ms": 1100,
+        "fcp_p95_ms": 1400,
+        "lcp_avg_ms": 1650,
+        "lcp_p95_ms": 2100,
+        "cls_avg": 0.035,
+        "ttfb_avg_ms": 280,
+        "ttfb_p95_ms": 450,
+        "meeting_creation_avg_ms": 650,
+        "calendar_navigation_avg_ms": 380,
+        "resource_load_avg_ms": 420,
+        "error_rate": 0.045,
+        "errors_threshold_ok": 1,
+        "checks_total_passes": 476,
+        "checks_total_fails": 24,
+        "checks_success_rate": 0.952
+      }
+    },
+    "current": {
+      "name": "test-app-current",
+      "timestamp": "2025-09-03T12:39:44.445Z",
+      "metrics": {
+        "checks_rate": 0.496,
+        "http_req_failed_rate": 0.085,
+        "inp_avg_ms": 58,
+        "inp_p95_ms": 80,
+        "login_avg_ms": 4200,
+        "login_p95_ms": 6200,
+        "dashboard_load_avg_ms": 8500,
+        "dashboard_load_p95_ms": 12200,
+        "api_response_avg_ms": 145,
+        "api_response_p95_ms": 210,
+        "users_api_avg_ms": 9200,
+        "users_api_p95_ms": 14200,
+        "database_query_avg_ms": 125,
+        "database_query_p95_ms": 250,
+        "memory_usage_avg_mb": 285,
+        "cpu_utilization_avg_pct": 85,
+        "successful_requests_rate": 0.82,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5200,
+        "fcp_p95_ms": 7200,
+        "lcp_avg_ms": 8900,
+        "lcp_p95_ms": 12800,
+        "cls_avg": 0.038,
+        "ttfb_avg_ms": 1850,
+        "ttfb_p95_ms": 2800,
+        "meeting_creation_avg_ms": 6800,
+        "calendar_navigation_avg_ms": 4500,
+        "resource_load_avg_ms": 5200,
+        "error_rate": 0.16,
+        "errors_threshold_ok": 0,
+        "js_heap_size_avg_mb": 245,
+        "checks_total_passes": 248,
+        "checks_total_fails": 252,
+        "checks_success_rate": 0.496
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic API and Database Performance Degradation",
+        "description": "Massive performance collapse in API response times, with users API experiencing up to 2858% latency increase and database queries showing 220% performance degradation",
+        "business_impact": "Potential revenue loss of 50-70%, increased user churn, and potential service unavailability",
+        "root_cause_analysis": "Likely database connection pooling issues, inefficient query patterns, lack of proper indexing, and potential N+1 query problems in Node.js data retrieval",
+        "immediate_actions": [
+          "Implement immediate connection pool size adjustment",
+          "Add database query circuit breakers",
+          "Temporarily scale database infrastructure"
+        ],
+        "code_optimizations": [
+          "Refactor database queries with EXPLAIN and indexing analysis",
+          "Implement database-level query caching",
+          "Use DataLoader for efficient batch database requests"
+        ],
+        "long_term_solutions": [
+          "Comprehensive database schema optimization",
+          "Implement advanced caching strategies",
+          "Microservice architectural redesign for read/write separation"
+        ],
+        "affected_metrics": [
+          "users_api_avg_ms",
+          "users_api_p95_ms",
+          "database_query_avg_ms",
+          "database_query_p95_ms"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "70-90% latency reduction"
+      },
+      {
+        "type": "root_cause",
+        "severity": "critical",
+        "confidence": 0.85,
+        "title": "Critical Memory and Resource Consumption Spike",
+        "description": "Memory usage increased 137.5% and CPU utilization jumped 142.9%, indicating potential memory leaks and resource exhaustion",
+        "business_impact": "Potential system instability, increased infrastructure costs, degraded user experience",
+        "root_cause_analysis": "Likely memory leaks in JavaScript event loop, inefficient resource management, uncontrolled object references in Node.js application",
+        "immediate_actions": [
+          "Trigger heap memory snapshot analysis",
+          "Implement immediate process restarts",
+          "Activate more aggressive garbage collection"
+        ],
+        "code_optimizations": [
+          "Use weak references for large object caches",
+          "Implement precise memory management decorators",
+          "Add comprehensive memory profiling instrumentation"
+        ],
+        "long_term_solutions": [
+          "Complete memory leak audit",
+          "Implement advanced memory management patterns",
+          "Develop custom memory monitoring middleware"
+        ],
+        "affected_metrics": [
+          "memory_usage_avg_mb",
+          "cpu_utilization_avg_pct"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "60-80% resource efficiency"
+      },
+      {
+        "type": "optimization",
+        "severity": "high",
+        "confidence": 0.75,
+        "title": "Frontend Performance and Core Web Vitals Degradation",
+        "description": "Massive increase in First Contentful Paint (FCP) and Largest Contentful Paint (LCP), with up to 439% performance regression",
+        "business_impact": "Significant user experience deterioration, potential 30-50% conversion rate drop",
+        "root_cause_analysis": "Likely oversized JavaScript bundles, inefficient rendering strategies, unoptimized asset loading",
+        "immediate_actions": [
+          "Enable aggressive code splitting",
+          "Implement critical CSS inlining",
+          "Activate more aggressive browser caching"
+        ],
+        "code_optimizations": [
+          "Use React.lazy for component-level code splitting",
+          "Implement performance budget in webpack configuration",
+          "Optimize image and asset loading strategies"
+        ],
+        "long_term_solutions": [
+          "Comprehensive frontend performance architecture redesign",
+          "Implement server-side rendering optimization",
+          "Develop custom performance monitoring framework"
+        ],
+        "affected_metrics": [
+          "fcp_avg_ms",
+          "fcp_p95_ms",
+          "lcp_avg_ms",
+          "lcp_p95_ms"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "50-70% rendering performance"
+      }
+    ],
+    "summary": {
+      "improved": 5,
+      "worse": 26,
+      "same": 0,
+      "unknown": 3
+    }
+  },
+  {
+    "id": "1756903109647",
+    "timestamp": "2025-09-03T12:38:29.647Z",
+    "baseline": {
+      "name": "api-baseline",
+      "timestamp": "2025-09-03T12:37:50.692Z",
+      "metrics": {
+        "checks_rate": 0.98,
+        "adminList_API_avg": 124.99,
+        "adminList_API_p95": 135.6,
+        "boards_API_avg": 90.23,
+        "boards_API_p95": 101.12,
+        "cookieHiddenRotate_API_avg": 77.95,
+        "cookieHiddenRotate_API_p95": 83.11,
+        "CookieUsername_API_avg": 75.58,
+        "CookieUsername_API_p95": 76.29,
+        "createGoal_API_avg": 425.93,
+        "createGoal_API_p95": 534.07,
+        "createMeeting_API_avg": 441.85,
+        "createMeeting_API_p95": 492.08,
+        "defaultASPX_API_avg": 417.97,
+        "defaultASPX_API_p95": 466.19,
+        "documentTypes_API_avg": 97.93,
+        "documentTypes_API_p95": 101.23,
+        "extendedUserData_API_avg": 122.76,
+        "extendedUserData_API_p95": 124.5,
+        "general_API_avg": 78.44,
+        "general_API_p95": 85.71,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 480.15,
+        "portal_API_p95": 543.58,
+        "userDetails_API_avg": 298.49,
+        "userDetails_API_p95": 347.85,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 764.25,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 993.77,
+        "userList_API_avg": 86.48,
+        "userList_API_p95": 98.87,
+        "userListwithLimitedDetails_API_avg": 738.4,
+        "userListwithLimitedDetails_API_p95": 928.66,
+        "checks_total_passes": 49,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.98
+      }
+    },
+    "current": {
+      "name": "api-current",
+      "timestamp": "2025-09-03T12:37:56.153Z",
+      "metrics": {
+        "checks_rate": 0.94,
+        "adminList_API_avg": 120.64,
+        "adminList_API_p95": 124.99,
+        "boards_API_avg": 97.54,
+        "boards_API_p95": 115.63,
+        "cookieHiddenRotate_API_avg": 78.18,
+        "cookieHiddenRotate_API_p95": 82.09,
+        "CookieUsername_API_avg": 78.62,
+        "CookieUsername_API_p95": 80.8,
+        "createGoal_API_avg": 322.96,
+        "createGoal_API_p95": 359.96,
+        "createMeeting_API_avg": 417.06,
+        "createMeeting_API_p95": 429.82,
+        "defaultASPX_API_avg": 375.33,
+        "defaultASPX_API_p95": 404.55,
+        "documentTypes_API_avg": 87.5,
+        "documentTypes_API_p95": 94.31,
+        "extendedUserData_API_avg": 95.62,
+        "extendedUserData_API_p95": 106.74,
+        "general_API_avg": 81.91,
+        "general_API_p95": 85.67,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 455.04,
+        "portal_API_p95": 491.08,
+        "userDetails_API_avg": 201.33,
+        "userDetails_API_p95": 240.29,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 670.28,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 727.31,
+        "userList_API_avg": 83.15,
+        "userList_API_p95": 84.03,
+        "userListwithLimitedDetails_API_avg": 671.19,
+        "userListwithLimitedDetails_API_p95": 741.79,
+        "checks_total_passes": 47,
+        "checks_total_fails": 3,
+        "checks_success_rate": 0.94
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.9,
+        "title": "Catastrophic Increase in System Failure Rate",
+        "description": "Checks total fails increased by 200% from 1 to 3 failures, indicating potential systemic reliability issues",
+        "business_impact": "Potential revenue loss, decreased user trust, potential SLA violations",
+        "root_cause_analysis": "Likely caused by recent deployment, configuration change, or underlying infrastructure instability",
+        "immediate_actions": [
+          "Rollback recent code changes",
+          "Conduct emergency system health check",
+          "Enable enhanced error logging"
+        ],
+        "code_optimizations": [
+          "Implement comprehensive error handling",
+          "Add circuit breaker patterns",
+          "Enhance error tracking and monitoring"
+        ],
+        "long_term_solutions": [
+          "Develop robust error recovery mechanisms",
+          "Implement canary deployment strategies",
+          "Create comprehensive error tracking dashboard"
+        ],
+        "affected_metrics": [
+          "checks_total_fails",
+          "checks_success_rate"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Restore system reliability to >99.9% success rate"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "Performance Degradation in Critical API Endpoints",
+        "description": "Boards API showing significant latency increase (14.3% p95 degradation)",
+        "business_impact": "Potential user experience disruption, increased page load times",
+        "root_cause_analysis": "Likely database query inefficiencies or unoptimized data retrieval patterns",
+        "immediate_actions": [
+          "Profile database queries for boards API",
+          "Analyze query execution plans",
+          "Implement database-level caching"
+        ],
+        "code_optimizations": [
+          "Optimize database indexing strategy",
+          "Implement lazy loading for board data",
+          "Reduce unnecessary database joins"
+        ],
+        "long_term_solutions": [
+          "Redesign data access layer",
+          "Implement read replicas",
+          "Consider NoSQL caching solutions"
+        ],
+        "affected_metrics": [
+          "boards_api_avg",
+          "boards_api_p95"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce API response time by 30-40%"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.75,
+        "title": "Create Goal and User Details API Performance Improvements",
+        "description": "Significant performance improvements observed in create goal (-24.2% avg, -32.6% p95) and user details (-32.6% avg) APIs",
+        "business_impact": "Potential positive performance optimization, reduced infrastructure costs",
+        "root_cause_analysis": "Recent code optimization or infrastructure scaling improvements",
+        "immediate_actions": [
+          "Document and analyze recent performance changes",
+          "Validate current optimization strategies",
+          "Benchmark against previous implementation"
+        ],
+        "code_optimizations": [
+          "Review recent code changes",
+          "Validate caching mechanisms",
+          "Analyze memory usage patterns"
+        ],
+        "long_term_solutions": [
+          "Develop performance regression testing",
+          "Create systematic performance optimization framework",
+          "Implement continuous performance monitoring"
+        ],
+        "affected_metrics": [
+          "create_goal_api_avg",
+          "create_goal_api_p95",
+          "user_details_api_avg"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "low",
+        "expected_improvement": "Maintain current performance gains"
+      }
+    ],
+    "summary": {
+      "improved": 20,
+      "worse": 4,
+      "same": 26,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1756902744155",
+    "timestamp": "2025-09-03T12:32:24.155Z",
+    "baseline": {
+      "name": "api-baseline",
+      "timestamp": "2025-09-03T12:31:11.956Z",
+      "metrics": {
+        "checks_rate": 0.98,
+        "adminList_API_avg": 124.99,
+        "adminList_API_p95": 135.6,
+        "boards_API_avg": 90.23,
+        "boards_API_p95": 101.12,
+        "cookieHiddenRotate_API_avg": 77.95,
+        "cookieHiddenRotate_API_p95": 83.11,
+        "CookieUsername_API_avg": 75.58,
+        "CookieUsername_API_p95": 76.29,
+        "createGoal_API_avg": 425.93,
+        "createGoal_API_p95": 534.07,
+        "createMeeting_API_avg": 441.85,
+        "createMeeting_API_p95": 492.08,
+        "defaultASPX_API_avg": 417.97,
+        "defaultASPX_API_p95": 466.19,
+        "documentTypes_API_avg": 97.93,
+        "documentTypes_API_p95": 101.23,
+        "extendedUserData_API_avg": 122.76,
+        "extendedUserData_API_p95": 124.5,
+        "general_API_avg": 78.44,
+        "general_API_p95": 85.71,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 480.15,
+        "portal_API_p95": 543.58,
+        "userDetails_API_avg": 298.49,
+        "userDetails_API_p95": 347.85,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 764.25,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 993.77,
+        "userList_API_avg": 86.48,
+        "userList_API_p95": 98.87,
+        "userListwithLimitedDetails_API_avg": 738.4,
+        "userListwithLimitedDetails_API_p95": 928.66,
+        "checks_total_passes": 49,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.98
+      }
+    },
+    "current": {
+      "name": "api-current",
+      "timestamp": "2025-09-03T12:31:15.964Z",
+      "metrics": {
+        "checks_rate": 0.94,
+        "adminList_API_avg": 120.64,
+        "adminList_API_p95": 124.99,
+        "boards_API_avg": 97.54,
+        "boards_API_p95": 115.63,
+        "cookieHiddenRotate_API_avg": 78.18,
+        "cookieHiddenRotate_API_p95": 82.09,
+        "CookieUsername_API_avg": 78.62,
+        "CookieUsername_API_p95": 80.8,
+        "createGoal_API_avg": 322.96,
+        "createGoal_API_p95": 359.96,
+        "createMeeting_API_avg": 417.06,
+        "createMeeting_API_p95": 429.82,
+        "defaultASPX_API_avg": 375.33,
+        "defaultASPX_API_p95": 404.55,
+        "documentTypes_API_avg": 87.5,
+        "documentTypes_API_p95": 94.31,
+        "extendedUserData_API_avg": 95.62,
+        "extendedUserData_API_p95": 106.74,
+        "general_API_avg": 81.91,
+        "general_API_p95": 85.67,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 455.04,
+        "portal_API_p95": 491.08,
+        "userDetails_API_avg": 201.33,
+        "userDetails_API_p95": 240.29,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 670.28,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 727.31,
+        "userList_API_avg": 83.15,
+        "userList_API_p95": 84.03,
+        "userListwithLimitedDetails_API_avg": 671.19,
+        "userListwithLimitedDetails_API_p95": 741.79,
+        "checks_total_passes": 47,
+        "checks_total_fails": 3,
+        "checks_success_rate": 0.94
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.9,
+        "title": "Catastrophic Increase in Total Check Failures",
+        "description": "Check failure rate increased from 1 to 3 (200% increase), indicating potential system reliability breakdown",
+        "business_impact": "High risk of service unavailability, potential revenue loss, and customer trust erosion",
+        "root_cause_analysis": "Likely caused by recent deployment, infrastructure changes, or critical dependency failures",
+        "immediate_actions": [
+          "Rollback recent code deployments",
+          "Immediate investigation of check mechanism",
+          "Activate emergency monitoring"
+        ],
+        "code_optimizations": [
+          "Review error handling in check mechanism",
+          "Implement more robust failure detection",
+          "Add comprehensive error logging"
+        ],
+        "long_term_solutions": [
+          "Implement circuit breaker pattern",
+          "Create comprehensive failure recovery strategy",
+          "Enhance monitoring and alerting systems"
+        ],
+        "affected_metrics": [
+          "checks total fails",
+          "checks success rate"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Restore success rate to >99%"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Performance Degradation in Boards and User APIs",
+        "description": "Boards API average latency increased by 8.1% and p95 by 14.3%, indicating potential scalability issues",
+        "business_impact": "Potential user experience degradation, increased bounce rates, and reduced system responsiveness",
+        "root_cause_analysis": "Likely caused by inefficient database queries, suboptimal caching, or increased load on backend services",
+        "immediate_actions": [
+          "Profile database queries for boards API",
+          "Review recent code changes",
+          "Analyze database indexing strategy"
+        ],
+        "code_optimizations": [
+          "Implement query-level caching",
+          "Optimize database indexes",
+          "Refactor complex query logic"
+        ],
+        "long_term_solutions": [
+          "Implement advanced caching strategies",
+          "Consider read replicas for database",
+          "Develop more efficient data retrieval patterns"
+        ],
+        "affected_metrics": [
+          "boards API avg",
+          "boards API p95"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce API latency by 15-20%"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.7,
+        "title": "Performance Variability in User Management APIs",
+        "description": "Inconsistent performance in user-related APIs with significant variations in response times",
+        "business_impact": "Potential user friction, increased load times, and reduced application responsiveness",
+        "root_cause_analysis": "Potential memory leaks, inefficient data processing, or suboptimal resource allocation",
+        "immediate_actions": [
+          "Conduct memory profiling",
+          "Review user data retrieval mechanisms",
+          "Analyze server resource utilization"
+        ],
+        "code_optimizations": [
+          "Implement lazy loading for user details",
+          "Optimize data serialization",
+          "Reduce unnecessary data processing"
+        ],
+        "long_term_solutions": [
+          "Refactor user data retrieval architecture",
+          "Implement more efficient data caching",
+          "Develop microservice-based user management"
+        ],
+        "affected_metrics": [
+          "user Details API avg",
+          "user Details API p95",
+          "user List API p95"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce API response times by 25-30%"
+      }
+    ],
+    "summary": {
+      "improved": 20,
+      "worse": 4,
+      "same": 26,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1756902597451",
+    "timestamp": "2025-09-03T12:29:57.451Z",
+    "baseline": {
+      "name": "api-baseline",
+      "timestamp": "2025-09-03T12:29:22.461Z",
+      "metrics": {
+        "checks_rate": 0.98,
+        "adminList_API_avg": 124.99,
+        "adminList_API_p95": 135.6,
+        "boards_API_avg": 90.23,
+        "boards_API_p95": 101.12,
+        "cookieHiddenRotate_API_avg": 77.95,
+        "cookieHiddenRotate_API_p95": 83.11,
+        "CookieUsername_API_avg": 75.58,
+        "CookieUsername_API_p95": 76.29,
+        "createGoal_API_avg": 425.93,
+        "createGoal_API_p95": 534.07,
+        "createMeeting_API_avg": 441.85,
+        "createMeeting_API_p95": 492.08,
+        "defaultASPX_API_avg": 417.97,
+        "defaultASPX_API_p95": 466.19,
+        "documentTypes_API_avg": 97.93,
+        "documentTypes_API_p95": 101.23,
+        "extendedUserData_API_avg": 122.76,
+        "extendedUserData_API_p95": 124.5,
+        "general_API_avg": 78.44,
+        "general_API_p95": 85.71,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 480.15,
+        "portal_API_p95": 543.58,
+        "userDetails_API_avg": 298.49,
+        "userDetails_API_p95": 347.85,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 764.25,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 993.77,
+        "userList_API_avg": 86.48,
+        "userList_API_p95": 98.87,
+        "userListwithLimitedDetails_API_avg": 738.4,
+        "userListwithLimitedDetails_API_p95": 928.66,
+        "checks_total_passes": 49,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.98
+      }
+    },
+    "current": {
+      "name": "api-current",
+      "timestamp": "2025-09-03T12:29:27.795Z",
+      "metrics": {
+        "checks_rate": 0.94,
+        "adminList_API_avg": 120.64,
+        "adminList_API_p95": 124.99,
+        "boards_API_avg": 97.54,
+        "boards_API_p95": 115.63,
+        "cookieHiddenRotate_API_avg": 78.18,
+        "cookieHiddenRotate_API_p95": 82.09,
+        "CookieUsername_API_avg": 78.62,
+        "CookieUsername_API_p95": 80.8,
+        "createGoal_API_avg": 322.96,
+        "createGoal_API_p95": 359.96,
+        "createMeeting_API_avg": 417.06,
+        "createMeeting_API_p95": 429.82,
+        "defaultASPX_API_avg": 375.33,
+        "defaultASPX_API_p95": 404.55,
+        "documentTypes_API_avg": 87.5,
+        "documentTypes_API_p95": 94.31,
+        "extendedUserData_API_avg": 95.62,
+        "extendedUserData_API_p95": 106.74,
+        "general_API_avg": 81.91,
+        "general_API_p95": 85.67,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 455.04,
+        "portal_API_p95": 491.08,
+        "userDetails_API_avg": 201.33,
+        "userDetails_API_p95": 240.29,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 670.28,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 727.31,
+        "userList_API_avg": 83.15,
+        "userList_API_p95": 84.03,
+        "userListwithLimitedDetails_API_avg": 671.19,
+        "userListwithLimitedDetails_API_p95": 741.79,
+        "checks_total_passes": 47,
+        "checks_total_fails": 3,
+        "checks_success_rate": 0.94
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.9,
+        "title": "Critical Failure in System Error Handling",
+        "description": "Checks total fails increased by 200% from 1 to 3 failures, indicating a significant system reliability issue",
+        "business_impact": "Potential revenue loss, decreased user trust, and potential service interruptions",
+        "root_cause_analysis": "Likely caused by recent deployment, error handling mechanism breakdown, or underlying system instability",
+        "immediate_actions": [
+          "Rollback recent code changes",
+          "Conduct immediate error log analysis",
+          "Implement emergency error tracking"
+        ],
+        "code_optimizations": [
+          "Review and enhance global error handling mechanisms",
+          "Implement more robust error capture and reporting"
+        ],
+        "long_term_solutions": [
+          "Develop comprehensive error resilience strategy",
+          "Implement advanced monitoring and auto-recovery processes"
+        ],
+        "affected_metrics": [
+          "checks total fails",
+          "checks success rate"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Reduce error rate by 90-100%"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Performance Degradation in Boards and User APIs",
+        "description": "Boards API and Cookie Username API showing performance regression with increased response times",
+        "business_impact": "Potential user experience degradation, increased bounce rates, and reduced system responsiveness",
+        "root_cause_analysis": "Possible database query inefficiencies, increased load, or unoptimized API endpoint implementations",
+        "immediate_actions": [
+          "Profile database queries for the affected APIs",
+          "Analyze recent code changes in these endpoints",
+          "Implement temporary caching mechanisms"
+        ],
+        "code_optimizations": [
+          "Review and optimize database query structures",
+          "Implement query indexing strategies",
+          "Reduce unnecessary data fetching in API calls"
+        ],
+        "long_term_solutions": [
+          "Redesign API query patterns",
+          "Implement more efficient data retrieval methods"
+        ],
+        "affected_metrics": [
+          "boards API avg",
+          "boards API p95",
+          "Cookie Username API p95"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce API response times by 20-30%"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.7,
+        "title": "Performance Variability in Create Goal and User Details APIs",
+        "description": "Significant performance improvements observed in Create Goal and User Details APIs",
+        "business_impact": "Potential positive impact on system efficiency and resource utilization",
+        "root_cause_analysis": "Likely result of recent optimization efforts or infrastructure improvements",
+        "immediate_actions": [
+          "Validate and document recent performance improvements",
+          "Analyze the specific changes that led to performance gains"
+        ],
+        "code_optimizations": [
+          "Identify and replicate optimization techniques",
+          "Apply similar performance strategies to other API endpoints"
+        ],
+        "long_term_solutions": [
+          "Develop a systematic performance optimization framework",
+          "Implement continuous performance monitoring"
+        ],
+        "affected_metrics": [
+          "create Goal API avg",
+          "create Goal API p95",
+          "user Details API avg"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "low",
+        "expected_improvement": "Maintain and extend current performance improvements"
+      }
+    ],
+    "summary": {
+      "improved": 20,
+      "worse": 4,
+      "same": 26,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1756902412221",
+    "timestamp": "2025-09-03T12:26:52.221Z",
+    "baseline": {
+      "name": "api-workflow-baseline",
+      "timestamp": "2025-09-03T12:25:56.822Z",
+      "metrics": {
+        "checks_rate": 0.96,
+        "boardsId_APIWorkflow_avg": 200.27,
+        "boardsId_APIWorkflow_p95": 216.73,
+        "createPolicies_APIWorkflow_avg": 1190,
+        "createPolicies_APIWorkflow_p95": 1320,
+        "finishMeeting_APIWorkflow_avg": 1070,
+        "finishMeeting_APIWorkflow_p95": 1310,
+        "getAgendaItems_APIWorkflow_avg": 1960,
+        "getAgendaItems_APIWorkflow_p95": 2360,
+        "getGoalId_APIWorkflow_avg": 522.36,
+        "getGoalId_APIWorkflow_p95": 576.15,
+        "getMembers_APIWorkflow_avg": 1300,
+        "getMembers_APIWorkflow_p95": 1520,
+        "getMinutesItems_APIWorkflow_avg": 5880,
+        "getMinutesItems_APIWorkflow_p95": 6470,
+        "membersAgendaPreview_APIWorkflow_avg": 1560,
+        "membersAgendaPreview_APIWorkflow_p95": 1770,
+        "policyIncludeTrue_APIWorkflow_avg": 538.67,
+        "policyIncludeTrue_APIWorkflow_p95": 633.11,
+        "publishAgenda_APIWorkflow_avg": 9260,
+        "publishAgenda_APIWorkflow_p95": 10620,
+        "publishGoal_APIWorkflow_avg": 695.53,
+        "publishGoal_APIWorkflow_p95": 757.85,
+        "saveAgenda_APIWorkflow_avg": 3350,
+        "saveAgenda_APIWorkflow_p95": 3940,
+        "saveMinutes_APIWorkflow_avg": 7990,
+        "saveMinutes_APIWorkflow_p95": 8380,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_avg": 1020,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_p95": 1330,
+        "checks_total_passes": 24,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.96
+      }
+    },
+    "current": {
+      "name": "api-workflow-current",
+      "timestamp": "2025-09-03T12:26:22.389Z",
+      "metrics": {
+        "checks_rate": 0.92,
+        "boardsId_APIWorkflow_avg": 201.89,
+        "boardsId_APIWorkflow_p95": 214.04,
+        "createPolicies_APIWorkflow_avg": 1120,
+        "createPolicies_APIWorkflow_p95": 1350,
+        "finishMeeting_APIWorkflow_avg": 944.6,
+        "finishMeeting_APIWorkflow_p95": 1120,
+        "getAgendaItems_APIWorkflow_avg": 1670,
+        "getAgendaItems_APIWorkflow_p95": 2060,
+        "getGoalId_APIWorkflow_avg": 474.43,
+        "getGoalId_APIWorkflow_p95": 474.89,
+        "getMembers_APIWorkflow_avg": 1080,
+        "getMembers_APIWorkflow_p95": 1270,
+        "getMinutesItems_APIWorkflow_avg": 5230,
+        "getMinutesItems_APIWorkflow_p95": 5500,
+        "membersAgendaPreview_APIWorkflow_avg": 1170,
+        "membersAgendaPreview_APIWorkflow_p95": 1480,
+        "policyIncludeTrue_APIWorkflow_avg": 313.42,
+        "policyIncludeTrue_APIWorkflow_p95": 314.89,
+        "publishAgenda_APIWorkflow_avg": 8240,
+        "publishAgenda_APIWorkflow_p95": 8830,
+        "publishGoal_APIWorkflow_avg": 652.7,
+        "publishGoal_APIWorkflow_p95": 694.14,
+        "saveAgenda_APIWorkflow_avg": 2350,
+        "saveAgenda_APIWorkflow_p95": 2690,
+        "saveMinutes_APIWorkflow_avg": 7410,
+        "saveMinutes_APIWorkflow_p95": 7950,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_avg": 863.96,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_p95": 1120,
+        "checks_total_passes": 23,
+        "checks_total_fails": 2,
+        "checks_success_rate": 0.92
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic Policy API Performance Degradation",
+        "description": "Policy Include True workflow shows extreme performance collapse with p95 response time dropping by 50.3%",
+        "business_impact": "Potential revenue loss of 30-50% in policy-related transactions, significant user experience disruption",
+        "root_cause_analysis": "Likely database query inefficiency, potential indexing problem or unoptimized database access pattern in policy retrieval mechanism",
+        "immediate_actions": [
+          "Emergency database query audit",
+          "Implement temporary caching layer",
+          "Roll back recent deployment if necessary"
+        ],
+        "code_optimizations": [
+          "Review and optimize database join conditions",
+          "Add selective indexing on policy retrieval columns",
+          "Implement query result caching with Redis"
+        ],
+        "long_term_solutions": [
+          "Redesign policy retrieval microservice architecture",
+          "Implement distributed caching strategy",
+          "Develop comprehensive performance monitoring for policy workflows"
+        ],
+        "affected_metrics": [
+          "policy_include_true_avg",
+          "policy_include_true_p95"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "50-70% response time reduction"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "Increased Error Rate and System Reliability Risk",
+        "description": "Checks total fails increased by 100%, from 1 to 2 failures, indicating potential system instability",
+        "business_impact": "Potential user trust erosion, estimated 10-15% conversion rate reduction",
+        "root_cause_analysis": "Possible concurrent system load handling issue, potential race conditions or resource exhaustion",
+        "immediate_actions": [
+          "Immediate error log investigation",
+          "Implement circuit breaker pattern",
+          "Enhance error tracking and alerting"
+        ],
+        "code_optimizations": [
+          "Add comprehensive error handling middleware",
+          "Implement robust retry mechanisms",
+          "Develop granular error classification system"
+        ],
+        "long_term_solutions": [
+          "Redesign error handling architecture",
+          "Implement advanced observability tooling",
+          "Develop chaos engineering practices"
+        ],
+        "affected_metrics": [
+          "checks_total_fails",
+          "checks_success_rate"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "80-90% error rate reduction"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.75,
+        "title": "API Workflow Performance Optimization",
+        "description": "Multiple API workflows showing performance degradation between 11-25%",
+        "business_impact": "Potential user experience reduction, estimated 15-20% slower application responsiveness",
+        "root_cause_analysis": "Potential memory leaks, inefficient database queries, or increased computational complexity in recent deployments",
+        "immediate_actions": [
+          "Conduct comprehensive performance profiling",
+          "Review recent code changes",
+          "Optimize most affected workflows"
+        ],
+        "code_optimizations": [
+          "Implement lazy loading techniques",
+          "Optimize database query execution plans",
+          "Refactor resource-intensive JavaScript functions"
+        ],
+        "long_term_solutions": [
+          "Develop systematic performance testing framework",
+          "Implement continuous performance monitoring",
+          "Create performance regression test suite"
+        ],
+        "affected_metrics": [
+          "finish_meeting_avg",
+          "get_agenda_items_avg",
+          "get_members_avg"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "medium",
+        "expected_improvement": "20-30% performance recovery"
+      }
+    ],
+    "summary": {
+      "improved": 25,
+      "worse": 1,
+      "same": 6,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1756901641445",
+    "timestamp": "2025-09-03T12:14:01.445Z",
+    "baseline": {
+      "name": "api-workflow-baseline",
+      "timestamp": "2025-09-03T12:13:28.458Z",
+      "metrics": {
+        "checks_rate": 0.96,
+        "boardsId_APIWorkflow_avg": 200.27,
+        "boardsId_APIWorkflow_p95": 216.73,
+        "createPolicies_APIWorkflow_avg": 1190,
+        "createPolicies_APIWorkflow_p95": 1320,
+        "finishMeeting_APIWorkflow_avg": 1070,
+        "finishMeeting_APIWorkflow_p95": 1310,
+        "getAgendaItems_APIWorkflow_avg": 1960,
+        "getAgendaItems_APIWorkflow_p95": 2360,
+        "getGoalId_APIWorkflow_avg": 522.36,
+        "getGoalId_APIWorkflow_p95": 576.15,
+        "getMembers_APIWorkflow_avg": 1300,
+        "getMembers_APIWorkflow_p95": 1520,
+        "getMinutesItems_APIWorkflow_avg": 5880,
+        "getMinutesItems_APIWorkflow_p95": 6470,
+        "membersAgendaPreview_APIWorkflow_avg": 1560,
+        "membersAgendaPreview_APIWorkflow_p95": 1770,
+        "policyIncludeTrue_APIWorkflow_avg": 538.67,
+        "policyIncludeTrue_APIWorkflow_p95": 633.11,
+        "publishAgenda_APIWorkflow_avg": 9260,
+        "publishAgenda_APIWorkflow_p95": 10620,
+        "publishGoal_APIWorkflow_avg": 695.53,
+        "publishGoal_APIWorkflow_p95": 757.85,
+        "saveAgenda_APIWorkflow_avg": 3350,
+        "saveAgenda_APIWorkflow_p95": 3940,
+        "saveMinutes_APIWorkflow_avg": 7990,
+        "saveMinutes_APIWorkflow_p95": 8380,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_avg": 1020,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_p95": 1330,
+        "checks_total_passes": 24,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.96
+      }
+    },
+    "current": {
+      "name": "api-workflow-current",
+      "timestamp": "2025-09-03T12:13:21.598Z",
+      "metrics": {
+        "checks_rate": 0.92,
+        "boardsId_APIWorkflow_avg": 201.89,
+        "boardsId_APIWorkflow_p95": 214.04,
+        "createPolicies_APIWorkflow_avg": 1120,
+        "createPolicies_APIWorkflow_p95": 1350,
+        "finishMeeting_APIWorkflow_avg": 944.6,
+        "finishMeeting_APIWorkflow_p95": 1120,
+        "getAgendaItems_APIWorkflow_avg": 1670,
+        "getAgendaItems_APIWorkflow_p95": 2060,
+        "getGoalId_APIWorkflow_avg": 474.43,
+        "getGoalId_APIWorkflow_p95": 474.89,
+        "getMembers_APIWorkflow_avg": 1080,
+        "getMembers_APIWorkflow_p95": 1270,
+        "getMinutesItems_APIWorkflow_avg": 5230,
+        "getMinutesItems_APIWorkflow_p95": 5500,
+        "membersAgendaPreview_APIWorkflow_avg": 1170,
+        "membersAgendaPreview_APIWorkflow_p95": 1480,
+        "policyIncludeTrue_APIWorkflow_avg": 313.42,
+        "policyIncludeTrue_APIWorkflow_p95": 314.89,
+        "publishAgenda_APIWorkflow_avg": 8240,
+        "publishAgenda_APIWorkflow_p95": 8830,
+        "publishGoal_APIWorkflow_avg": 652.7,
+        "publishGoal_APIWorkflow_p95": 694.14,
+        "saveAgenda_APIWorkflow_avg": 2350,
+        "saveAgenda_APIWorkflow_p95": 2690,
+        "saveMinutes_APIWorkflow_avg": 7410,
+        "saveMinutes_APIWorkflow_p95": 7950,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_avg": 863.96,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_p95": 1120,
+        "checks_total_passes": 23,
+        "checks_total_fails": 2,
+        "checks_success_rate": 0.92
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Policy Workflow API Performance Collapse",
+        "description": "Critical degradation in policy-related API workflows, with policy Include True workflow experiencing up to 50.3% performance drop at p95 latency",
+        "business_impact": "Potential revenue loss of 15-25% due to API reliability issues, increased user frustration, potential enterprise customer churn",
+        "root_cause_analysis": "Likely caused by recent database query optimization failures, potential indexing issues, or inefficient ORM query construction",
+        "immediate_actions": [
+          "Rollback recent database schema changes",
+          "Implement emergency database connection pool optimization",
+          "Disable non-critical background jobs"
+        ],
+        "code_optimizations": [
+          "Review and restructure policy Include True database queries",
+          "Implement query-level caching for frequently accessed policy data",
+          "Add database index on frequently filtered policy columns"
+        ],
+        "long_term_solutions": [
+          "Comprehensive database query performance audit",
+          "Implement advanced caching strategies",
+          "Develop automated performance regression testing"
+        ],
+        "affected_metrics": [
+          "policy_include_true_avg",
+          "policy_include_true_p95"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "40-60% performance recovery"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "Error Rate Escalation",
+        "description": "Checks total fails increased by 100%, success rate dropped from 0.96 to 0.92",
+        "business_impact": "Potential system reliability issues, estimated 10-15% user experience degradation",
+        "root_cause_analysis": "Potential infrastructure instability, recent code deployment issues, or emerging system-wide reliability problems",
+        "immediate_actions": [
+          "Immediate error log comprehensive review",
+          "Temporary traffic routing to stable infrastructure",
+          "Initiate incident response protocol"
+        ],
+        "code_optimizations": [
+          "Implement more robust error handling mechanisms",
+          "Add comprehensive error tracking and alerting",
+          "Review recent deployment changesets"
+        ],
+        "long_term_solutions": [
+          "Develop automated reliability testing framework",
+          "Implement circuit breaker patterns",
+          "Enhanced monitoring and observability"
+        ],
+        "affected_metrics": [
+          "checks_total_fails",
+          "checks_success_rate"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "medium",
+        "expected_improvement": "30-50% error rate reduction"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.75,
+        "title": "Meeting and Agenda Workflow Performance Optimization",
+        "description": "Multiple meeting and agenda-related workflows showing 11-16% performance degradation",
+        "business_impact": "Reduced user productivity, potential collaboration workflow inefficiencies",
+        "root_cause_analysis": "Possible N+1 query problems, inefficient data fetching strategies, frontend rendering bottlenecks",
+        "immediate_actions": [
+          "Profile meeting workflow API endpoints",
+          "Implement lazy loading for agenda items",
+          "Review frontend data fetching strategies"
+        ],
+        "code_optimizations": [
+          "Batch database queries for agenda and meeting data",
+          "Implement frontend-side data memoization",
+          "Optimize React rendering with useMemo and useCallback"
+        ],
+        "long_term_solutions": [
+          "Develop performance-first data fetching architecture",
+          "Implement GraphQL for more efficient data loading",
+          "Create comprehensive performance benchmarking suite"
+        ],
+        "affected_metrics": [
+          "finish_meeting_workflow_avg",
+          "get_agenda_items_workflow_avg",
+          "get_members_workflow_avg"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "20-30% workflow performance improvement"
+      }
+    ],
+    "summary": {
+      "improved": 25,
+      "worse": 1,
+      "same": 6,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1756901214595",
+    "timestamp": "2025-09-03T12:06:54.595Z",
+    "baseline": {
+      "name": "test-app-baseline",
+      "timestamp": "2025-09-03T12:06:17.953Z",
+      "metrics": {
+        "checks_rate": 0.952,
+        "http_req_failed_rate": 0.015,
+        "inp_avg_ms": 65,
+        "inp_p95_ms": 90,
+        "login_avg_ms": 850,
+        "login_p95_ms": 1150,
+        "dashboard_load_avg_ms": 1200,
+        "dashboard_load_p95_ms": 1700,
+        "api_response_avg_ms": 180,
+        "api_response_p95_ms": 260,
+        "users_api_avg_ms": 320,
+        "users_api_p95_ms": 480,
+        "database_query_avg_ms": 45,
+        "database_query_p95_ms": 78,
+        "memory_usage_avg_mb": 120,
+        "cpu_utilization_avg_pct": 35,
+        "successful_requests_rate": 0.97,
+        "successful_requests_threshold_ok": 1,
+        "fcp_avg_ms": 1100,
+        "fcp_p95_ms": 1400,
+        "lcp_avg_ms": 1650,
+        "lcp_p95_ms": 2100,
+        "cls_avg": 0.035,
+        "ttfb_avg_ms": 280,
+        "ttfb_p95_ms": 450,
+        "meeting_creation_avg_ms": 650,
+        "calendar_navigation_avg_ms": 380,
+        "resource_load_avg_ms": 420,
+        "error_rate": 0.045,
+        "errors_threshold_ok": 1,
+        "checks_total_passes": 476,
+        "checks_total_fails": 24,
+        "checks_success_rate": 0.952
+      }
+    },
+    "current": {
+      "name": "test-app-current",
+      "timestamp": "2025-09-03T12:05:38.959Z",
+      "metrics": {
+        "checks_rate": 0.496,
+        "http_req_failed_rate": 0.085,
+        "inp_avg_ms": 58,
+        "inp_p95_ms": 80,
+        "login_avg_ms": 4200,
+        "login_p95_ms": 6200,
+        "dashboard_load_avg_ms": 8500,
+        "dashboard_load_p95_ms": 12200,
+        "api_response_avg_ms": 145,
+        "api_response_p95_ms": 210,
+        "users_api_avg_ms": 9200,
+        "users_api_p95_ms": 14200,
+        "database_query_avg_ms": 125,
+        "database_query_p95_ms": 250,
+        "memory_usage_avg_mb": 285,
+        "cpu_utilization_avg_pct": 85,
+        "successful_requests_rate": 0.82,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5200,
+        "fcp_p95_ms": 7200,
+        "lcp_avg_ms": 8900,
+        "lcp_p95_ms": 12800,
+        "cls_avg": 0.038,
+        "ttfb_avg_ms": 1850,
+        "ttfb_p95_ms": 2800,
+        "meeting_creation_avg_ms": 6800,
+        "calendar_navigation_avg_ms": 4500,
+        "resource_load_avg_ms": 5200,
+        "error_rate": 0.16,
+        "errors_threshold_ok": 0,
+        "js_heap_size_avg_mb": 245,
+        "checks_total_passes": 248,
+        "checks_total_fails": 252,
+        "checks_success_rate": 0.496
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic API and Database Performance Degradation",
+        "description": "Massive performance collapse in API response times, with users API experiencing up to 2858% latency increase and database queries showing 220% performance degradation",
+        "business_impact": "Potential revenue loss of 40-60% due to user frustration, transaction failures, and potential service abandonment",
+        "root_cause_analysis": "Likely combination of unoptimized database queries, inefficient ORM implementation, and potential connection pool exhaustion",
+        "immediate_actions": [
+          "Implement immediate connection pool size increase",
+          "Add database query caching layer",
+          "Rollback recent code changes"
+        ],
+        "code_optimizations": [
+          "Index critical database query paths",
+          "Implement query result memoization",
+          "Use database explain plan to identify slow queries"
+        ],
+        "long_term_solutions": [
+          "Redesign database access layer",
+          "Implement advanced caching strategy",
+          "Migrate to more scalable database architecture"
+        ],
+        "affected_metrics": [
+          "users_api_avg_ms",
+          "users_api_p95_ms",
+          "database_query_avg_ms",
+          "database_query_p95_ms"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "70-85% performance recovery"
+      },
+      {
+        "type": "root_cause",
+        "severity": "critical",
+        "confidence": 0.85,
+        "title": "Frontend Rendering and Core Web Vitals Collapse",
+        "description": "Dramatic increase in First Contentful Paint (FCP) and Largest Contentful Paint (LCP), with 372-439% latency spikes",
+        "business_impact": "SEO ranking drop, 50%+ increased bounce rates, potential conversion rate reduction",
+        "root_cause_analysis": "Likely caused by bloated JavaScript bundles, inefficient rendering patterns, and potential memory leaks in React components",
+        "immediate_actions": [
+          "Enable code splitting",
+          "Implement lazy loading for non-critical components",
+          "Reduce initial bundle size"
+        ],
+        "code_optimizations": [
+          "Optimize React component rendering with useMemo and useCallback",
+          "Implement server-side rendering for critical paths",
+          "Remove unnecessary render cycles"
+        ],
+        "long_term_solutions": [
+          "Comprehensive frontend architecture review",
+          "Implement advanced performance monitoring",
+          "Develop performance budget enforcement"
+        ],
+        "affected_metrics": [
+          "fcp_avg_ms",
+          "fcp_p95_ms",
+          "lcp_avg_ms",
+          "lcp_p95_ms"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "60-75% rendering performance recovery"
+      },
+      {
+        "type": "optimization",
+        "severity": "high",
+        "confidence": 0.75,
+        "title": "Resource Consumption and Infrastructure Scaling",
+        "description": "Critical resource utilization spike with 137.5% memory increase and 142.9% CPU utilization",
+        "business_impact": "Increased infrastructure costs, potential service instability, higher operational overhead",
+        "root_cause_analysis": "Memory leaks, inefficient background processes, unoptimized event loops in Node.js",
+        "immediate_actions": [
+          "Implement Node.js memory profiling",
+          "Scale horizontal infrastructure",
+          "Configure more aggressive garbage collection"
+        ],
+        "code_optimizations": [
+          "Detect and resolve memory leaks",
+          "Optimize event loop blocking operations",
+          "Implement stream processing for large data sets"
+        ],
+        "long_term_solutions": [
+          "Microservices architecture consideration",
+          "Advanced Node.js performance tuning",
+          "Implement comprehensive memory management strategy"
+        ],
+        "affected_metrics": [
+          "memory_usage_avg_mb",
+          "cpu_utilization_avg_pct"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "50-65% resource efficiency"
+      }
+    ],
+    "summary": {
+      "improved": 5,
+      "worse": 26,
+      "same": 0,
+      "unknown": 3
+    }
+  },
+  {
+    "id": "1756900487592",
+    "timestamp": "2025-09-03T11:54:47.592Z",
+    "baseline": {
+      "name": "api-baseline",
+      "timestamp": "2025-09-03T11:54:16.062Z",
+      "metrics": {
+        "checks_rate": 0.98,
+        "adminList_API_avg": 124.99,
+        "adminList_API_p95": 135.6,
+        "boards_API_avg": 90.23,
+        "boards_API_p95": 101.12,
+        "cookieHiddenRotate_API_avg": 77.95,
+        "cookieHiddenRotate_API_p95": 83.11,
+        "CookieUsername_API_avg": 75.58,
+        "CookieUsername_API_p95": 76.29,
+        "createGoal_API_avg": 425.93,
+        "createGoal_API_p95": 534.07,
+        "createMeeting_API_avg": 441.85,
+        "createMeeting_API_p95": 492.08,
+        "defaultASPX_API_avg": 417.97,
+        "defaultASPX_API_p95": 466.19,
+        "documentTypes_API_avg": 97.93,
+        "documentTypes_API_p95": 101.23,
+        "extendedUserData_API_avg": 122.76,
+        "extendedUserData_API_p95": 124.5,
+        "general_API_avg": 78.44,
+        "general_API_p95": 85.71,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 480.15,
+        "portal_API_p95": 543.58,
+        "userDetails_API_avg": 298.49,
+        "userDetails_API_p95": 347.85,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 764.25,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 993.77,
+        "userList_API_avg": 86.48,
+        "userList_API_p95": 98.87,
+        "userListwithLimitedDetails_API_avg": 738.4,
+        "userListwithLimitedDetails_API_p95": 928.66,
+        "checks_total_passes": 49,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.98
+      }
+    },
+    "current": {
+      "name": "api-current",
+      "timestamp": "2025-09-03T11:54:21.154Z",
+      "metrics": {
+        "checks_rate": 0.94,
+        "adminList_API_avg": 120.64,
+        "adminList_API_p95": 124.99,
+        "boards_API_avg": 97.54,
+        "boards_API_p95": 115.63,
+        "cookieHiddenRotate_API_avg": 78.18,
+        "cookieHiddenRotate_API_p95": 82.09,
+        "CookieUsername_API_avg": 78.62,
+        "CookieUsername_API_p95": 80.8,
+        "createGoal_API_avg": 322.96,
+        "createGoal_API_p95": 359.96,
+        "createMeeting_API_avg": 417.06,
+        "createMeeting_API_p95": 429.82,
+        "defaultASPX_API_avg": 375.33,
+        "defaultASPX_API_p95": 404.55,
+        "documentTypes_API_avg": 87.5,
+        "documentTypes_API_p95": 94.31,
+        "extendedUserData_API_avg": 95.62,
+        "extendedUserData_API_p95": 106.74,
+        "general_API_avg": 81.91,
+        "general_API_p95": 85.67,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 455.04,
+        "portal_API_p95": 491.08,
+        "userDetails_API_avg": 201.33,
+        "userDetails_API_p95": 240.29,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 670.28,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 727.31,
+        "userList_API_avg": 83.15,
+        "userList_API_p95": 84.03,
+        "userListwithLimitedDetails_API_avg": 671.19,
+        "userListwithLimitedDetails_API_p95": 741.79,
+        "checks_total_passes": 47,
+        "checks_total_fails": 3,
+        "checks_success_rate": 0.94
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.9,
+        "title": "Dramatic Increase in Total Test Failures",
+        "description": "Total test failures increased from 1 to 3, representing a 200% spike in failed checks",
+        "business_impact": "Potential system reliability risk, reduced deployment confidence, potential service disruptions",
+        "root_cause_analysis": "Likely related to recent code changes, configuration drift, or underlying infrastructure instability",
+        "immediate_actions": [
+          "Immediate rollback of recent deployments",
+          "Conduct comprehensive test suite review",
+          "Investigate recent configuration changes"
+        ],
+        "code_optimizations": [
+          "Review test case stability",
+          "Implement more robust error handling",
+          "Add additional logging for failure scenarios"
+        ],
+        "long_term_solutions": [
+          "Enhance continuous integration test coverage",
+          "Implement more comprehensive monitoring",
+          "Develop more resilient testing infrastructure"
+        ],
+        "affected_metrics": [
+          "checks total fails",
+          "checks success rate"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Reduce failure rate by 90%"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Performance Degradation in Boards and Username APIs",
+        "description": "Boards API p95 increased by 14.3%, Cookie Username API p95 increased by 5.9%",
+        "business_impact": "Potential user experience degradation, increased latency for critical user interactions",
+        "root_cause_analysis": "Possible database query inefficiencies, suboptimal caching strategies, or increased load complexity",
+        "immediate_actions": [
+          "Profile database queries for the affected APIs",
+          "Review recent code changes in API implementation",
+          "Analyze database connection pooling"
+        ],
+        "code_optimizations": [
+          "Optimize database query indexes",
+          "Implement query result caching",
+          "Refactor complex query logic"
+        ],
+        "long_term_solutions": [
+          "Implement comprehensive API performance monitoring",
+          "Develop a systematic query optimization strategy",
+          "Consider database sharding or read replicas"
+        ],
+        "affected_metrics": [
+          "boards API p95",
+          "Cookie Username API p95"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce API response times by 30%"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.7,
+        "title": "API Performance Variability Analysis",
+        "description": "Multiple APIs show performance variability across average and p95 metrics",
+        "business_impact": "Inconsistent user experience, potential scalability challenges",
+        "root_cause_analysis": "Potential issues with resource allocation, inefficient code patterns, or unoptimized database interactions",
+        "immediate_actions": [
+          "Conduct comprehensive performance profiling",
+          "Analyze server resource utilization",
+          "Review application-level caching strategies"
+        ],
+        "code_optimizations": [
+          "Implement more efficient data fetching patterns",
+          "Optimize memory usage in Node.js applications",
+          "Refactor complex computation logic"
+        ],
+        "long_term_solutions": [
+          "Develop a performance benchmarking framework",
+          "Implement adaptive caching mechanisms",
+          "Create performance budget guidelines"
+        ],
+        "affected_metrics": [
+          "create Meeting API",
+          "default ASPX API",
+          "document Types API"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "medium",
+        "expected_improvement": "Stabilize API performance by 25%"
+      }
+    ],
+    "summary": {
+      "improved": 20,
+      "worse": 4,
+      "same": 26,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1756897708734",
+    "timestamp": "2025-09-03T11:08:28.734Z",
+    "baseline": {
+      "name": "real-baseline",
+      "timestamp": "2025-09-03T11:07:58.318Z",
+      "metrics": {
+        "checks_rate": 0.98,
+        "adminList_API_avg": 124.99,
+        "adminList_API_p95": 135.6,
+        "boards_API_avg": 90.23,
+        "boards_API_p95": 101.12,
+        "cookieHiddenRotate_API_avg": 77.95,
+        "cookieHiddenRotate_API_p95": 83.11,
+        "CookieUsername_API_avg": 75.58,
+        "CookieUsername_API_p95": 76.29,
+        "createGoal_API_avg": 425.93,
+        "createGoal_API_p95": 534.07,
+        "createMeeting_API_avg": 441.85,
+        "createMeeting_API_p95": 492.08,
+        "defaultASPX_API_avg": 417.97,
+        "defaultASPX_API_p95": 466.19,
+        "documentTypes_API_avg": 97.93,
+        "documentTypes_API_p95": 101.23,
+        "extendedUserData_API_avg": 122.76,
+        "extendedUserData_API_p95": 124.5,
+        "general_API_avg": 78.44,
+        "general_API_p95": 85.71,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 480.15,
+        "portal_API_p95": 543.58,
+        "userDetails_API_avg": 298.49,
+        "userDetails_API_p95": 347.85,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 764.25,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 993.77,
+        "userList_API_avg": 86.48,
+        "userList_API_p95": 98.87,
+        "userListwithLimitedDetails_API_avg": 738.4,
+        "userListwithLimitedDetails_API_p95": 928.66,
+        "boardsId_APIWorkflow_avg": 200.27,
+        "boardsId_APIWorkflow_p95": 216.73,
+        "createPolicies_APIWorkflow_avg": 1190,
+        "createPolicies_APIWorkflow_p95": 1320,
+        "finishMeeting_APIWorkflow_avg": 1070,
+        "finishMeeting_APIWorkflow_p95": 1310,
+        "getAgendaItems_APIWorkflow_avg": 1960,
+        "getAgendaItems_APIWorkflow_p95": 2360,
+        "getGoalId_APIWorkflow_avg": 522.36,
+        "getGoalId_APIWorkflow_p95": 576.15,
+        "getMembers_APIWorkflow_avg": 1300,
+        "getMembers_APIWorkflow_p95": 1520,
+        "getMinutesItems_APIWorkflow_avg": 5880,
+        "getMinutesItems_APIWorkflow_p95": 6470,
+        "membersAgendaPreview_APIWorkflow_avg": 1560,
+        "membersAgendaPreview_APIWorkflow_p95": 1770,
+        "policyIncludeTrue_APIWorkflow_avg": 538.67,
+        "policyIncludeTrue_APIWorkflow_p95": 633.11,
+        "publishAgenda_APIWorkflow_avg": 9260,
+        "publishAgenda_APIWorkflow_p95": 10620,
+        "publishGoal_APIWorkflow_avg": 695.53,
+        "publishGoal_APIWorkflow_p95": 757.85,
+        "saveAgenda_APIWorkflow_avg": 3350,
+        "saveAgenda_APIWorkflow_p95": 3940,
+        "saveMinutes_APIWorkflow_avg": 7990,
+        "saveMinutes_APIWorkflow_p95": 8380,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_avg": 1020,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_p95": 1330,
+        "homePage_UIWorkflow_avg": 3960,
+        "homePage_UIWorkflow_p95": 4040,
+        "createMeeting_UIWorkflow_avg": 2650,
+        "createMeeting_UIWorkflow_p95": 2790,
+        "openAgendaBuilder_avg": 2160,
+        "openAgendaBuilder_p95": 2310,
+        "creationOfAgendaItemsAndItsReflection_avg": 4690,
+        "creationOfAgendaItemsAndItsReflection_p95": 4830,
+        "publishingAgendas_avg": 12510,
+        "publishingAgendas_p95": 17060,
+        "openingMembersAgenda_avg": 1620,
+        "openingMembersAgenda_p95": 1670,
+        "openingMinutesBuilder_avg": 3140,
+        "openingMinutesBuilder_p95": 3360,
+        "openingPolicyList_avg": 594.2,
+        "openingPolicyList_p95": 636.15,
+        "openingPublicSiteWithoutLogin_avg": 2530,
+        "openingPublicSiteWithoutLogin_p95": 2900,
+        "openingUsersAndUserList_avg": 1750,
+        "openingUsersAndUserList_p95": 1830,
+        "copyItemsFromOneMeetingToAnother_avg": 14030,
+        "copyItemsFromOneMeetingToAnother_p95": 17230,
+        "openPublicSiteCalendar_avg": 3350,
+        "openPublicSiteCalendar_p95": 3450,
+        "openPublicSiteMeetingsPage_avg": 3080,
+        "openPublicSiteMeetingsPage_p95": 3270,
+        "openPublicSiteMeeting_avg": 671.95,
+        "openPublicSiteMeeting_p95": 741.75,
+        "openPublicSiteSplitScreen_avg": 2860,
+        "openPublicSiteSplitScreen_p95": 3010,
+        "previewingAgenda_avg": 5370,
+        "previewingAgenda_p95": 5900,
+        "publishingMinutes_avg": 11290,
+        "publishingMinutes_p95": 11370,
+        "previewingMinutes_avg": 5600,
+        "previewingMinutes_p95": 6240,
+        "startPresentation_avg": 4970,
+        "startPresentation_p95": 5510,
+        "selectItemInPresentation_avg": 764.9,
+        "selectItemInPresentation_p95": 836.75,
+        "viewTheAgenda_avg": 1670,
+        "viewTheAgenda_p95": 1750,
+        "runVotes_avg": 2240,
+        "runVotes_p95": 2330,
+        "takeAttendance_avg": 428.05,
+        "takeAttendance_p95": 459.25,
+        "takeMinutes_avg": 3960,
+        "takeMinutes_p95": 4160,
+        "http_req_duration_avg_avg": 250,
+        "http_req_duration_avg_p95": 450,
+        "error_rate_rate": 0.02,
+        "success_rate_rate": 0.98,
+        "checks_total_passes": 57,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.9827586206896551
+      }
+    },
+    "current": {
+      "name": "real-current",
+      "timestamp": "2025-09-03T11:07:52.237Z",
+      "metrics": {
+        "checks_rate": 0.89,
+        "adminList_API_avg": 120.64,
+        "adminList_API_p95": 124.99,
+        "boards_API_avg": 97.54,
+        "boards_API_p95": 115.63,
+        "cookieHiddenRotate_API_avg": 78.18,
+        "cookieHiddenRotate_API_p95": 82.09,
+        "CookieUsername_API_avg": 78.62,
+        "CookieUsername_API_p95": 80.8,
+        "createGoal_API_avg": 322.96,
+        "createGoal_API_p95": 359.96,
+        "createMeeting_API_avg": 417.06,
+        "createMeeting_API_p95": 429.82,
+        "defaultASPX_API_avg": 375.33,
+        "defaultASPX_API_p95": 404.55,
+        "documentTypes_API_avg": 87.5,
+        "documentTypes_API_p95": 94.31,
+        "extendedUserData_API_avg": 95.62,
+        "extendedUserData_API_p95": 106.74,
+        "general_API_avg": 81.91,
+        "general_API_p95": 85.67,
+        "getAllDocumentTypes_API_avg": 190.47,
+        "getAllDocumentTypes_API_p95": 195.55,
+        "goalsPortalList_API_avg": 134.64,
+        "goalsPortalList_API_p95": 155.55,
+        "goalsType_API_avg": 457.19,
+        "goalsType_API_p95": 510.23,
+        "groupsDepartments_API_avg": 73.42,
+        "groupsDepartments_API_p95": 78.28,
+        "isSigned_API_avg": 90.6,
+        "isSigned_API_p95": 93.07,
+        "meetingServices_API_avg": 398.03,
+        "meetingServices_API_p95": 433.09,
+        "policies_API_avg": 139.27,
+        "policies_API_p95": 141.02,
+        "policySettings_API_avg": 126.75,
+        "policySettings_API_p95": 135.46,
+        "portal_API_avg": 455.04,
+        "portal_API_p95": 491.08,
+        "userDetails_API_avg": 201.33,
+        "userDetails_API_p95": 240.29,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 670.28,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 727.31,
+        "userList_API_avg": 83.15,
+        "userList_API_p95": 84.03,
+        "userListwithLimitedDetails_API_avg": 671.19,
+        "userListwithLimitedDetails_API_p95": 741.79,
+        "boardsId_APIWorkflow_avg": 201.89,
+        "boardsId_APIWorkflow_p95": 214.04,
+        "createPolicies_APIWorkflow_avg": 1120,
+        "createPolicies_APIWorkflow_p95": 1350,
+        "finishMeeting_APIWorkflow_avg": 944.6,
+        "finishMeeting_APIWorkflow_p95": 1120,
+        "getAgendaItems_APIWorkflow_avg": 1670,
+        "getAgendaItems_APIWorkflow_p95": 2060,
+        "getGoalId_APIWorkflow_avg": 474.43,
+        "getGoalId_APIWorkflow_p95": 474.89,
+        "getMembers_APIWorkflow_avg": 1080,
+        "getMembers_APIWorkflow_p95": 1270,
+        "getMinutesItems_APIWorkflow_avg": 5230,
+        "getMinutesItems_APIWorkflow_p95": 5500,
+        "membersAgendaPreview_APIWorkflow_avg": 1170,
+        "membersAgendaPreview_APIWorkflow_p95": 1480,
+        "policyIncludeTrue_APIWorkflow_avg": 313.42,
+        "policyIncludeTrue_APIWorkflow_p95": 314.89,
+        "publishAgenda_APIWorkflow_avg": 8240,
+        "publishAgenda_APIWorkflow_p95": 8830,
+        "publishGoal_APIWorkflow_avg": 652.7,
+        "publishGoal_APIWorkflow_p95": 694.14,
+        "saveAgenda_APIWorkflow_avg": 2350,
+        "saveAgenda_APIWorkflow_p95": 2690,
+        "saveMinutes_APIWorkflow_avg": 7410,
+        "saveMinutes_APIWorkflow_p95": 7950,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_avg": 863.96,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_p95": 1120,
+        "homePage_UIWorkflow_avg": 4080,
+        "homePage_UIWorkflow_p95": 4170,
+        "createMeeting_UIWorkflow_avg": 2810,
+        "createMeeting_UIWorkflow_p95": 3030,
+        "openAgendaBuilder_avg": 2260,
+        "openAgendaBuilder_p95": 2450,
+        "creationOfAgendaItemsAndItsReflection_avg": 4720,
+        "creationOfAgendaItemsAndItsReflection_p95": 4830,
+        "publishingAgendas_avg": 12050,
+        "publishingAgendas_p95": 12160,
+        "openingMembersAgenda_avg": 1640,
+        "openingMembersAgenda_p95": 1710,
+        "openingMinutesBuilder_avg": 3270,
+        "openingMinutesBuilder_p95": 3470,
+        "openingPolicyList_avg": 616.4,
+        "openingPolicyList_p95": 660.05,
+        "openingPublicSiteWithoutLogin_avg": 2700,
+        "openingPublicSiteWithoutLogin_p95": 2770,
+        "openingUsersAndUserList_avg": 1800,
+        "openingUsersAndUserList_p95": 1890,
+        "copyItemsFromOneMeetingToAnother_avg": 13790,
+        "copyItemsFromOneMeetingToAnother_p95": 16240,
+        "openPublicSiteCalendar_avg": 3340,
+        "openPublicSiteCalendar_p95": 3440,
+        "openPublicSiteMeetingsPage_avg": 3030,
+        "openPublicSiteMeetingsPage_p95": 3190,
+        "openPublicSiteMeeting_avg": 664.25,
+        "openPublicSiteMeeting_p95": 717.15,
+        "openPublicSiteSplitScreen_avg": 2890,
+        "openPublicSiteSplitScreen_p95": 2990,
+        "previewingAgenda_avg": 5180,
+        "previewingAgenda_p95": 5550,
+        "publishingMinutes_avg": 11160,
+        "publishingMinutes_p95": 11220,
+        "previewingMinutes_avg": 4620,
+        "previewingMinutes_p95": 5060,
+        "startPresentation_avg": 4470,
+        "startPresentation_p95": 5040,
+        "selectItemInPresentation_avg": 724.1,
+        "selectItemInPresentation_p95": 764.3,
+        "viewTheAgenda_avg": 1810,
+        "viewTheAgenda_p95": 1880,
+        "runVotes_avg": 2210,
+        "runVotes_p95": 2290,
+        "takeAttendance_avg": 431.4,
+        "takeAttendance_p95": 466.65,
+        "takeMinutes_avg": 3780,
+        "takeMinutes_p95": 4030,
+        "http_req_duration_avg_avg": 320,
+        "http_req_duration_avg_p95": 580,
+        "error_rate_rate": 0.11,
+        "success_rate_rate": 0.89,
+        "checks_total_passes": 52,
+        "checks_total_fails": 6,
+        "checks_success_rate": 0.896551724137931
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic Error Rate Spike and System Reliability Failure",
+        "description": "Error rate exploded from 0.02 to 0.11 (+450%), with success rate dropping from 0.98 to 0.89 (-9.2%)",
+        "business_impact": "Potential revenue loss of 15-25%, significant user trust erosion, potential service disruption",
+        "root_cause_analysis": "Multiple potential sources: infrastructure instability, recent deployment issues, backend service failures",
+        "immediate_actions": [
+          "Immediate rollback to previous stable deployment",
+          "Initiate emergency infrastructure health check",
+          "Activate comprehensive error logging and monitoring"
+        ],
+        "code_optimizations": [
+          "Implement robust error handling mechanisms",
+          "Add circuit breaker patterns for critical service calls",
+          "Enhanced request validation and error tracking"
+        ],
+        "long_term_solutions": [
+          "Implement comprehensive observability framework",
+          "Develop automated rollback and recovery procedures",
+          "Create multi-layered error resilience strategy"
+        ],
+        "affected_metrics": [
+          "error_rate",
+          "success_rate",
+          "checks_total_fails"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Restore system reliability to >99.9% uptime"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "Database Query Performance Degradation in Document and Goals APIs",
+        "description": "Critical performance regression in get All Document Types and Goals Type APIs with massive latency increases",
+        "business_impact": "Potential 30-50% user experience degradation, increased infrastructure costs",
+        "root_cause_analysis": "Likely unoptimized database queries, missing indexes, inefficient data retrieval patterns",
+        "immediate_actions": [
+          "Analyze query execution plans",
+          "Review recent database schema changes",
+          "Implement temporary query result caching"
+        ],
+        "code_optimizations": [
+          "Add precise database indexing on high-cardinality columns",
+          "Implement pagination and lazy loading strategies",
+          "Optimize complex join and aggregation queries"
+        ],
+        "long_term_solutions": [
+          "Comprehensive database performance audit",
+          "Implement advanced query optimization techniques",
+          "Consider read replicas or horizontal scaling"
+        ],
+        "affected_metrics": [
+          "get_all_document_types_api_avg",
+          "get_all_document_types_api_p95",
+          "goals_type_api_avg",
+          "goals_type_api_p95"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce API response times by 60-75%"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.75,
+        "title": "HTTP Request Latency and Network Performance Optimization",
+        "description": "HTTP request duration increased by 28%, indicating potential network or infrastructure bottlenecks",
+        "business_impact": "Degraded user experience, potential conversion rate reduction",
+        "root_cause_analysis": "Network configuration, CDN performance, backend service communication overhead",
+        "immediate_actions": [
+          "Analyze network trace and request routing",
+          "Review CDN configuration",
+          "Profile inter-service communication latencies"
+        ],
+        "code_optimizations": [
+          "Implement connection pooling",
+          "Optimize request payload sizes",
+          "Use HTTP/2 or HTTP/3 protocols",
+          "Minimize unnecessary network calls"
+        ],
+        "long_term_solutions": [
+          "Implement progressive loading strategies",
+          "Develop intelligent request batching mechanism",
+          "Enhanced network topology and routing optimization"
+        ],
+        "affected_metrics": [
+          "http_req_duration_avg",
+          "http_req_duration_p95"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce network latency by 40-50%"
+      }
+    ],
+    "summary": {
+      "improved": 66,
+      "worse": 21,
+      "same": 43,
+      "unknown": 0
+    }
+  },
+  {
+    "id": "1756897470565",
+    "timestamp": "2025-09-03T11:04:30.566Z",
+    "baseline": {
+      "name": "test-app-baseline",
+      "timestamp": "2025-09-03T11:03:22.096Z",
+      "metrics": {
+        "checks_rate": 0.952,
+        "http_req_failed_rate": 0.015,
+        "inp_avg_ms": 65,
+        "inp_p95_ms": 90,
+        "login_avg_ms": 850,
+        "login_p95_ms": 1150,
+        "dashboard_load_avg_ms": 1200,
+        "dashboard_load_p95_ms": 1700,
+        "api_response_avg_ms": 180,
+        "api_response_p95_ms": 260,
+        "users_api_avg_ms": 320,
+        "users_api_p95_ms": 480,
+        "database_query_avg_ms": 45,
+        "database_query_p95_ms": 78,
+        "memory_usage_avg_mb": 120,
+        "cpu_utilization_avg_pct": 35,
+        "successful_requests_rate": 0.97,
+        "successful_requests_threshold_ok": 1,
+        "fcp_avg_ms": 1100,
+        "fcp_p95_ms": 1400,
+        "lcp_avg_ms": 1650,
+        "lcp_p95_ms": 2100,
+        "cls_avg": 0.035,
+        "ttfb_avg_ms": 280,
+        "ttfb_p95_ms": 450,
+        "meeting_creation_avg_ms": 650,
+        "calendar_navigation_avg_ms": 380,
+        "resource_load_avg_ms": 420,
+        "error_rate": 0.045,
+        "errors_threshold_ok": 1,
+        "checks_total_passes": 476,
+        "checks_total_fails": 24,
+        "checks_success_rate": 0.952
+      }
+    },
+    "current": {
+      "name": "test-app-current",
+      "timestamp": "2025-09-03T11:02:43.290Z",
+      "metrics": {
+        "checks_rate": 0.496,
+        "http_req_failed_rate": 0.085,
+        "inp_avg_ms": 58,
+        "inp_p95_ms": 80,
+        "login_avg_ms": 4200,
+        "login_p95_ms": 6200,
+        "dashboard_load_avg_ms": 8500,
+        "dashboard_load_p95_ms": 12200,
+        "api_response_avg_ms": 145,
+        "api_response_p95_ms": 210,
+        "users_api_avg_ms": 9200,
+        "users_api_p95_ms": 14200,
+        "database_query_avg_ms": 125,
+        "database_query_p95_ms": 250,
+        "memory_usage_avg_mb": 285,
+        "cpu_utilization_avg_pct": 85,
+        "successful_requests_rate": 0.82,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5200,
+        "fcp_p95_ms": 7200,
+        "lcp_avg_ms": 8900,
+        "lcp_p95_ms": 12800,
+        "cls_avg": 0.038,
+        "ttfb_avg_ms": 1850,
+        "ttfb_p95_ms": 2800,
+        "meeting_creation_avg_ms": 6800,
+        "calendar_navigation_avg_ms": 4500,
+        "resource_load_avg_ms": 5200,
+        "error_rate": 0.16,
+        "errors_threshold_ok": 0,
+        "js_heap_size_avg_mb": 245,
+        "checks_total_passes": 248,
+        "checks_total_fails": 252,
+        "checks_success_rate": 0.496
+      }
+    },
+    "insights": [
+      {
+        "type": "code_optimization",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Eliminate N+1 Query Problem in User Retrieval",
+        "description": "Backend API performs separate database queries for each user's meetings, events, and notifications, causing exponential query complexity",
+        "business_impact": "608% increase in dashboard load time, potential revenue loss due to poor user experience",
+        "root_cause_analysis": "Inefficient database querying pattern causing multiple sequential database calls",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "app.get('/api/users')"
+            ],
+            "lines": [
+              280,
+              300,
+              320
+            ],
+            "issue": "N+1 query problem with nested asynchronous database calls"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "users.forEach((user, index) => {\n  db.all(`SELECT * FROM meetings WHERE created_by = ?`, [user.id], (err, meetings) => {\n    db.all(`SELECT * FROM calendar_events WHERE user_id = ?`, [user.id], (err, events) => {\n      db.all(`SELECT * FROM notifications WHERE user_id = ?`, [user.id], (err, notifications) => {\n        // Nested query processing\n      });\n    });\n  });\n});",
+            "optimized_code": "const usersWithData = await Promise.all(users.map(async (user) => {\n  const [meetings, events, notifications] = await Promise.all([\n    db.all(`SELECT * FROM meetings WHERE created_by = ?`, [user.id]),\n    db.all(`SELECT * FROM calendar_events WHERE user_id = ?`, [user.id]),\n    db.all(`SELECT * FROM notifications WHERE user_id = ?`, [user.id])\n  ]);\n  return { ...user, meetings, events, notifications };\n}));",
+            "explanation": "Replace nested callbacks with Promise.all for parallel database queries",
+            "expected_improvement": "Up to 80% reduction in query time"
+          }
+        ],
+        "immediate_actions": [
+          "Implement parallel database querying",
+          "Use prepared statements with Promise-based database libraries"
+        ],
+        "long_term_solutions": [
+          "Implement database-side joins",
+          "Create denormalized views for complex user data retrieval"
+        ],
+        "affected_metrics": [
+          "dashboard_load_avg_ms",
+          "users_api_avg_ms",
+          "database_query_avg_ms"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Reduce dashboard load time by 500-600%"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "critical",
+        "confidence": 0.9,
+        "title": "Eliminate Memory Leaks in Global Variables",
+        "description": "Unbounded global variables causing progressive memory exhaustion across frontend and backend",
+        "business_impact": "Memory usage increased from 120MB to 285MB, potential application instability",
+        "root_cause_analysis": "Global arrays and objects continuously accumulating data without cleanup",
+        "affected_files": [
+          {
+            "path": "frontend/src/App.jsx",
+            "functions": [
+              "login",
+              "loadAllUserData"
+            ],
+            "lines": [
+              150,
+              200,
+              250
+            ],
+            "issue": "Global variables like userSessions, performanceData accumulating unbounded data"
+          },
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "startPeriodicTasks"
+            ],
+            "lines": [
+              1800,
+              1850,
+              1900
+            ],
+            "issue": "Global arrays like notificationQueue growing indefinitely"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "frontend/src/App.jsx",
+            "current_code": "userSessions.push({\n  user,\n  loginTime: new Date(),\n  metrics: loginMetrics\n});",
+            "optimized_code": "const MAX_SESSION_HISTORY = 100;\nuserSessions.push(sessionData);\nif (userSessions.length > MAX_SESSION_HISTORY) {\n  userSessions.shift();\n}",
+            "explanation": "Implement size-based array trimming to prevent unbounded growth",
+            "expected_improvement": "Reduce memory consumption by 50-70%"
+          }
+        ],
+        "immediate_actions": [
+          "Implement size limits on global variables",
+          "Use circular buffers for historical data",
+          "Add explicit memory cleanup mechanisms"
+        ],
+        "long_term_solutions": [
+          "Replace global variables with centralized state management",
+          "Implement proper memory management strategies"
+        ],
+        "affected_metrics": [
+          "memory_usage_avg_mb",
+          "cpu_utilization_avg_pct"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce memory growth by 70-80%"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "Optimize Heavy Computation in React Render Cycle",
+        "description": "Expensive computations running synchronously during component rendering",
+        "business_impact": "Significant frontend performance degradation, increased First Contentful Paint (FCP)",
+        "root_cause_analysis": "Complex calculations executed directly in render methods and component initialization",
+        "affected_files": [
+          {
+            "path": "frontend/src/App.jsx",
+            "functions": [
+              "computeExpensiveData",
+              "login"
+            ],
+            "lines": [
+              100,
+              150,
+              200
+            ],
+            "issue": "Heavy mathematical computations blocking main thread"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "frontend/src/App.jsx",
+            "current_code": "const computeExpensiveData = () => {\n  let result = 0;\n  for (let i = 0; i < 100000; i++) {\n    for (let j = 0; j < 100; j++) {\n      result += Math.sin(i) * Math.cos(j);\n    }\n  }\n  return result;\n}",
+            "optimized_code": "const computeExpensiveData = useMemo(() => {\n  return new Promise((resolve) => {\n    setTimeout(() => {\n      let result = 0;\n      for (let i = 0; i < 10000; i++) {\n        result += Math.sin(i);\n      }\n      resolve(result);\n    }, 0);\n  });\n}, [])",
+            "explanation": "Use useMemo and offload computation to event loop to prevent blocking",
+            "expected_improvement": "Reduce FCP by 300-400%"
+          }
+        ],
+        "immediate_actions": [
+          "Implement memoization for expensive computations",
+          "Use Web Workers for complex calculations",
+          "Lazy load computational results"
+        ],
+        "long_term_solutions": [
+          "Restructure computational logic to be more event-driven",
+          "Implement progressive rendering strategies"
+        ],
+        "affected_metrics": [
+          "fcp_avg_ms",
+          "lcp_avg_ms",
+          "ttfb_avg_ms"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Improve rendering performance by 50-60%"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Inefficient WebSocket Connection Management",
+        "description": "WebSocket connections causing significant memory leaks and performance overhead",
+        "business_impact": "Exponential growth in server memory usage, potential connection instability",
+        "root_cause_analysis": "No proper WebSocket connection lifecycle management and excessive data transmission",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "wss.on('connection')"
+            ],
+            "lines": [
+              1500,
+              1550,
+              1600
+            ],
+            "issue": "Unlimited WebSocket connection storage without cleanup"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "wss.on('connection', (ws, req) => {\n  const connectionId = Date.now() + Math.random();\n  activeConnections.set(connectionId, {\n    ws,\n    messageHistory: []\n  });\n\n  ws.on('close', () => {\n    console.log('WebSocket connection closed');\n  });\n});",
+            "optimized_code": "const MAX_CONNECTIONS = 1000;\nwss.on('connection', (ws, req) => {\n  const connectionId = Date.now() + Math.random();\n  if (activeConnections.size >= MAX_CONNECTIONS) {\n    const oldestConnection = Array.from(activeConnections.keys())[0];\n    activeConnections.delete(oldestConnection);\n  }\n  activeConnections.set(connectionId, {\n    ws,\n    messageHistory: []\n  });\n\n  ws.on('close', () => {\n    activeConnections.delete(connectionId);\n  });\n});",
+            "explanation": "Implement connection limit and proper cleanup mechanism",
+            "expected_improvement": "Reduce memory consumption by 70-80%"
+          }
+        ],
+        "immediate_actions": [
+          "Implement WebSocket connection limits",
+          "Add proper connection cleanup logic",
+          "Limit message history size"
+        ],
+        "long_term_solutions": [
+          "Implement more robust WebSocket connection management",
+          "Use connection pooling strategies"
+        ],
+        "affected_metrics": [
+          "memory_usage_avg_mb",
+          "cpu_utilization_avg_pct"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Stabilize server memory usage and reduce connection overhead"
+      },
+      {
+        "type": "code_optimization",
+        "severity": "high",
+        "confidence": 0.8,
+        "title": "Database Query Performance Optimization",
+        "description": "Inefficient database querying patterns causing significant performance degradation",
+        "business_impact": "Database query time increased from 45ms to 125ms, potential scalability issues",
+        "root_cause_analysis": "Lack of proper indexing, inefficient query design, and synchronous query execution",
+        "affected_files": [
+          {
+            "path": "backend/server.js",
+            "functions": [
+              "initializeDatabase",
+              "insertTestData"
+            ],
+            "lines": [
+              200,
+              250,
+              300
+            ],
+            "issue": "Large-scale synchronous data insertion without batch processing"
+          }
+        ],
+        "code_recommendations": [
+          {
+            "file": "backend/server.js",
+            "current_code": "for (let i = 1; i <= 1000; i++) {\n  db.run(`INSERT INTO users (...) VALUES (...)`);\n}\n\nfor (let i = 1; i <= 5000; i++) {\n  db.run(`INSERT INTO calendar_events (...) VALUES (...)`);\n}",
+            "optimized_code": "const insertUserBatch = (users) => {\n  const stmt = db.prepare(`INSERT INTO users (...) VALUES (...)`);\n  users.forEach(user => stmt.run(user));\n  stmt.finalize();\n};\n\nconst userBatches = chunkArray(users, 100);\nuserBatches.forEach(batch => insertUserBatch(batch));",
+            "explanation": "Implement batch insertion with prepared statements to reduce query overhead",
+            "expected_improvement": "Reduce database query time by 60-70%"
+          }
+        ],
+        "immediate_actions": [
+          "Implement batch database insertions",
+          "Add proper database indexing",
+          "Use prepared statements"
+        ],
+        "long_term_solutions": [
+          "Implement database connection pooling",
+          "Consider using more efficient ORM solutions",
+          "Implement database-level optimizations"
+        ],
+        "affected_metrics": [
+          "database_query_avg_ms",
+          "database_query_p95_ms"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Improve database query performance by 50-60%"
+      }
+    ],
+    "summary": {
+      "improved": 5,
+      "worse": 26,
+      "same": 0,
+      "unknown": 3
+    }
+  },
+  {
+    "id": "1756897250490",
+    "timestamp": "2025-09-03T11:00:50.490Z",
+    "baseline": {
+      "name": "test-app-baseline",
+      "timestamp": "2025-09-03T11:00:03.943Z",
+      "metrics": {
+        "checks_rate": 0.952,
+        "http_req_failed_rate": 0.015,
+        "inp_avg_ms": 65,
+        "inp_p95_ms": 90,
+        "login_avg_ms": 850,
+        "login_p95_ms": 1150,
+        "dashboard_load_avg_ms": 1200,
+        "dashboard_load_p95_ms": 1700,
+        "api_response_avg_ms": 180,
+        "api_response_p95_ms": 260,
+        "users_api_avg_ms": 320,
+        "users_api_p95_ms": 480,
+        "database_query_avg_ms": 45,
+        "database_query_p95_ms": 78,
+        "memory_usage_avg_mb": 120,
+        "cpu_utilization_avg_pct": 35,
+        "successful_requests_rate": 0.97,
+        "successful_requests_threshold_ok": 1,
+        "fcp_avg_ms": 1100,
+        "fcp_p95_ms": 1400,
+        "lcp_avg_ms": 1650,
+        "lcp_p95_ms": 2100,
+        "cls_avg": 0.035,
+        "ttfb_avg_ms": 280,
+        "ttfb_p95_ms": 450,
+        "meeting_creation_avg_ms": 650,
+        "calendar_navigation_avg_ms": 380,
+        "resource_load_avg_ms": 420,
+        "error_rate": 0.045,
+        "errors_threshold_ok": 1,
+        "checks_total_passes": 476,
+        "checks_total_fails": 24,
+        "checks_success_rate": 0.952
+      }
+    },
+    "current": {
+      "name": "test-app-current",
+      "timestamp": "2025-09-03T10:59:24.678Z",
+      "metrics": {
+        "checks_rate": 0.496,
+        "http_req_failed_rate": 0.085,
+        "inp_avg_ms": 58,
+        "inp_p95_ms": 80,
+        "login_avg_ms": 4200,
+        "login_p95_ms": 6200,
+        "dashboard_load_avg_ms": 8500,
+        "dashboard_load_p95_ms": 12200,
+        "api_response_avg_ms": 145,
+        "api_response_p95_ms": 210,
+        "users_api_avg_ms": 9200,
+        "users_api_p95_ms": 14200,
+        "database_query_avg_ms": 125,
+        "database_query_p95_ms": 250,
+        "memory_usage_avg_mb": 285,
+        "cpu_utilization_avg_pct": 85,
+        "successful_requests_rate": 0.82,
+        "successful_requests_threshold_ok": 0,
+        "fcp_avg_ms": 5200,
+        "fcp_p95_ms": 7200,
+        "lcp_avg_ms": 8900,
+        "lcp_p95_ms": 12800,
+        "cls_avg": 0.038,
+        "ttfb_avg_ms": 1850,
+        "ttfb_p95_ms": 2800,
+        "meeting_creation_avg_ms": 6800,
+        "calendar_navigation_avg_ms": 4500,
+        "resource_load_avg_ms": 5200,
+        "error_rate": 0.16,
+        "errors_threshold_ok": 0,
+        "js_heap_size_avg_mb": 245,
+        "checks_total_passes": 248,
+        "checks_total_fails": 252,
+        "checks_success_rate": 0.496
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic API and Database Performance Degradation",
+        "description": "Massive performance collapse in critical system components, with users API and database queries showing extreme latency increases (2775% and 177.8% respectively)",
+        "business_impact": "Potential 50-70% user experience loss, estimated revenue impact of $50-100K per day, high risk of user churn",
+        "root_cause_analysis": "Likely combination of unoptimized database queries, inefficient API endpoint implementations, and potential N+1 query problems in data retrieval",
+        "immediate_actions": [
+          "Implement emergency query caching",
+          "Scale database read replicas",
+          "Temporarily increase server resources",
+          "Roll back recent code changes"
+        ],
+        "code_optimizations": [
+          "Add database query indexing on frequently accessed columns",
+          "Implement database query result caching",
+          "Optimize database connection pooling",
+          "Refactor API endpoints to use batch/bulk data retrieval"
+        ],
+        "long_term_solutions": [
+          "Comprehensive database schema review",
+          "Implement advanced caching strategies",
+          "Migrate to more scalable database architecture",
+          "Develop performance testing framework"
+        ],
+        "affected_metrics": [
+          "users_api_avg_ms",
+          "users_api_p95_ms",
+          "database_query_avg_ms",
+          "database_query_p95_ms"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "70-85% latency reduction, 90% success rate restoration"
+      },
+      {
+        "type": "root_cause",
+        "severity": "critical",
+        "confidence": 0.85,
+        "title": "Memory Leaks and Resource Exhaustion",
+        "description": "Significant memory usage increase from 120MB to 285MB, coupled with CPU utilization spike from 35% to 85%",
+        "business_impact": "System instability, potential service outages, increased infrastructure costs",
+        "root_cause_analysis": "Probable memory management issues in Node.js application, potential unhandled promises, excessive object retention, or inefficient garbage collection",
+        "immediate_actions": [
+          "Implement memory profiling",
+          "Force garbage collection",
+          "Add memory usage monitoring alerts",
+          "Temporarily increase server memory allocation"
+        ],
+        "code_optimizations": [
+          "Use weak references for large object collections",
+          "Implement explicit memory management techniques",
+          "Add comprehensive error handling for async operations",
+          "Use stream processing for large data sets"
+        ],
+        "long_term_solutions": [
+          "Conduct comprehensive memory leak audit",
+          "Develop memory profiling integration in CI/CD",
+          "Implement advanced Node.js memory management patterns"
+        ],
+        "affected_metrics": [
+          "memory_usage_avg_mb",
+          "cpu_utilization_avg_pct"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "50-60% memory usage reduction, 40% CPU utilization improvement"
+      },
+      {
+        "type": "optimization",
+        "severity": "high",
+        "confidence": 0.75,
+        "title": "Frontend Performance and Core Web Vitals Optimization",
+        "description": "Severe degradation in First Contentful Paint (FCP) and Largest Contentful Paint (LCP), increasing from ~1100ms to 5200ms",
+        "business_impact": "Potential 40% increase in bounce rates, significant SEO ranking damage",
+        "root_cause_analysis": "Likely excessive JavaScript bundle size, render-blocking resources, inefficient React component rendering",
+        "immediate_actions": [
+          "Enable browser caching",
+          "Implement code splitting",
+          "Minimize critical rendering path",
+          "Optimize asset delivery"
+        ],
+        "code_optimizations": [
+          "Use React.memo and useMemo for component memoization",
+          "Implement lazy loading for non-critical components",
+          "Minimize inline scripts",
+          "Optimize webpack bundle configuration"
+        ],
+        "long_term_solutions": [
+          "Implement performance budget",
+          "Develop comprehensive frontend performance testing",
+          "Create performance monitoring dashboard"
+        ],
+        "affected_metrics": [
+          "fcp_avg_ms",
+          "fcp_p95_ms",
+          "lcp_avg_ms",
+          "lcp_p95_ms"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "60-70% improvement in Core Web Vitals metrics"
+      }
+    ],
+    "summary": {
+      "improved": 5,
+      "worse": 26,
+      "same": 0,
+      "unknown": 3
+    }
+  },
+  {
+    "id": "1756896705981",
+    "timestamp": "2025-09-03T10:51:45.981Z",
+    "baseline": {
+      "name": "real-baseline",
+      "timestamp": "2025-09-03T10:50:59.018Z",
+      "metrics": {
+        "checks_rate": 0.98,
+        "adminList_API_avg": 124.99,
+        "adminList_API_p95": 135.6,
+        "boards_API_avg": 90.23,
+        "boards_API_p95": 101.12,
+        "cookieHiddenRotate_API_avg": 77.95,
+        "cookieHiddenRotate_API_p95": 83.11,
+        "CookieUsername_API_avg": 75.58,
+        "CookieUsername_API_p95": 76.29,
+        "createGoal_API_avg": 425.93,
+        "createGoal_API_p95": 534.07,
+        "createMeeting_API_avg": 441.85,
+        "createMeeting_API_p95": 492.08,
+        "defaultASPX_API_avg": 417.97,
+        "defaultASPX_API_p95": 466.19,
+        "documentTypes_API_avg": 97.93,
+        "documentTypes_API_p95": 101.23,
+        "extendedUserData_API_avg": 122.76,
+        "extendedUserData_API_p95": 124.5,
+        "general_API_avg": 78.44,
+        "general_API_p95": 85.71,
+        "getAllDocumentTypes_API_avg": 96.72,
+        "getAllDocumentTypes_API_p95": 104.99,
+        "goalsPortalList_API_avg": 146.24,
+        "goalsPortalList_API_p95": 165.41,
+        "goalsType_API_avg": 300.26,
+        "goalsType_API_p95": 348.04,
+        "groupsDepartments_API_avg": 92.99,
+        "groupsDepartments_API_p95": 109.39,
+        "isSigned_API_avg": 108.55,
+        "isSigned_API_p95": 110.74,
+        "meetingServices_API_avg": 340.29,
+        "meetingServices_API_p95": 513.65,
+        "policies_API_avg": 187.06,
+        "policies_API_p95": 215.45,
+        "policySettings_API_avg": 191.9,
+        "policySettings_API_p95": 204.5,
+        "portal_API_avg": 480.15,
+        "portal_API_p95": 543.58,
+        "userDetails_API_avg": 298.49,
+        "userDetails_API_p95": 347.85,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 764.25,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 993.77,
+        "userList_API_avg": 86.48,
+        "userList_API_p95": 98.87,
+        "userListwithLimitedDetails_API_avg": 738.4,
+        "userListwithLimitedDetails_API_p95": 928.66,
+        "boardsId_APIWorkflow_avg": 200.27,
+        "boardsId_APIWorkflow_p95": 216.73,
+        "createPolicies_APIWorkflow_avg": 1190,
+        "createPolicies_APIWorkflow_p95": 1320,
+        "finishMeeting_APIWorkflow_avg": 1070,
+        "finishMeeting_APIWorkflow_p95": 1310,
+        "getAgendaItems_APIWorkflow_avg": 1960,
+        "getAgendaItems_APIWorkflow_p95": 2360,
+        "getGoalId_APIWorkflow_avg": 522.36,
+        "getGoalId_APIWorkflow_p95": 576.15,
+        "getMembers_APIWorkflow_avg": 1300,
+        "getMembers_APIWorkflow_p95": 1520,
+        "getMinutesItems_APIWorkflow_avg": 5880,
+        "getMinutesItems_APIWorkflow_p95": 6470,
+        "membersAgendaPreview_APIWorkflow_avg": 1560,
+        "membersAgendaPreview_APIWorkflow_p95": 1770,
+        "policyIncludeTrue_APIWorkflow_avg": 538.67,
+        "policyIncludeTrue_APIWorkflow_p95": 633.11,
+        "publishAgenda_APIWorkflow_avg": 9260,
+        "publishAgenda_APIWorkflow_p95": 10620,
+        "publishGoal_APIWorkflow_avg": 695.53,
+        "publishGoal_APIWorkflow_p95": 757.85,
+        "saveAgenda_APIWorkflow_avg": 3350,
+        "saveAgenda_APIWorkflow_p95": 3940,
+        "saveMinutes_APIWorkflow_avg": 7990,
+        "saveMinutes_APIWorkflow_p95": 8380,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_avg": 1020,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_p95": 1330,
+        "homePage_UIWorkflow_avg": 3960,
+        "homePage_UIWorkflow_p95": 4040,
+        "createMeeting_UIWorkflow_avg": 2650,
+        "createMeeting_UIWorkflow_p95": 2790,
+        "openAgendaBuilder_avg": 2160,
+        "openAgendaBuilder_p95": 2310,
+        "creationOfAgendaItemsAndItsReflection_avg": 4690,
+        "creationOfAgendaItemsAndItsReflection_p95": 4830,
+        "publishingAgendas_avg": 12510,
+        "publishingAgendas_p95": 17060,
+        "openingMembersAgenda_avg": 1620,
+        "openingMembersAgenda_p95": 1670,
+        "openingMinutesBuilder_avg": 3140,
+        "openingMinutesBuilder_p95": 3360,
+        "openingPolicyList_avg": 594.2,
+        "openingPolicyList_p95": 636.15,
+        "openingPublicSiteWithoutLogin_avg": 2530,
+        "openingPublicSiteWithoutLogin_p95": 2900,
+        "openingUsersAndUserList_avg": 1750,
+        "openingUsersAndUserList_p95": 1830,
+        "copyItemsFromOneMeetingToAnother_avg": 14030,
+        "copyItemsFromOneMeetingToAnother_p95": 17230,
+        "openPublicSiteCalendar_avg": 3350,
+        "openPublicSiteCalendar_p95": 3450,
+        "openPublicSiteMeetingsPage_avg": 3080,
+        "openPublicSiteMeetingsPage_p95": 3270,
+        "openPublicSiteMeeting_avg": 671.95,
+        "openPublicSiteMeeting_p95": 741.75,
+        "openPublicSiteSplitScreen_avg": 2860,
+        "openPublicSiteSplitScreen_p95": 3010,
+        "previewingAgenda_avg": 5370,
+        "previewingAgenda_p95": 5900,
+        "publishingMinutes_avg": 11290,
+        "publishingMinutes_p95": 11370,
+        "previewingMinutes_avg": 5600,
+        "previewingMinutes_p95": 6240,
+        "startPresentation_avg": 4970,
+        "startPresentation_p95": 5510,
+        "selectItemInPresentation_avg": 764.9,
+        "selectItemInPresentation_p95": 836.75,
+        "viewTheAgenda_avg": 1670,
+        "viewTheAgenda_p95": 1750,
+        "runVotes_avg": 2240,
+        "runVotes_p95": 2330,
+        "takeAttendance_avg": 428.05,
+        "takeAttendance_p95": 459.25,
+        "takeMinutes_avg": 3960,
+        "takeMinutes_p95": 4160,
+        "http_req_duration_avg_avg": 250,
+        "http_req_duration_avg_p95": 450,
+        "error_rate_rate": 0.02,
+        "success_rate_rate": 0.98,
+        "checks_total_passes": 57,
+        "checks_total_fails": 1,
+        "checks_success_rate": 0.9827586206896551
+      }
+    },
+    "current": {
+      "name": "real-current",
+      "timestamp": "2025-09-03T10:51:05.754Z",
+      "metrics": {
+        "checks_rate": 0.89,
+        "adminList_API_avg": 120.64,
+        "adminList_API_p95": 124.99,
+        "boards_API_avg": 97.54,
+        "boards_API_p95": 115.63,
+        "cookieHiddenRotate_API_avg": 78.18,
+        "cookieHiddenRotate_API_p95": 82.09,
+        "CookieUsername_API_avg": 78.62,
+        "CookieUsername_API_p95": 80.8,
+        "createGoal_API_avg": 322.96,
+        "createGoal_API_p95": 359.96,
+        "createMeeting_API_avg": 417.06,
+        "createMeeting_API_p95": 429.82,
+        "defaultASPX_API_avg": 375.33,
+        "defaultASPX_API_p95": 404.55,
+        "documentTypes_API_avg": 87.5,
+        "documentTypes_API_p95": 94.31,
+        "extendedUserData_API_avg": 95.62,
+        "extendedUserData_API_p95": 106.74,
+        "general_API_avg": 81.91,
+        "general_API_p95": 85.67,
+        "getAllDocumentTypes_API_avg": 190.47,
+        "getAllDocumentTypes_API_p95": 195.55,
+        "goalsPortalList_API_avg": 134.64,
+        "goalsPortalList_API_p95": 155.55,
+        "goalsType_API_avg": 457.19,
+        "goalsType_API_p95": 510.23,
+        "groupsDepartments_API_avg": 73.42,
+        "groupsDepartments_API_p95": 78.28,
+        "isSigned_API_avg": 90.6,
+        "isSigned_API_p95": 93.07,
+        "meetingServices_API_avg": 398.03,
+        "meetingServices_API_p95": 433.09,
+        "policies_API_avg": 139.27,
+        "policies_API_p95": 141.02,
+        "policySettings_API_avg": 126.75,
+        "policySettings_API_p95": 135.46,
+        "portal_API_avg": 455.04,
+        "portal_API_p95": 491.08,
+        "userDetails_API_avg": 201.33,
+        "userDetails_API_p95": 240.29,
+        "userListWithLinitedDetalsAndEmailAddress_avg": 670.28,
+        "userListWithLinitedDetalsAndEmailAddress_p95": 727.31,
+        "userList_API_avg": 83.15,
+        "userList_API_p95": 84.03,
+        "userListwithLimitedDetails_API_avg": 671.19,
+        "userListwithLimitedDetails_API_p95": 741.79,
+        "boardsId_APIWorkflow_avg": 201.89,
+        "boardsId_APIWorkflow_p95": 214.04,
+        "createPolicies_APIWorkflow_avg": 1120,
+        "createPolicies_APIWorkflow_p95": 1350,
+        "finishMeeting_APIWorkflow_avg": 944.6,
+        "finishMeeting_APIWorkflow_p95": 1120,
+        "getAgendaItems_APIWorkflow_avg": 1670,
+        "getAgendaItems_APIWorkflow_p95": 2060,
+        "getGoalId_APIWorkflow_avg": 474.43,
+        "getGoalId_APIWorkflow_p95": 474.89,
+        "getMembers_APIWorkflow_avg": 1080,
+        "getMembers_APIWorkflow_p95": 1270,
+        "getMinutesItems_APIWorkflow_avg": 5230,
+        "getMinutesItems_APIWorkflow_p95": 5500,
+        "membersAgendaPreview_APIWorkflow_avg": 1170,
+        "membersAgendaPreview_APIWorkflow_p95": 1480,
+        "policyIncludeTrue_APIWorkflow_avg": 313.42,
+        "policyIncludeTrue_APIWorkflow_p95": 314.89,
+        "publishAgenda_APIWorkflow_avg": 8240,
+        "publishAgenda_APIWorkflow_p95": 8830,
+        "publishGoal_APIWorkflow_avg": 652.7,
+        "publishGoal_APIWorkflow_p95": 694.14,
+        "saveAgenda_APIWorkflow_avg": 2350,
+        "saveAgenda_APIWorkflow_p95": 2690,
+        "saveMinutes_APIWorkflow_avg": 7410,
+        "saveMinutes_APIWorkflow_p95": 7950,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_avg": 863.96,
+        "uploadAttachmentsInAgendaBuilder_APIWorkflow_p95": 1120,
+        "homePage_UIWorkflow_avg": 4080,
+        "homePage_UIWorkflow_p95": 4170,
+        "createMeeting_UIWorkflow_avg": 2810,
+        "createMeeting_UIWorkflow_p95": 3030,
+        "openAgendaBuilder_avg": 2260,
+        "openAgendaBuilder_p95": 2450,
+        "creationOfAgendaItemsAndItsReflection_avg": 4720,
+        "creationOfAgendaItemsAndItsReflection_p95": 4830,
+        "publishingAgendas_avg": 12050,
+        "publishingAgendas_p95": 12160,
+        "openingMembersAgenda_avg": 1640,
+        "openingMembersAgenda_p95": 1710,
+        "openingMinutesBuilder_avg": 3270,
+        "openingMinutesBuilder_p95": 3470,
+        "openingPolicyList_avg": 616.4,
+        "openingPolicyList_p95": 660.05,
+        "openingPublicSiteWithoutLogin_avg": 2700,
+        "openingPublicSiteWithoutLogin_p95": 2770,
+        "openingUsersAndUserList_avg": 1800,
+        "openingUsersAndUserList_p95": 1890,
+        "copyItemsFromOneMeetingToAnother_avg": 13790,
+        "copyItemsFromOneMeetingToAnother_p95": 16240,
+        "openPublicSiteCalendar_avg": 3340,
+        "openPublicSiteCalendar_p95": 3440,
+        "openPublicSiteMeetingsPage_avg": 3030,
+        "openPublicSiteMeetingsPage_p95": 3190,
+        "openPublicSiteMeeting_avg": 664.25,
+        "openPublicSiteMeeting_p95": 717.15,
+        "openPublicSiteSplitScreen_avg": 2890,
+        "openPublicSiteSplitScreen_p95": 2990,
+        "previewingAgenda_avg": 5180,
+        "previewingAgenda_p95": 5550,
+        "publishingMinutes_avg": 11160,
+        "publishingMinutes_p95": 11220,
+        "previewingMinutes_avg": 4620,
+        "previewingMinutes_p95": 5060,
+        "startPresentation_avg": 4470,
+        "startPresentation_p95": 5040,
+        "selectItemInPresentation_avg": 724.1,
+        "selectItemInPresentation_p95": 764.3,
+        "viewTheAgenda_avg": 1810,
+        "viewTheAgenda_p95": 1880,
+        "runVotes_avg": 2210,
+        "runVotes_p95": 2290,
+        "takeAttendance_avg": 431.4,
+        "takeAttendance_p95": 466.65,
+        "takeMinutes_avg": 3780,
+        "takeMinutes_p95": 4030,
+        "http_req_duration_avg_avg": 320,
+        "http_req_duration_avg_p95": 580,
+        "error_rate_rate": 0.11,
+        "success_rate_rate": 0.89,
+        "checks_total_passes": 52,
+        "checks_total_fails": 6,
+        "checks_success_rate": 0.896551724137931
+      }
+    },
+    "insights": [
+      {
+        "type": "critical_issue",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Catastrophic Error Rate Surge",
+        "description": "Error rate increased from 0.02 to 0.11 (450% spike), with success rate dropping from 0.98 to 0.89",
+        "business_impact": "Potential revenue loss of 11-15%, high risk of customer churn and service reliability issues",
+        "root_cause_analysis": "Likely caused by recent deployment, infrastructure configuration change, or critical dependency failure",
+        "immediate_actions": [
+          "Immediate rollback to previous stable deployment",
+          "Activate emergency monitoring and incident response protocol",
+          "Conduct immediate system health check across all services"
+        ],
+        "code_optimizations": [
+          "Implement comprehensive error handling mechanisms",
+          "Add circuit breaker patterns for critical service dependencies"
+        ],
+        "long_term_solutions": [
+          "Enhance deployment validation procedures",
+          "Implement automated rollback capabilities",
+          "Develop more robust error tracking and reporting"
+        ],
+        "affected_metrics": [
+          "error_rate",
+          "success_rate",
+          "checks_total_fails"
+        ],
+        "priority_score": "P1",
+        "effort_estimate": "high",
+        "expected_improvement": "Restore success rate to >95%, reduce error rate to <0.05"
+      },
+      {
+        "type": "root_cause",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "API Performance Degradation in Critical Endpoints",
+        "description": "Significant performance regression in key API endpoints like Get All Document Types and Goals Type API",
+        "business_impact": "Potential user experience degradation, increased load times, potential revenue loss of 5-10%",
+        "root_cause_analysis": "Likely database query inefficiencies, potential N+1 query problem or missing indexes",
+        "immediate_actions": [
+          "Profile database queries for Get All Document Types and Goals Type endpoints",
+          "Analyze query execution plans",
+          "Implement temporary caching mechanism"
+        ],
+        "code_optimizations": [
+          "Optimize database queries with proper indexing",
+          "Implement pagination and limit result set sizes",
+          "Use database query optimization techniques"
+        ],
+        "long_term_solutions": [
+          "Comprehensive database performance audit",
+          "Implement query caching strategy",
+          "Develop performance testing framework for API endpoints"
+        ],
+        "affected_metrics": [
+          "get_all_document_types_api_avg",
+          "get_all_document_types_api_p95",
+          "goals_type_api_avg",
+          "goals_type_api_p95"
+        ],
+        "priority_score": "P2",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce API response times by 40-50%, improve query performance"
+      },
+      {
+        "type": "optimization",
+        "severity": "medium",
+        "confidence": 0.75,
+        "title": "HTTP Request Duration Performance Degradation",
+        "description": "Average HTTP request duration increased from 250ms to 320ms (+28%), p95 from 450ms to 580ms",
+        "business_impact": "Potential user experience slowdown, increased page load times, SEO ranking risk",
+        "root_cause_analysis": "Possible network latency, inefficient request handling, backend processing bottlenecks",
+        "immediate_actions": [
+          "Conduct network latency analysis",
+          "Profile server-side request processing",
+          "Review recent infrastructure or code changes"
+        ],
+        "code_optimizations": [
+          "Implement request-level caching",
+          "Optimize middleware processing",
+          "Use connection pooling and efficient resource management"
+        ],
+        "long_term_solutions": [
+          "Implement distributed tracing",
+          "Develop comprehensive performance monitoring",
+          "Create baseline performance standards"
+        ],
+        "affected_metrics": [
+          "http_req_duration_avg",
+          "http_req_duration_p95"
+        ],
+        "priority_score": "P3",
+        "effort_estimate": "medium",
+        "expected_improvement": "Reduce HTTP request duration by 20-30%, improve overall system responsiveness"
+      }
+    ],
+    "summary": {
+      "improved": 66,
+      "worse": 21,
+      "same": 43,
+      "unknown": 0
+    }
+  },
+  {
     "id": "1756895414868",
     "timestamp": "2025-09-03T10:30:14.868Z",
     "baseline": {

@@ -122,7 +122,7 @@ export interface ImpactSummary {
     cls: MetricDiff | null;
     fid: MetricDiff | null;
     ttfb: MetricDiff | null;
-    score: 'good' | 'needs-improvement' | 'poor';
+    score: 'good' | 'needs-improvement' | 'poor' | 'n/a';
   };
   
   // 💼 Business Impact

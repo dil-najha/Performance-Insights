@@ -304,7 +304,7 @@ export default function App() {
               {/* Enhanced Impact Summary */}
               <div className="animate-pop">
                 <EnhancedImpactSummary impact={computeImpact(result)} />
-              </div>
+                  </div>
 
               {/* AI Insights (if enabled) */}
               {aiEnabled && (
@@ -497,7 +497,7 @@ export default function App() {
                   <p className="mb-0.5">© 2024 SpotLag.AI Performance Intelligence Platform</p>
                   <p>Built with advanced AI technology for enterprise performance optimization</p>
                 </div>
-              </div>
+            </div>
             </div>
 
           </section>

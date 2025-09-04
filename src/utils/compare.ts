@@ -217,9 +217,9 @@ export function suggestionsFromDiffs(diffs: MetricDiff[]): string[] {
 // Enhanced comprehensive impact analysis
 export function computeImpact(result: ComparisonResult): ImpactSummary {
   try {
-    const { diffs, summary } = result;
-    const improved = diffs.filter(d => d.trend === 'improved');
-    const worse = diffs.filter(d => d.trend === 'worse');
+  const { diffs, summary } = result;
+  const improved = diffs.filter(d => d.trend === 'improved');
+  const worse = diffs.filter(d => d.trend === 'worse');
 
   // Calculate legacy metrics
   const latencyKeyOrder = ['responseTimeAvg', 'latencyAvg', 'responseTimeP95', 'responseTimeP99'];
@@ -270,10 +270,16 @@ export function computeImpact(result: ComparisonResult): ImpactSummary {
   const fid = findMetric(diffs, ['fid_avg_ms', 'browser_web_vital_fid']);
   const ttfb = findMetric(diffs, ['ttfb_avg_ms', 'browser_web_vital_ttfb']);
 
-  let coreWebVitalsScore: 'good' | 'needs-improvement' | 'poor' = 'good';
-  const vitalsIssues = [fcp, lcp, ttfb].filter(v => v && v.current && (v.current as number) > 2500).length;
-  if (vitalsIssues >= 2) coreWebVitalsScore = 'poor';
-  else if (vitalsIssues >= 1) coreWebVitalsScore = 'needs-improvement';
+  // Check if any Core Web Vitals metrics are available
+  const hasAnyVitals = [fcp, lcp, cls, fid, ttfb].some(v => v !== null);
+  
+  let coreWebVitalsScore: 'good' | 'needs-improvement' | 'poor' | 'n/a' = hasAnyVitals ? 'good' : 'n/a';
+  
+  if (hasAnyVitals) {
+    const vitalsIssues = [fcp, lcp, ttfb].filter(v => v && v.current && (v.current as number) > 2500).length;
+    if (vitalsIssues >= 2) coreWebVitalsScore = 'poor';
+    else if (vitalsIssues >= 1) coreWebVitalsScore = 'needs-improvement';
+  }
 
   // 💼 Business Impact Analysis
   let revenueRisk: 'low' | 'medium' | 'high' | 'critical' = 'low';
@@ -292,6 +298,7 @@ export function computeImpact(result: ComparisonResult): ImpactSummary {
     revenueRisk = 'medium';
     userExperience = 'degraded';
   }
+  // Note: 'n/a' for coreWebVitalsScore doesn't affect business impact calculation
 
   const estimatedLoss = revenueRisk === 'critical' ? '40-90% transaction failures' :
                       revenueRisk === 'high' ? '20-40% user abandonment' :
@@ -364,35 +371,35 @@ export function computeImpact(result: ComparisonResult): ImpactSummary {
     if (latencyDiff && typeof latencyDiff.change === 'number' && latencyDiff.trend === 'improved') {
       latencyImprovementMs = latencyDiff.baseline! - latencyDiff.current!;
       latencyImprovementPct = latencyDiff.pct !== null ? -latencyDiff.pct : null;
-    }
+  }
 
-    const pctImprovements: number[] = improved
-      .filter(d => d.pct !== null)
+  const pctImprovements: number[] = improved
+    .filter(d => d.pct !== null)
       .map(d => d.betterWhen === 'lower' ? -(d.pct as number) : (d.pct as number))
-      .filter(v => v > 0);
-    const avgPctImprovement = pctImprovements.length
-      ? pctImprovements.reduce((a, b) => a + b, 0) / pctImprovements.length
-      : null;
+    .filter(v => v > 0);
+  const avgPctImprovement = pctImprovements.length
+    ? pctImprovements.reduce((a, b) => a + b, 0) / pctImprovements.length
+    : null;
 
-    const estTimeSavedPer1kRequestsMs = latencyImprovementMs !== null
-      ? Math.round(latencyImprovementMs * 1000)
-      : null;
+  const estTimeSavedPer1kRequestsMs = latencyImprovementMs !== null
+    ? Math.round(latencyImprovementMs * 1000)
+    : null;
 
-    const suggestionEffectivenessPct = (improved.length + worse.length) > 0
-      ? Number(((improved.length / (improved.length + worse.length)) * 100).toFixed(1))
-      : null;
+  const suggestionEffectivenessPct = (improved.length + worse.length) > 0
+    ? Number(((improved.length / (improved.length + worse.length)) * 100).toFixed(1))
+    : null;
 
     // Return basic structure with safe defaults
-    return {
-      improvedMetrics: summary.improved,
-      worseMetrics: summary.worse,
-      sameMetrics: summary.same,
-      avgPctImprovement: avgPctImprovement !== null ? Number(avgPctImprovement.toFixed(1)) : null,
-      netImprovementScore: summary.improved - summary.worse,
-      latencyImprovementMs: latencyImprovementMs !== null ? Number(latencyImprovementMs.toFixed(2)) : null,
-      latencyImprovementPct: latencyImprovementPct !== null ? Number(latencyImprovementPct.toFixed(2)) : null,
-      estTimeSavedPer1kRequestsMs,
-      suggestionEffectivenessPct,
+  return {
+    improvedMetrics: summary.improved,
+    worseMetrics: summary.worse,
+    sameMetrics: summary.same,
+    avgPctImprovement: avgPctImprovement !== null ? Number(avgPctImprovement.toFixed(1)) : null,
+    netImprovementScore: summary.improved - summary.worse,
+    latencyImprovementMs: latencyImprovementMs !== null ? Number(latencyImprovementMs.toFixed(2)) : null,
+    latencyImprovementPct: latencyImprovementPct !== null ? Number(latencyImprovementPct.toFixed(2)) : null,
+    estTimeSavedPer1kRequestsMs,
+    suggestionEffectivenessPct,
       
       systemHealth: {
         status: 'healthy' as const,
@@ -407,7 +414,7 @@ export function computeImpact(result: ComparisonResult): ImpactSummary {
         cls: null,
         fid: null,
         ttfb: null,
-        score: 'good' as const,
+        score: 'n/a' as const,
       },
       
       businessImpact: {
@@ -418,9 +425,9 @@ export function computeImpact(result: ComparisonResult): ImpactSummary {
       },
       
       categories: {
-        systemReliability: { score: 100, status: 'good' as const, metrics: [] },
-        performance: { score: 100, status: 'good' as const, metrics: [] },
-        userExperience: { score: 100, status: 'good' as const, metrics: [] },
+        systemReliability: { score: -1, status: 'good' as const, metrics: [] },
+        performance: { score: -1, status: 'good' as const, metrics: [] },
+        userExperience: { score: -1, status: 'good' as const, metrics: [] },
       },
       
       priorityIssues: {
@@ -452,7 +459,7 @@ function categorizeMetrics(diffs: MetricDiff[]) {
     'checks_success_rate'
   ];
 
-  // 🚀 Performance & Response Time Metrics (Test-App Compatible)
+  // 🚀 Performance & Response Time Metrics (Test-App Compatible + Real-World Data)
   const performanceKeys = [
     'responseTimeAvg', 
     'http_req_avg_ms', 
@@ -466,10 +473,14 @@ function categorizeMetrics(diffs: MetricDiff[]) {
     'database_query_avg_ms',
     'meeting_creation_avg_ms',
     'calendar_navigation_avg_ms',
-    'resource_load_avg_ms'
+    'resource_load_avg_ms',
+    // Real-World API performance patterns
+    '_API_avg',           // adminList_API_avg, boards_API_avg, etc.
+    '_APIWorkflow_avg',   // publishAgenda_APIWorkflow_avg, etc.
+    'http_req_duration_avg' // Overall HTTP duration
   ];
 
-  // 🌟 User Experience & Core Web Vitals (Test-App Compatible)
+  // 🌟 User Experience & Core Web Vitals (Test-App Compatible + Real-World Data)
   const userExperienceKeys = [
     'fcp_avg_ms', 
     'lcp_avg_ms', 
@@ -480,20 +491,56 @@ function categorizeMetrics(diffs: MetricDiff[]) {
     // System resource impact on UX
     'memory_usage_avg_mb',
     'cpu_utilization_avg_pct',
-    'js_heap_size_avg_mb'
+    'js_heap_size_avg_mb',
+    // Real-World UI workflow patterns
+    '_UIWorkflow_avg',    // homePage_UIWorkflow_avg, createMeeting_UIWorkflow_avg, etc.
+    'homePage_UIWorkflow',
+    'createMeeting_UIWorkflow',
+    'openAgendaBuilder',
+    'publishingAgendas',
+    'openingMembersAgenda'
   ];
 
-  const systemReliability = diffs.filter(d => 
-    systemReliabilityKeys.some(key => d.key.includes(key))
-  );
+  // 🔍 Enhanced pattern matching for real-world metrics
+  const systemReliability = diffs.filter(d => {
+    const key = d.key.toLowerCase();
+    return systemReliabilityKeys.some(pattern => 
+      key.includes(pattern.toLowerCase()) ||
+      // Additional patterns for real data
+      key.includes('checks') && key.includes('rate') ||
+      key.includes('error') && key.includes('rate') ||
+      key.includes('success') && key.includes('rate')
+    );
+  });
   
-  const performance = diffs.filter(d => 
-    performanceKeys.some(key => d.key.includes(key))
-  );
+  const performance = diffs.filter(d => {
+    const key = d.key.toLowerCase();
+    return performanceKeys.some(pattern => {
+      if (pattern.startsWith('_')) {
+        // Pattern like "_API_avg" should match "adminList_API_avg"
+        const cleanPattern = pattern.substring(1); // Remove leading _
+        return key.includes(cleanPattern.toLowerCase());
+      }
+      return key.includes(pattern.toLowerCase());
+    });
+  });
   
-  const userExperience = diffs.filter(d => 
-    userExperienceKeys.some(key => d.key.includes(key))
-  );
+  const userExperience = diffs.filter(d => {
+    const key = d.key.toLowerCase();
+    return userExperienceKeys.some(pattern => {
+      if (pattern.startsWith('_')) {
+        // Pattern like "_UIWorkflow_avg" should match "homePage_UIWorkflow_avg"  
+        const cleanPattern = pattern.substring(1); // Remove leading _
+        return key.includes(cleanPattern.toLowerCase());
+      }
+      return key.includes(pattern.toLowerCase()) ||
+        // Direct match for specific UI workflow names
+        key.includes('homepage') || key.includes('createmeeting') || 
+        key.includes('openagenda') || key.includes('publishing') ||
+        key.includes('opening') || key.includes('previewing') ||
+        key.includes('startpresentation') || key.includes('viewtheagenda');
+    });
+  });
 
   return {
     systemReliability: {
@@ -515,15 +562,34 @@ function categorizeMetrics(diffs: MetricDiff[]) {
 }
 
 function calculateCategoryScore(metrics: MetricDiff[]): number {
-  if (metrics.length === 0) return 100;
+  if (metrics.length === 0) return -1; // 🔧 Special N/A value when no relevant metrics found
+  
   const improved = metrics.filter(m => m.trend === 'improved').length;
+  const worse = metrics.filter(m => m.trend === 'worse').length;
   const total = metrics.length;
-  return Math.round((improved / total) * 100);
+  
+  // Calculate score based on trend distribution
+  // 100 = all improved, 50 = neutral/mixed, 0 = all worse
+  const improvementRatio = improved / total;
+  const degradationRatio = worse / total;
+  
+  // Weight the score: improvements boost it, degradations lower it
+  let score = 50; // Start neutral
+  score += improvementRatio * 50;  // Improvements: 0-50 points
+  score -= degradationRatio * 50;  // Degradations: -50-0 points
+  
+  return Math.round(Math.max(0, Math.min(100, score)));
 }
 
 function getCategoryStatus(metrics: MetricDiff[]): 'good' | 'warning' | 'critical' {
-  const criticalIssues = metrics.filter(m => m.trend === 'worse' && Math.abs(m.pct!) > 50).length;
-  const highIssues = metrics.filter(m => m.trend === 'worse' && Math.abs(m.pct!) > 20).length;
+  if (metrics.length === 0) return 'good'; // 🔧 Neutral status when no relevant metrics found
+  
+  const criticalIssues = metrics.filter(m => 
+    m.trend === 'worse' && m.pct !== null && Math.abs(m.pct) > 50
+  ).length;
+  const highIssues = metrics.filter(m => 
+    m.trend === 'worse' && m.pct !== null && Math.abs(m.pct) > 20
+  ).length;
   
   if (criticalIssues > 0) return 'critical';
   if (highIssues > 0) return 'warning';

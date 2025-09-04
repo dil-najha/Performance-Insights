@@ -158,10 +158,13 @@ function CoreWebVitalsTab({ impact }: { impact: ImpactSummary }) {
       {/* Overall Score */}
       <div className="text-center">
         <div className={`badge badge-lg ${getVitalsBadgeColor(vitals.score)}`}>
-          Core Web Vitals: {vitals.score.toUpperCase()}
+          Core Web Vitals: {vitals.score === 'n/a' ? 'N/A' : vitals.score.toUpperCase()}
         </div>
         <p className="text-sm opacity-70 mt-2">
-          Google's user experience metrics for SEO and performance
+          {vitals.score === 'n/a' ? 
+            'No Core Web Vitals metrics found in this report' :
+            "Google's user experience metrics for SEO and performance"
+          }
         </p>
       </div>
 
@@ -237,6 +240,12 @@ function CoreWebVitalsTab({ impact }: { impact: ImpactSummary }) {
               <div className="flex items-start gap-2">
                 <span className="text-success">✅</span>
                 <span>Core Web Vitals are performing well - maintain current optimizations</span>
+              </div>
+            )}
+            {vitals.score === 'n/a' && (
+              <div className="flex items-start gap-2">
+                <span className="opacity-50">ℹ️</span>
+                <span className="opacity-70">No Core Web Vitals data available in this performance report</span>
               </div>
             )}
           </div>
@@ -378,17 +387,44 @@ function CategoryCard({ title, icon, category, description }: {
           <h4 className="font-semibold">{title}</h4>
         </div>
         <div className="text-center mb-3">
-          <div className={`text-2xl font-bold ${getCategoryScoreColor(category.status)}`}>
-            {category.score}%
+          <div className={`text-2xl font-bold ${category.score === -1 ? 'text-base-content opacity-50' : getCategoryScoreColor(category.status)}`}>
+            {category.score === -1 ? 'N/A' : `${category.score}%`}
           </div>
-          <div className={`badge badge-sm ${getCategoryBadgeColor(category.status)}`}>
-            {category.status.toUpperCase()}
-          </div>
+          {category.score !== -1 && (
+            <div className={`badge badge-sm ${getCategoryBadgeColor(category.status)}`}>
+              {category.status.toUpperCase()}
+            </div>
+          )}
         </div>
         <p className="text-xs opacity-70 mb-3">{description}</p>
-        <div className="text-xs">
-          <strong>{category.metrics.length}</strong> metrics tracked
-        </div>
+        
+        {/* Tracked Metrics */}
+        {category.metrics.length > 0 ? (
+          <div className="text-xs">
+            <div className="mb-2">
+              <strong>{category.metrics.length}</strong> metrics tracked:
+            </div>
+            <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
+              {category.metrics.map((metric, i) => (
+                <span 
+                  key={i} 
+                  className={`badge badge-xs font-mono text-[10px] ${
+                    metric.trend === 'improved' ? 'badge-success' : 
+                    metric.trend === 'worse' ? 'badge-error' : 
+                    'badge-ghost'
+                  }`}
+                  title={`${metric.key}: ${metric.trend} by ${Math.abs(metric.pct || 0).toFixed(1)}%`}
+                >
+                  {metric.key.replace(/_avg$|_ms$|_pct$/g, '')}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="text-xs opacity-50">
+            No relevant metrics found
+          </div>
+        )}
       </div>
     </div>
   );
@@ -503,6 +539,7 @@ function getVitalsBadgeColor(score: string): string {
     case 'poor': return 'badge-error';
     case 'needs-improvement': return 'badge-warning';
     case 'good': return 'badge-success';
+    case 'n/a': return 'badge-ghost opacity-60';
     default: return 'badge-neutral';
   }
 }

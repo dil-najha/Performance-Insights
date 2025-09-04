@@ -65,108 +65,108 @@
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 65,
-        "min": 45,
-        "med": 62,
-        "max": 95,
-        "p(90)": 85,
-        "p(95)": 90
+        "avg": 60,
+        "min": 40,
+        "med": 57,
+        "max": 87,
+        "p(90)": 77,
+        "p(95)": 82
       }
     },
     "login_response_time": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 850,
-        "min": 600,
-        "med": 820,
-        "max": 1200,
-        "p(90)": 1050,
-        "p(95)": 1150
+        "avg": 5500,
+        "min": 3700,
+        "med": 5300,
+        "max": 8200,
+        "p(90)": 7300,
+        "p(95)": 7800
       }
     },
     "dashboard_load_time": {
       "type": "trend",
       "contains": "time", 
       "values": {
-        "avg": 1200,
-        "min": 800,
-        "med": 1150,
-        "max": 1800,
-        "p(90)": 1600,
-        "p(95)": 1700
+        "avg": 11200,
+        "min": 8100,
+        "med": 10800,
+        "max": 16500,
+        "p(90)": 14800,
+        "p(95)": 15600
       }
     },
     "api_response_time": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 180,
-        "min": 120,
-        "med": 170,
-        "max": 280,
-        "p(90)": 240,
-        "p(95)": 260
+        "avg": 148,
+        "min": 98,
+        "med": 143,
+        "max": 225,
+        "p(90)": 195,
+        "p(95)": 215
       }
     },
     "users_api_response_time": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 320,
-        "min": 200,
-        "med": 300,
-        "max": 500,
-        "p(90)": 450,
-        "p(95)": 480
+        "avg": 12000,
+        "min": 8500,
+        "med": 11600,
+        "max": 18500,
+        "p(90)": 16200,
+        "p(95)": 17400
       }
     },
     "database_query_time": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 45,
-        "min": 20,
-        "med": 42,
-        "max": 85,
-        "p(90)": 70,
-        "p(95)": 78
+        "avg": 165,
+        "min": 85,
+        "med": 155,
+        "max": 350,
+        "p(90)": 285,
+        "p(95)": 315
       }
     },
     "memory_usage_mb": {
       "type": "trend",
       "contains": "default",
       "values": {
-        "avg": 120,
-        "min": 95,
-        "med": 118,
-        "max": 160,
-        "p(90)": 145,
-        "p(95)": 155
+        "avg": 375,
+        "min": 295,
+        "med": 360,
+        "max": 485,
+        "p(90)": 425,
+        "p(95)": 455
       }
     },
     "cpu_utilization_percent": {
       "type": "trend",
       "contains": "default",
       "values": {
-        "avg": 35,
-        "min": 15,
-        "med": 32,
-        "max": 65,
-        "p(90)": 55,
-        "p(95)": 60
+        "avg": 112,
+        "min": 84,
+        "med": 108,
+        "max": 125,
+        "p(90)": 120,
+        "p(95)": 124
       }
     },
     "successful_requests": {
       "contains": "default",
       "values": {
-        "rate": 0.97,
-        "passes": 970,
-        "fails": 30
+        "rate": 0.75,
+        "passes": 750,
+        "fails": 250
       },
       "thresholds": {
         "rate>0.9": {
-          "ok": true
+          "ok": false
         }
       },
       "type": "rate"
@@ -175,134 +175,134 @@
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 1100,
-        "min": 800,
-        "med": 1050,
-        "max": 1500,
-        "p(90)": 1350,
-        "p(95)": 1400
+        "avg": 5400,
+        "min": 3900,
+        "med": 5300,
+        "max": 7800,
+        "p(90)": 7050,
+        "p(95)": 7450
       }
     },
     "test_app_web_vital_lcp": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 1650,
-        "min": 1200,
-        "med": 1600,
-        "max": 2200,
-        "p(90)": 2000,
-        "p(95)": 2100
+        "avg": 9200,
+        "min": 6400,
+        "med": 8900,
+        "max": 14000,
+        "p(90)": 12400,
+        "p(95)": 13300
       }
     },
     "test_app_web_vital_cls": {
       "type": "trend",
       "contains": "default",
       "values": {
-        "max": 0.08,
-        "p(90)": 0.06,
-        "p(95)": 0.07,
-        "avg": 0.035,
-        "min": 0.005,
-        "med": 0.032
+        "max": 0.12,
+        "p(90)": 0.09,
+        "p(95)": 0.11,
+        "avg": 0.048,
+        "min": 0.015,
+        "med": 0.045
       }
     },
     "test_app_web_vital_ttfb": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "p(95)": 450,
-        "avg": 280,
-        "min": 150,
-        "med": 270,
-        "max": 520,
-        "p(90)": 380
+        "p(95)": 2900,
+        "avg": 1920,
+        "min": 980,
+        "med": 1810,
+        "max": 3320,
+        "p(90)": 2590
       }
     },
     "websocket_connection_time": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 120,
-        "min": 80,
-        "med": 115,
-        "max": 180,
-        "p(90)": 160,
-        "p(95)": 170
+        "avg": 97,
+        "min": 68,
+        "med": 95,
+        "max": 145,
+        "p(90)": 130,
+        "p(95)": 140
       }
     },
     "meeting_creation_time": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 650,
-        "min": 450,
-        "med": 620,
-        "max": 950,
-        "p(90)": 850,
-        "p(95)": 900
+        "avg": 7800,
+        "min": 5500,
+        "med": 7500,
+        "max": 10500,
+        "p(90)": 9200,
+        "p(95)": 9800
       }
     },
     "calendar_navigation_time": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 380,
-        "min": 250,
-        "med": 360,
-        "max": 550,
-        "p(90)": 480,
-        "p(95)": 520
+        "avg": 5200,
+        "min": 3800,
+        "med": 5000,
+        "max": 7000,
+        "p(90)": 6200,
+        "p(95)": 6800
       }
     },
     "notification_processing_time": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 95,
-        "min": 60,
-        "med": 90,
-        "max": 150,
-        "p(90)": 125,
-        "p(95)": 140
+        "avg": 74,
+        "min": 48,
+        "med": 71,
+        "max": 115,
+        "p(90)": 98,
+        "p(95)": 108
       }
     },
     "resource_load_time": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 420,
-        "min": 280,
-        "med": 400,
-        "max": 650,
-        "p(90)": 580,
-        "p(95)": 620
+        "avg": 6200,
+        "min": 4500,
+        "med": 6000,
+        "max": 8500,
+        "p(90)": 7800,
+        "p(95)": 8200
       }
     },
     "profile_load_time": {
       "type": "trend",
       "contains": "time",
       "values": {
-        "avg": 480,
-        "min": 320,
-        "med": 460,
-        "max": 720,
-        "p(90)": 640,
-        "p(95)": 680
+        "avg": 510,
+        "min": 345,
+        "med": 490,
+        "max": 770,
+        "p(90)": 685,
+        "p(95)": 725
       }
     },
     "errors": {
       "thresholds": {
         "rate<0.1": {
-          "ok": true
+          "ok": false
         }
       },
       "type": "rate",
       "contains": "default",
       "values": {
-        "rate": 0.045,
-        "passes": 955,
-        "fails": 45
+        "rate": 0.22,
+        "passes": 780,
+        "fails": 220
       }
     }
   }

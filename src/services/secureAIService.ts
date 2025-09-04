@@ -80,14 +80,14 @@ export class SecureAIService {
   // ===============================================
   // Main AI Analysis using Amazon Bedrock (test-app code auto-loaded by backend when needed)
   async analyzePerformance(
-    baseline: PerformanceReport, 
-    current: PerformanceReport, 
+    baseline: PerformanceReport,
+    current: PerformanceReport,
     systemContext?: SystemContext
   ): Promise<EnhancedComparisonResult> {
     const provider = getPreferredProvider();
     
     console.log(`🎯 Using AI provider: ${provider}`);
-    
+
     // Log code review status
     if (systemContext?.enableCodeReview) {
       console.log('🧪 Code Review Mode enabled - backend will auto-load test-app code if available');
@@ -98,21 +98,21 @@ export class SecureAIService {
         console.log('🏆 Using Amazon Bedrock Claude models...');
         
         // Note: sourceCode parameter removed - backend will auto-load test-app code when needed
-        const result = await this.makeRequest('/ai/analyze', {
-          baseline,
-          current,
-          systemContext
-        });
+      const result = await this.makeRequest('/ai/analyze', {
+        baseline,
+        current,
+        systemContext
+      });
 
         console.log('✅ Bedrock analysis successful');
-        
-        return {
-          diffs: result.diffs,
-          summary: result.summary,
-          aiInsights: result.aiInsights || [],
-          predictions: result.predictions || [],
-          explanation: result.explanation
-        };
+
+      return {
+        diffs: result.diffs,
+        summary: result.summary,
+        aiInsights: result.aiInsights || [],
+        predictions: result.predictions || [],
+        explanation: result.explanation
+      };
         
       } catch (error) {
         console.error('❌ Bedrock analysis failed:', error);

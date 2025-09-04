@@ -116,6 +116,61 @@ export class DataValidator {
            );
   }
 
+  // 🔍 Smart Detection: Distinguish between test-app and real-world data
+  private static detectRealWorldData(data: K6Report): boolean {
+    if (!data.metrics) return false;
+    
+    const metricNames = Object.keys(data.metrics);
+    
+    // 🎯 Real-world data patterns (from actual K6 CSV exports)
+    const realWorldPatterns = [
+      '_API',           // adminList_API, boards_API, etc.
+      '_APIWorkflow',   // publishAgenda_APIWorkflow, etc.
+      '_UIWorkflow',    // homePage_UIWorkflow, etc.
+      'adminList',      // API endpoint names
+      'boards', 
+      'createGoal',
+      'publishAgenda',
+      'homePage',
+      'createMeeting',
+      'openAgendaBuilder'
+    ];
+    
+    // 🧪 Test-app data patterns (synthetic test data)
+    const testAppPatterns = [
+      'test_app_web_vital_',
+      'login_response_time',
+      'dashboard_load_time',
+      'api_response_time',
+      'users_api_response_time',
+      'database_query_time',
+      'memory_usage_mb',
+      'cpu_utilization_percent'
+    ];
+    
+    // Count matches for each pattern type
+    const realWorldMatches = metricNames.filter(name => 
+      realWorldPatterns.some(pattern => name.includes(pattern))
+    ).length;
+    
+    const testAppMatches = metricNames.filter(name => 
+      testAppPatterns.some(pattern => name.includes(pattern))
+    ).length;
+    
+    // If we have significantly more real-world patterns, it's real data
+    // If we have any test-app specific patterns, it's test-app data
+    if (testAppMatches > 0) {
+      return false; // Test-app data detected
+    }
+    
+    if (realWorldMatches >= 5) { // Real-world data needs multiple API/workflow metrics
+      return true; // Real-world data detected
+    }
+    
+    // Default to test-app format for safety (preserves existing behavior)
+    return false;
+  }
+
   // Validate K6 format and convert to standard format
   private static validateK6Report(data: K6Report, reportName: string): ValidationResult {
     const errors: string[] = [];
@@ -123,33 +178,102 @@ export class DataValidator {
     const extractedMetrics: Record<string, number> = {};
 
     try {
-      // Define critical metrics we want to extract
-      const criticalMetrics = this.getCriticalK6Metrics();
+      // 🔍 Smart Detection: Test-app vs Real-world data
+      const isRealWorldData = this.detectRealWorldData(data);
       
-      // Extract only critical metrics from K6 format
-      for (const [metricName, metric] of Object.entries(data.metrics)) {
-        if (!metric || typeof metric !== 'object' || !metric.values) continue;
+      if (isRealWorldData) {
+        warnings.push('Detected real-world performance data - extracting all metrics');
         
-        // Check if this is a critical metric we care about
-        const criticalConfig = criticalMetrics[metricName];
-        if (!criticalConfig) continue; // Skip non-critical metrics
-        
-        // Extract only the values we need for this critical metric
-        for (const valueKey of criticalConfig.extract) {
-          const value = metric.values[valueKey];
-          if (typeof value === 'number') {
-            const metricKey = criticalConfig.transform ? 
-              criticalConfig.transform(metricName, valueKey) : 
-              `${metricName}_${valueKey}`;
-            extractedMetrics[metricKey] = value;
+        // 📊 Extract ALL metrics for real-world data
+        for (const [metricName, metric] of Object.entries(data.metrics)) {
+          if (metricName.startsWith('_comment')) continue; // Skip comment fields
+          
+          // Handle flat numeric metrics (like browser_web_vital_fcp_avg)
+          if (typeof metric === 'number') {
+            // 🎯 Map browser web vitals to standard names
+            if (metricName.includes('browser_web_vital_fcp_avg')) {
+              extractedMetrics['fcp_avg_ms'] = metric;
+            } else if (metricName.includes('browser_web_vital_fcp_p95')) {
+              extractedMetrics['fcp_p95_ms'] = metric;
+            } else if (metricName.includes('browser_web_vital_lcp_avg')) {
+              extractedMetrics['lcp_avg_ms'] = metric;
+            } else if (metricName.includes('browser_web_vital_lcp_p95')) {
+              extractedMetrics['lcp_p95_ms'] = metric;
+            } else if (metricName.includes('browser_web_vital_cls_avg')) {
+              extractedMetrics['cls_avg'] = metric;
+            } else if (metricName.includes('browser_web_vital_inp_avg')) {
+              extractedMetrics['inp_avg_ms'] = metric;
+            } else if (metricName.includes('browser_web_vital_inp_p95')) {
+              extractedMetrics['inp_p95_ms'] = metric;
+            } else if (metricName.includes('browser_web_vital_ttfb_avg')) {
+              extractedMetrics['ttfb_avg_ms'] = metric;
+            } else if (metricName.includes('browser_web_vital_ttfb_p95')) {
+              extractedMetrics['ttfb_p95_ms'] = metric;
+            } else {
+              extractedMetrics[metricName] = metric;
+            }
+            continue;
+          }
+          
+          // Handle nested K6 format metrics
+          if (!metric || typeof metric !== 'object' || !metric.values) continue;
+          
+          // Extract primary values (avg, p95) for trend metrics
+          if (metric.type === 'trend') {
+            if (typeof metric.values.avg === 'number') {
+              extractedMetrics[`${metricName}_avg`] = metric.values.avg;
+            }
+            if (typeof metric.values['p(95)'] === 'number') {
+              extractedMetrics[`${metricName}_p95`] = metric.values['p(95)'];
+            }
+          }
+          // Extract rate for rate metrics
+          else if (metric.type === 'rate') {
+            if (typeof metric.values.rate === 'number') {
+              extractedMetrics[`${metricName}_rate`] = metric.values.rate;
+            }
           }
         }
+        
+        // 🌐 Also extract any remaining flat metrics that weren't caught above
+        for (const [key, value] of Object.entries(data.metrics)) {
+          if (typeof value === 'number' && !extractedMetrics[key]) {
+            extractedMetrics[key] = value;
+          }
+        }
+        
+        warnings.push(`Extracted ${Object.keys(extractedMetrics).length} metrics from real-world K6 report`);
+      } else {
+        warnings.push('Detected test-app data - using critical metrics filter');
+        
+        // 🎯 Use existing critical metrics filter for test-app data
+        const criticalMetrics = this.getCriticalK6Metrics();
+        
+        // Extract only critical metrics from K6 format
+        for (const [metricName, metric] of Object.entries(data.metrics)) {
+          if (!metric || typeof metric !== 'object' || !metric.values) continue;
+          
+          // Check if this is a critical metric we care about
+          const criticalConfig = criticalMetrics[metricName];
+          if (!criticalConfig) continue; // Skip non-critical metrics
+          
+          // Extract only the values we need for this critical metric
+          for (const valueKey of criticalConfig.extract) {
+            const value = metric.values[valueKey];
+            if (typeof value === 'number') {
+              const metricKey = criticalConfig.transform ? 
+                criticalConfig.transform(metricName, valueKey) : 
+                `${metricName}_${valueKey}`;
+              extractedMetrics[metricKey] = value;
+            }
+          }
 
-        // Handle threshold status for critical metrics
-        if (metric.thresholds && criticalConfig.includeThresholds) {
-          for (const [thresholdName, threshold] of Object.entries(metric.thresholds)) {
-            const thresholdKey = `${metricName}_threshold_ok`;
-            extractedMetrics[thresholdKey] = threshold.ok ? 1 : 0;
+          // Handle threshold status for critical metrics
+          if (metric.thresholds && criticalConfig.includeThresholds) {
+            for (const [thresholdName, threshold] of Object.entries(metric.thresholds)) {
+              const thresholdKey = `${metricName}_threshold_ok`;
+              extractedMetrics[thresholdKey] = threshold.ok ? 1 : 0;
+            }
           }
         }
       }
